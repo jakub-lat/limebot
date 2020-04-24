@@ -18,6 +18,27 @@ namespace PotatoBot.Bot.Commands
     {
         public ModerationCommands(GuildContext db) : base(db) { }
 
+        [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
+        public async Task Ban(CommandContext ctx, DiscordMember member, string reason = "No reason")
+        {
+            var guild = await db.GetGuild(ctx.Guild.Id.ToString());
+            await db.LoadLogs(guild);
+
+            await member.SendMessageAsync($"You were banned from **{ctx.Guild.Name}**. Reason: `{reason}`");
+
+            await member.BanAsync(30, reason);
+            guild.Logs.Add(new GuildLog
+            {
+                Action = LogAction.Ban.ToString(),
+                Reason = reason,
+                AuthorId = ctx.Member.Id.ToString(),
+                Details = member.Id.ToString(),
+                Date = DateTime.UtcNow
+            });
+            await ctx.RespondAsync($"Banned **{member.Username}#{member.Discriminator}** with reason: `{reason}`");
+            await db.SaveChangesAsync();
+        }
+
         [Command("kick"), Description("Kicks an user"), RequirePermissions(Permissions.KickMembers)]
         public async Task Kick(CommandContext ctx, DiscordMember member, string reason = "No reason")
         {
