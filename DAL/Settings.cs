@@ -17,9 +17,16 @@ namespace DAL
     public static class Config
     {
         public static Settings settings;
+        public static bool IsDevelopment { get { return Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"; } }
         public static void Load()
         {
-            settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("env.json"));
+            if(IsDevelopment)
+            {
+                settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("env.development.json"));
+            } else
+            {
+                settings = JsonConvert.DeserializeObject<Settings>(File.ReadAllText("env.json"));
+            }
         }
     }
 }

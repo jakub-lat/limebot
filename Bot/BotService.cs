@@ -36,7 +36,8 @@ namespace PotatoBot.Bot
 
         IServiceProvider services;
 
-        readonly string prefix = "p.";
+        readonly string prefix = "$";
+        readonly string dev_prefix = "!";
 
         string connectionString;
 
@@ -87,6 +88,10 @@ namespace PotatoBot.Bot
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)
         {
+            if(Config.IsDevelopment)
+            {
+                return msg.GetStringPrefixLength(dev_prefix);
+            }
             var guild = msg.Channel.Guild;
             if (guild == null) return -1;
 
