@@ -21,19 +21,22 @@ const routes = [
       {
         path: '',
         component: Servers,
-        meta: {nav: false}
+        meta: {nav: false, title: 'Manage servers'}
       },
       {
         path: ':id',
         component: Dashboard,
+        meta: {title: 'Dashboard'}
       },
       {
         path: ':id/general',
-        component: GeneralSettings
+        component: GeneralSettings,
+        meta: {title: 'General settings'}
       },
       {
         path: ':id/join-leave',
-        component: JoinLeave
+        component: JoinLeave,
+        meta: {title: 'Join / leave actions'}
       }
     ]
   },
@@ -73,11 +76,13 @@ const routes = [
       {
         path: '/commands',
         name: 'Commands',
-        component: Commands
+        component: Commands,
+        meta: {title: 'Commands'}
       },
       {
         path: '*',
-        component: NotFound
+        component: NotFound,
+        meta: {title: 'Not found'}
       }
     ]
   }
@@ -87,6 +92,13 @@ const router = new VueRouter({
   mode: 'history',
   base: process.env.BASE_URL,
   routes
+});
+
+const siteName = 'Lime Bot';
+router.afterEach((to) => {
+    Vue.nextTick(() => {
+        document.title = to.meta.title ? to.meta.title + ' - ' + siteName : siteName;
+    });
 });
 
 export default router;
