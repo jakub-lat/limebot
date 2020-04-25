@@ -5,9 +5,9 @@
     </v-alert>
     <v-row align="center" no-gutters class="my-5 my-sm-12">
       <v-col cols="auto" class="px-4">
-        <v-img src="@/assets/lime.png" width="150px"/>
+        <v-img src="@/assets/lime2.png" width="150px"/>
       </v-col>
-      <v-col class="px-4">
+      <v-col class="px-4" cols="12" sm="">
         <h1 class="display-3 mb-3 mt-5 font-weight-bold" id="start">
           Lime
         </h1>
@@ -23,11 +23,12 @@
       </v-col>
     </v-row>
     
-    <h1 class="display-1 mb-3" style="margin-top: 100px">Features</h1>
+    <h1 class="display-1 mb-3" style="margin-top: 100px" id="features">Features</h1>
     <ul class="subtitle-1">
-      <li>Very small functionality</li>
-      <li>Beautiful panel with only one setting</li>
-      <li>Fun commands</li>
+      <li>Moderation commands</li>
+      <li>Memes, dadjokes and posts from reddit</li>
+      <li>Autoroles & welcome/leave messages</li>
+      <li>Intuitive dashboard</li>
       <li>More coming soon!</li>
     </ul>
 

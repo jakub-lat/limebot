@@ -18,8 +18,19 @@
 
                 <channel-input id="welcomeMessagesChannel" label="Channel" :disabled="!welcomeMessagesEnabled"/>
 
-                <my-input id="welcomeMessage" label="Welcome message" :disabled="!welcomeMessagesEnabled" textarea maxlength="500"/>
-                <my-input id="leaveMessage" label="Leave message" :disabled="!welcomeMessagesEnabled" textarea maxlength="500"/>
+                <my-input 
+                    id="welcomeMessage" 
+                    label="Welcome message" 
+                    :disabled="!welcomeMessagesEnabled" 
+                    textarea maxlength="500" 
+                    hint="Insert {user} to be replaced by mention/username."
+                    class="mb-4"/>
+                <my-input 
+                    id="leaveMessage" 
+                    label="Leave message" 
+                    :disabled="!welcomeMessagesEnabled" 
+                    textarea maxlength="500"
+                    hint="Insert {user} to be replaced by mention/username."/>
             </v-col>
         </v-row>
     </v-container>

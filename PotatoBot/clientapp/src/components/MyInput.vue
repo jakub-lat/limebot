@@ -5,6 +5,7 @@
     :disabled="disabled"
     :maxlength="maxlength"
     :counter="!!maxlength"
+    v-bind="$attrs"
     width="200px"
     v-model="value"
     outlined no-resize
@@ -15,6 +16,7 @@
     :disabled="disabled"
     :maxlength="maxlength"
     :counter="!!maxlength"
+    v-bind="$attrs"
     width="200px"
     v-model="value"
     outlined
@@ -23,6 +25,7 @@
 <script>
 import store from '@/store';
 export default {
+    inheritAttrs: false,
     props: {
         id: String,
         label: String,
