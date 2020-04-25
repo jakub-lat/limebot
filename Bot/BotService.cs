@@ -91,6 +91,7 @@ namespace PotatoBot.Bot
             events = new BotEvents(connectionString);
             discord.GuildMemberAdded += events.MemberJoined;
             discord.GuildMemberRemoved += events.MemberLeft;
+            discord.UpdateStatusAsync(new DiscordActivity("Never go to die",ActivityType.ListeningTo), UserStatus.Idle);
         }
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)
