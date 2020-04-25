@@ -6,7 +6,7 @@
     :items="items"
     outlined
     multiple
-    chips
+    chips small-chips deletable-chips
 />
 </template>
 <script>

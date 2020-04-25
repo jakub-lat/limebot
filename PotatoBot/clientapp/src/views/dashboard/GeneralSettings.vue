@@ -4,7 +4,7 @@
         <v-form>
             <v-row>
                 <v-col md="5">
-                    <my-input id="prefix" label="Prefix"/>
+                    <my-input id="prefix" label="Prefix (default: $)"/>
                 </v-col>
             </v-row>
         </v-form>

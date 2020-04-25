@@ -1,6 +1,6 @@
 <template>
     <v-container>
-        <h1 class="display-1 mb-3">Role utilites</h1>
+        <h1 class="display-1 mb-3">Join / leave actions</h1>
         <v-form>
             <v-row>
                 <v-col md="5">

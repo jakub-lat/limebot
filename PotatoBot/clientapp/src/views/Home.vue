@@ -31,7 +31,7 @@
       <li>More coming soon!</li>
     </ul>
 
-    <a href="https://discord.gg/9w9EfWh" class="mt-10"><img src="https://discordapp.com/api/guilds/703280508640952401/embed.png?style=banner3"/></a>
+    <a href="https://discord.gg/9w9EfWh"><img class="mt-10" src="https://discordapp.com/api/guilds/703280508640952401/embed.png?style=banner3"/></a>
 
   </v-container>
 </template>

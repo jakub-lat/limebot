@@ -21,7 +21,7 @@ export default {
     data: ()=>({
         panels: [
             {title: 'General settings', description: 'Configure general options', url: 'general', icon: 'mdi-cogs'},
-            {title: 'Role utilites', description: 'Autoroles, Reaction Roles, ...', url: 'roles', icon: 'mdi-cogs'}
+            {title: 'Join / leave actions', description: 'Autoroles, welcome messages', url: 'join-leave', icon: 'mdi-account-plus'}
         ],
         server: store.state.server
     })

@@ -22,7 +22,7 @@ namespace PotatoBot.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<GuildData>> GetGuildData(ulong id)
+        public async Task<ActionResult<GuildResult>> GetGuildData(ulong id)
         {
             if (!await Authentication.CheckAuth(HttpContext, id.ToString())) return Unauthorized();
 
@@ -45,30 +45,31 @@ namespace PotatoBot.Controllers
                 }
             }
 
-            return Ok(guildData);
-        }
-
-        [HttpGet("{id}/info")]
-        public async Task<ActionResult<GuildInfo>> GetGuildInfo(ulong id)
-        {
             var discordGuild = await BotService.instance.discord.GetGuildAsync(id);
 
-            return Ok(new GuildInfo
+            return Ok(new GuildResult
             {
-                Roles = discordGuild.Roles.Values
-                .Select(i => new DiscordRole
+                Id = guildData.Id,
+                Settings = guildData,
+                Info = new GuildInfo
                 {
-                    Id = i.Id.ToString(),
-                    Name = i.Name,
-                    Color = i.Color.ToString()
-                }).ToList(),
-                Channels = discordGuild.Channels.Values
-                .Select(i => new DiscordChannel
-                {
-                    Id = i.Id.ToString(),
-                    Name = i.Name,
-                    Type = i.Type.ToString()
-                }).ToList()
+                    Roles = discordGuild.Roles.Values
+                        .Where(i => !i.IsManaged && i.Name != "@everyone")
+                        .Select(i => new DiscordRole
+                        {
+                            Id = i.Id.ToString(),
+                            Name = i.Name,
+                            Color = i.Color.ToString(),
+                            Position = i.Position
+                        }).OrderBy(i=>i.Position).ToList(),
+                    Channels = discordGuild.Channels.Values
+                        .Select(i => new DiscordChannel
+                        {
+                            Id = i.Id.ToString(),
+                            Name = i.Name,
+                            Type = i.Type.ToString()
+                        }).ToList()
+                }
             });
         }
 

@@ -6,7 +6,7 @@ import Home from '../views/Home.vue';
 import Commands from '../views/Commands.vue';
 import Dashboard from '../views/dashboard/Home.vue';
 import GeneralSettings from '../views/dashboard/GeneralSettings.vue';
-import RoleSettings from '../views/dashboard/RoleSettings.vue';
+import JoinLeave from '../views/dashboard/JoinLeave.vue';
 import Servers from '../views/dashboard/Servers.vue';
 
 import NotFound from '../views/NotFound.vue';
@@ -32,8 +32,8 @@ const routes = [
         component: GeneralSettings
       },
       {
-        path: ':id/roles',
-        component: RoleSettings
+        path: ':id/join-leave',
+        component: JoinLeave
       }
     ]
   },

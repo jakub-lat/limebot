@@ -27,10 +27,18 @@
         </v-list-item>
         <v-list-item exact link :to="`/manage/${this.$route.params.id}/general`">
           <v-list-item-action>
-            <v-icon>mdi-cogs</v-icon>
+            <v-icon>mdi-cog</v-icon>
           </v-list-item-action>
           <v-list-item-content>
             <v-list-item-title>General settings</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+        <v-list-item exact link :to="`/manage/${this.$route.params.id}/join-leave`">
+          <v-list-item-action>
+            <v-icon>mdi-account-plus</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Join / leave actions</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
         <v-divider/>
@@ -124,11 +132,12 @@ export default {
       }
 
       this.loaded = false;
+
       var server = await this.$api.get(`guild/${id}`);
-      var info = await this.$api.get(`guild/${id}/info`);
+      store.commit('setSettings', {...server.settings, id: server.id});
+      store.commit('setServer', {...server.info, ...this.user.guilds.find(i=>i.id==id)});
+
       this.loaded = true;
-      store.commit('setSettings', {...server, id});
-      store.commit('setServer', {...this.user.guilds.find(i=>i.id==id), ...info});
     },
     async save() {
       try {
