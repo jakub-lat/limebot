@@ -21,7 +21,7 @@ namespace PotatoBot.Bot.Commands
         [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
         public async Task Ban(CommandContext ctx, DiscordMember member, string reason = "No reason")
         {
-            var guild = await db.GetGuild(ctx.Guild.Id.ToString());
+            var guild = await db.GetGuild(ctx.Guild.Id);
             await db.LoadLogs(guild);
 
             await member.SendMessageAsync($"You were banned from **{ctx.Guild.Name}**. Reason: `{reason}`");
@@ -31,7 +31,7 @@ namespace PotatoBot.Bot.Commands
             {
                 Action = LogAction.Ban.ToString(),
                 Reason = reason,
-                AuthorId = ctx.Member.Id.ToString(),
+                AuthorId = ctx.Member.Id,
                 Details = member.Id.ToString(),
                 Date = DateTime.UtcNow
             });
@@ -42,7 +42,7 @@ namespace PotatoBot.Bot.Commands
         [Command("kick"), Description("Kicks an user"), RequirePermissions(Permissions.KickMembers)]
         public async Task Kick(CommandContext ctx, DiscordMember member, string reason = "No reason")
         {
-            var guild = await db.GetGuild(ctx.Guild.Id.ToString());
+            var guild = await db.GetGuild(ctx.Guild.Id);
             await db.LoadLogs(guild);
 
             await member.SendMessageAsync($"You were kicked from **{ctx.Guild.Name}**. Reason: `{reason}`");
@@ -52,7 +52,7 @@ namespace PotatoBot.Bot.Commands
             {
                 Action = LogAction.Kick.ToString(),
                 Reason = reason,
-                AuthorId = ctx.Member.Id.ToString(),
+                AuthorId = ctx.Member.Id,
                 Details = member.Id.ToString(),
                 Date = DateTime.UtcNow
             });
@@ -63,16 +63,16 @@ namespace PotatoBot.Bot.Commands
         [Command("mute"), Description("Mutes an user"), RequirePermissions(Permissions.ManageRoles)]
         public async Task Mute(CommandContext ctx, DiscordMember member, string reason = "No reason")
         {
-            var guild = await db.GetGuild(ctx.Guild.Id.ToString());
+            var guild = await db.GetGuild(ctx.Guild.Id);
             await db.LoadLogs(guild);
 
-            var role = ctx.Guild.Roles.Values.FirstOrDefault(i => i.Id.ToString() == guild.MutedRoleId);
+            var role = ctx.Guild.Roles[guild.MutedRoleId];
 
             if(role == null)
             {
                 await ctx.RespondAsync("Creating muted role...");
                 role = await ctx.Guild.CreateRoleAsync("Muted", Permissions.AccessChannels | Permissions.ReadMessageHistory, null, null, false);
-                guild.MutedRoleId = role.Id.ToString();
+                guild.MutedRoleId = role.Id;
                 foreach(var channel in ctx.Guild.Channels.Values)
                 {
                     _ = channel.AddOverwriteAsync(role, Permissions.None, Permissions.SendMessages | Permissions.Speak);
@@ -86,7 +86,7 @@ namespace PotatoBot.Bot.Commands
             {
                 Action = LogAction.Mute.ToString(),
                 Reason = reason,
-                AuthorId = ctx.Member.Id.ToString(),
+                AuthorId = ctx.Member.Id,
                 Details = member.Id.ToString(),
                 Date = DateTime.UtcNow
             });

@@ -13,7 +13,7 @@ var store = new Vuex.Store({
   },
   mutations: {
     set (state, obj) {
-        state.settings = {...store.settings, ...obj};
+        state.settings = {...state.settings, ...obj};
         state.unsaved = true;
     },
     setSettings(state, obj) {

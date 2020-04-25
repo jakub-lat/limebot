@@ -14,7 +14,7 @@ namespace PotatoBot.Middleware
 {
     public class Authentication
     {
-        public static async Task<bool> CheckAuth(HttpContext ctx, string guildId=null)
+        public static async Task<bool> CheckAuth(HttpContext ctx, ulong? guildId=null)
         {
             var request = ctx.Request;
             if (!request.Headers.ContainsKey("Authorization")) return false;

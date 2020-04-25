@@ -24,7 +24,7 @@ namespace PotatoBot.Models
 
     public class DiscordRole
     { 
-        public string Id { get; set; }
+        public ulong Id { get; set; }
         public string Name { get; set; }
         public string Color { get; set; }
         public int Position { get; set; }
@@ -32,9 +32,10 @@ namespace PotatoBot.Models
 
     public class DiscordChannel
     {
-        public string Id { get; set; }
+        public ulong Id { get; set; }
         public string Name { get; set; }
         public string Type { get; set; }
+        public string Parent { get; set; }
     }
 
     public class GuildInfo
@@ -45,7 +46,7 @@ namespace PotatoBot.Models
 
     public class GuildResult
     {
-        public string Id { get; set; }
+        public ulong Id { get; set; }
         public GuildData Settings { get; set; }
         public GuildInfo Info { get; set; }
     }

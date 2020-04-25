@@ -1,6 +1,8 @@
 <template>
 <v-autocomplete
     :label="label"
+    :required="required"
+    :disabled="disabled"
     width="200px"
     v-model="value"
     :items="items"
@@ -14,7 +16,9 @@ import store from '@/store';
 export default {
     props: {
         id: String,
-        label: String
+        label: String,
+        required: Boolean,
+        disabled: Boolean
     },
     computed: {
         value: {

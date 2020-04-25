@@ -19,17 +19,23 @@ namespace PotatoBot.Models
         public string Action { get; set; }
         public string Details { get; set; }
         public string Reason { get; set; }
-        public string AuthorId { get; set; }
+        public ulong AuthorId { get; set; }
         public DateTime Date { get; set; }
     }
     public class GuildData
     {
-        public string Id { get; set; }
+        public ulong Id { get; set; }
         public string Prefix { get; set; }
         public List<GuildLog> Logs { get; set; }
 
-        public string MutedRoleId { get; set; }
-        public List<string> AutoRolesOnJoin { get; set; }
+        public ulong MutedRoleId { get; set; }
+
+        public List<ulong> AutoRolesOnJoin { get; set; }
+
+        public bool EnableWelcomeMessages { get; set; }
+        public ulong WelcomeMessagesChannel { get; set; }
+        public string WelcomeMessage { get; set; } = "Welcome, **{user}**!";
+        public string LeaveMessage { get; set; } = "**{user}** left :(";
     }
 
 }

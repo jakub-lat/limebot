@@ -10,7 +10,7 @@ namespace PotatoBot.Bot.Utils
 {
     public static class DBHelper
     {
-        public static async Task<GuildData> GetGuild(this GuildContext ctx, string id)
+        public static async Task<GuildData> GetGuild(this GuildContext ctx, ulong id)
         {
             var guild = await ctx.Guilds.FindAsync(id);
             if(guild == null)

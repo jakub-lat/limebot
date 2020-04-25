@@ -24,9 +24,9 @@ namespace PotatoBot.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<GuildResult>> GetGuildData(ulong id)
         {
-            if (!await Authentication.CheckAuth(HttpContext, id.ToString())) return Unauthorized();
+            if (!await Authentication.CheckAuth(HttpContext, id)) return Unauthorized();
 
-            var guildData = await _context.Guilds.FindAsync(id.ToString());
+            var guildData = await _context.Guilds.FindAsync(id);
 
             if (guildData == null)
             {
@@ -34,7 +34,7 @@ namespace PotatoBot.Controllers
                 {
                     var newGuild = new GuildData()
                     {
-                        Id = id.ToString()
+                        Id = id
                     };
                     _context.Guilds.Add(newGuild);
                     guildData = newGuild;
@@ -57,7 +57,7 @@ namespace PotatoBot.Controllers
                         .Where(i => !i.IsManaged && i.Name != "@everyone")
                         .Select(i => new DiscordRole
                         {
-                            Id = i.Id.ToString(),
+                            Id = i.Id,
                             Name = i.Name,
                             Color = i.Color.ToString(),
                             Position = i.Position
@@ -65,9 +65,10 @@ namespace PotatoBot.Controllers
                     Channels = discordGuild.Channels.Values
                         .Select(i => new DiscordChannel
                         {
-                            Id = i.Id.ToString(),
+                            Id = i.Id,
                             Name = i.Name,
-                            Type = i.Type.ToString()
+                            Type = i.Type.ToString(),
+                            Parent = i.Parent?.Name
                         }).ToList()
                 }
             });
@@ -76,7 +77,7 @@ namespace PotatoBot.Controllers
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutGuildData(string id, GuildData guildData)
+        public async Task<IActionResult> PutGuildData(ulong id, GuildData guildData)
         {
             if (!await Authentication.CheckAuth(HttpContext, id)) return Unauthorized();
             if (id != guildData.Id)
@@ -119,7 +120,7 @@ namespace PotatoBot.Controllers
         }
         */
 
-        private bool GuildDataExists(string id)
+        private bool GuildDataExists(ulong id)
         {
             return _context.Guilds.Any(e => e.Id == id);
         }

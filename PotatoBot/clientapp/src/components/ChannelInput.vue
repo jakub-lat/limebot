@@ -1,24 +1,13 @@
 <template>
-<v-textarea v-if="textarea"
+<v-autocomplete
     :label="label"
     :required="required"
     :disabled="disabled"
-    :maxlength="maxlength"
-    :counter="!!maxlength"
     width="200px"
     v-model="value"
-    outlined no-resize
-    />
-<v-text-field v-else
-    :label="label"
-    :required="required"
-    :disabled="disabled"
-    :maxlength="maxlength"
-    :counter="!!maxlength"
-    width="200px"
-    v-model="value"
+    :items="items"
     outlined
-    />
+/>
 </template>
 <script>
 import store from '@/store';
@@ -27,18 +16,21 @@ export default {
         id: String,
         label: String,
         required: Boolean,
-        disabled: Boolean,
-        textarea: Boolean,
-        maxlength: String
+        disabled: Boolean
     },
     computed: {
         value: {
             get() {
-                return store.state.settings[this.id];
+                return store.state.settings[this.id] || [];
+
             },
             set(val) {
                 store.commit('set', {[this.id]: val});
             }
+        },
+        items() {
+            var chn = store.state.server.channels.filter(i=>i.type=='Text').map(i=>({text:`#${i.name} (${i.parent})`, value: i.id}));
+            return chn;
         }
     }
 }

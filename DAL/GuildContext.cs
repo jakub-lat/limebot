@@ -23,7 +23,7 @@ namespace PotatoBot.Models
                 .Property(e => e.AutoRolesOnJoin)
                 .HasConversion(
                     v => string.Join(',', v),
-                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(ulong.Parse).ToList());
 
             modelBuilder.Entity<GuildData>()
                 .HasMany(g => g.Logs)

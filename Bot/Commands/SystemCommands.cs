@@ -19,7 +19,7 @@ namespace PotatoBot.Bot.Commands
         [Command("guild")]
         public async Task GuildInfo(CommandContext ctx)
         {
-            var guild = await db.GetGuild(ctx.Guild.Id.ToString());
+            var guild = await db.GetGuild(ctx.Guild.Id);
             await db.LoadLogs(guild);
             await ctx.RespondAsync($"ID: `{guild.Id}`, Prefix: {guild.Prefix}, Muted role: {guild.MutedRoleId}, Logs count: {guild.Logs.Count}");
         }
@@ -27,14 +27,14 @@ namespace PotatoBot.Bot.Commands
         [Command("prefix"), Description("Get or set the prefix")]
         public async Task GetPrefix(CommandContext ctx)
         {
-            var guild = await db.GetGuild(ctx.Guild.Id.ToString());
+            var guild = await db.GetGuild(ctx.Guild.Id);
             await ctx.RespondAsync($"The prefix is `{guild.Prefix}`");
         }
 
         [Command("prefix"), RequireUserPermissions(DSharpPlus.Permissions.ManageMessages)]
         public async Task SetPrefix(CommandContext ctx, string newPrefix)
         {
-            var guild = await db.GetGuild(ctx.Guild.Id.ToString());
+            var guild = await db.GetGuild(ctx.Guild.Id);
             guild.Prefix = newPrefix;
             await db.SaveChangesAsync();
             await ctx.RespondAsync($"Set the prefix to `{newPrefix}`");

@@ -136,13 +136,12 @@ export default {
       var server = await this.$api.get(`guild/${id}`);
       store.commit('setSettings', {...server.settings, id: server.id});
       store.commit('setServer', {...server.info, ...this.user.guilds.find(i=>i.id==id)});
-
       this.loaded = true;
     },
     async save() {
       try {
         this.saveLoading = true;
-        var body = {...store.state.settings, id: this.$route.params.id};
+        var body = {...store.state.settings};
         var r = await this.$api.put(`guild/${this.$route.params.id}`, body);
         if(r) {
           store.commit('unsaved', false);

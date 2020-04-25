@@ -90,6 +90,7 @@ namespace PotatoBot.Bot
 
             events = new BotEvents(connectionString);
             discord.GuildMemberAdded += events.MemberJoined;
+            discord.GuildMemberRemoved += events.MemberLeft;
         }
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)
@@ -103,7 +104,7 @@ namespace PotatoBot.Bot
 
             using(var ctx = new GuildContext(connectionString))
             {
-                var data = await ctx.GetGuild(guild.Id.ToString());
+                var data = await ctx.GetGuild(guild.Id);
                 var pfx = data?.Prefix ?? prefix;
 
                 if (msg.MentionedUsers.Any(i => i.Id == discord.CurrentUser.Id))

@@ -1,13 +1,11 @@
 <template>
     <v-container>
         <h1 class="display-1 mb-3">General settings</h1>
-        <v-form>
-            <v-row>
-                <v-col md="5">
-                    <my-input id="prefix" label="Prefix (default: $)"/>
-                </v-col>
-            </v-row>
-        </v-form>
+        <v-row>
+            <v-col md="6">
+                <my-input id="prefix" label="Prefix (default: $)"/>
+            </v-col>
+        </v-row>
     </v-container>
 </template>
 <script>

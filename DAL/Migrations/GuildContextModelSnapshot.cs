@@ -19,17 +19,30 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("PotatoBot.Models.GuildData", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                    b.Property<ulong>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint unsigned");
 
                     b.Property<string>("AutoRolesOnJoin")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("MutedRoleId")
+                    b.Property<bool>("EnableWelcomeMessages")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("LeaveMessage")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<ulong>("MutedRoleId")
+                        .HasColumnType("bigint unsigned");
 
                     b.Property<string>("Prefix")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<string>("WelcomeMessage")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<ulong>("WelcomeMessagesChannel")
+                        .HasColumnType("bigint unsigned");
 
                     b.HasKey("Id");
 
@@ -44,8 +57,8 @@ namespace DAL.Migrations
                     b.Property<string>("Action")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("AuthorId")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                    b.Property<ulong>("AuthorId")
+                        .HasColumnType("bigint unsigned");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
@@ -53,9 +66,8 @@ namespace DAL.Migrations
                     b.Property<string>("Details")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
-                    b.Property<string>("GuildDataId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
+                    b.Property<ulong>("GuildDataId")
+                        .HasColumnType("bigint unsigned");
 
                     b.Property<string>("Reason")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");

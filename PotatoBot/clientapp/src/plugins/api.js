@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import JSONbig from 'json-bigint';
 
 const api = '/api/';
 const defaultOpts = () => ({
@@ -11,15 +12,17 @@ const defaultOpts = () => ({
 export default {
     async get(path) {
         var r = await fetch(`${api}${path}`, defaultOpts());
-        r = await r.json();
+        r = await r.text();
+        r = JSONbig.parse(r);
         return r;
     },
     async put(path, body) {
         var opts = defaultOpts();
         opts.method = 'put';
-        opts.body = JSON.stringify(body);
+        opts.body = JSONbig.stringify(body);
         var r = await fetch(`${api}${path}`, opts);
-        r = await r.json();
+        r = await r.text();
+        r = JSONbig.stringify(r);
         return r;
     },
     path(path) {

@@ -22,26 +22,50 @@ namespace Bot
 
         public async Task MessageCreated(MessageCreateEventArgs e)
         {
-            
         }
 
         public async Task MemberJoined(GuildMemberAddEventArgs args)
         {
             using(var ctx = new GuildContext(connectionString))
             {
-                var guild = await ctx.GetGuild(args.Guild.Id.ToString());
+                var guild = await ctx.GetGuild(args.Guild.Id);
+
+                if(guild.EnableWelcomeMessages)
+                {
+                    var channel = args.Guild.Channels[guild.WelcomeMessagesChannel];
+                    if(channel != null)
+                    {
+                        await channel.SendMessageAsync(guild.WelcomeMessage.Replace("{user}", args.Member.Mention));
+                    }
+                }
+
                 var roles = guild?.AutoRolesOnJoin;
                 if(roles != null && roles.Count > 0)
                 {
                     foreach (var i in roles)
                     {
-                        var role = args.Guild.Roles.Values.FirstOrDefault(x => x.Id.ToString() == i);
-                        await args.Member.GrantRoleAsync(role);
+                        var role = args.Guild.Roles[i];
+                        if(role != null) await args.Member.GrantRoleAsync(role);
                     }
                 }
-                
             }
-            
+        }
+
+        public async Task MemberLeft(GuildMemberRemoveEventArgs args)
+        {
+            using (var ctx = new GuildContext(connectionString))
+            {
+                var guild = await ctx.GetGuild(args.Guild.Id);
+
+                if (guild.EnableWelcomeMessages)
+                {
+                    var channel = args.Guild.Channels[guild.WelcomeMessagesChannel];
+                    if (channel != null)
+                    {
+                        await channel.SendMessageAsync(guild.LeaveMessage.Replace("{user}", args.Member.Username + "#" + args.Member.Discriminator));
+                    }
+                }
+            }
         }
     }
 }

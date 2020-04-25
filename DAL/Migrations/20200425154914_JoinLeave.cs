@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DAL.Migrations
 {
-    public partial class Logs4 : Migration
+    public partial class JoinLeave : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,8 +12,15 @@ namespace DAL.Migrations
                 name: "Guilds",
                 columns: table => new
                 {
-                    Id = table.Column<string>(nullable: false),
-                    Prefix = table.Column<string>(nullable: true)
+                    Id = table.Column<ulong>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Prefix = table.Column<string>(nullable: true),
+                    MutedRoleId = table.Column<ulong>(nullable: false),
+                    AutoRolesOnJoin = table.Column<string>(nullable: true),
+                    EnableWelcomeMessages = table.Column<bool>(nullable: false),
+                    WelcomeMessagesChannel = table.Column<ulong>(nullable: false),
+                    WelcomeMessage = table.Column<string>(nullable: true),
+                    LeaveMessage = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -21,39 +28,38 @@ namespace DAL.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "GuildLog",
+                name: "Logs",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    GuildDataId = table.Column<string>(nullable: true),
+                    Id = table.Column<int>(nullable: false),
+                    GuildDataId = table.Column<ulong>(nullable: false),
                     Action = table.Column<string>(nullable: true),
                     Details = table.Column<string>(nullable: true),
                     Reason = table.Column<string>(nullable: true),
-                    AuthorId = table.Column<string>(nullable: true),
+                    AuthorId = table.Column<ulong>(nullable: false),
                     Date = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_GuildLog", x => x.Id);
+                    table.PrimaryKey("PK_Logs", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_GuildLog_Guilds_GuildDataId",
+                        name: "FK_Logs_Guilds_GuildDataId",
                         column: x => x.GuildDataId,
                         principalTable: "Guilds",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_GuildLog_GuildDataId",
-                table: "GuildLog",
+                name: "IX_Logs_GuildDataId",
+                table: "Logs",
                 column: "GuildDataId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "GuildLog");
+                name: "Logs");
 
             migrationBuilder.DropTable(
                 name: "Guilds");
