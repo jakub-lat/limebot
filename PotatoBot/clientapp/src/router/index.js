@@ -6,6 +6,7 @@ import Home from '../views/Home.vue';
 import Commands from '../views/Commands.vue';
 import Dashboard from '../views/dashboard/Home.vue';
 import GeneralSettings from '../views/dashboard/GeneralSettings.vue';
+import RoleSettings from '../views/dashboard/RoleSettings.vue';
 import Servers from '../views/dashboard/Servers.vue';
 
 import NotFound from '../views/NotFound.vue';
@@ -29,6 +30,10 @@ const routes = [
       {
         path: ':id/general',
         component: GeneralSettings
+      },
+      {
+        path: ':id/roles',
+        component: RoleSettings
       }
     ]
   },

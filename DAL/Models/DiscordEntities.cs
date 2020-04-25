@@ -21,4 +21,24 @@ namespace PotatoBot.Models
         public string Avatar { get; set; }
         public List<DiscordGuild> Guilds { get; set; }
     }
+
+    public class DiscordRole
+    { 
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Color { get; set; }
+    }
+
+    public class DiscordChannel
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Type { get; set; }
+    }
+
+    public class GuildInfo
+    {
+        public List<DiscordRole> Roles { get; set; }
+        public List<DiscordChannel> Channels { get; set; }
+    }
 }

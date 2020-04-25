@@ -26,7 +26,7 @@ namespace PotatoBot.Bot
     {
         public static BotService instance;
 
-        DiscordClient discord;
+        public DiscordClient discord;
         CommandsNextExtension commands;
         InteractivityExtension interactivity;
 
@@ -35,6 +35,8 @@ namespace PotatoBot.Bot
         CommandList commandList;
 
         IServiceProvider services;
+
+        BotEvents events;
 
         readonly string prefix = "$";
         readonly string dev_prefix = "!";
@@ -84,6 +86,10 @@ namespace PotatoBot.Bot
 
             commandList = new CommandList(commands);
             //lavalink = new Lavalink(discord);
+
+
+            events = new BotEvents(connectionString);
+            discord.GuildMemberAdded += events.MemberJoined;
         }
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)

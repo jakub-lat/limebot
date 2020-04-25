@@ -37,8 +37,8 @@ namespace PotatoBot.Controllers
                         Id = id.ToString()
                     };
                     _context.Guilds.Add(newGuild);
+                    guildData = newGuild;
                     await _context.SaveChangesAsync();
-                    return Ok(newGuild);
                 } else
                 {
                     return NotFound();
@@ -46,6 +46,30 @@ namespace PotatoBot.Controllers
             }
 
             return Ok(guildData);
+        }
+
+        [HttpGet("{id}/info")]
+        public async Task<ActionResult<GuildInfo>> GetGuildInfo(ulong id)
+        {
+            var discordGuild = await BotService.instance.discord.GetGuildAsync(id);
+
+            return Ok(new GuildInfo
+            {
+                Roles = discordGuild.Roles.Values
+                .Select(i => new DiscordRole
+                {
+                    Id = i.Id.ToString(),
+                    Name = i.Name,
+                    Color = i.Color.ToString()
+                }).ToList(),
+                Channels = discordGuild.Channels.Values
+                .Select(i => new DiscordChannel
+                {
+                    Id = i.Id.ToString(),
+                    Name = i.Name,
+                    Type = i.Type.ToString()
+                }).ToList()
+            });
         }
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for

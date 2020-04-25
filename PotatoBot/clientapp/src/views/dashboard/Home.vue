@@ -20,7 +20,8 @@ import store from '@/store';
 export default {
     data: ()=>({
         panels: [
-            {title: 'General settings', description: 'Configure general options', url: 'general', icon: 'mdi-cogs'}
+            {title: 'General settings', description: 'Configure general options', url: 'general', icon: 'mdi-cogs'},
+            {title: 'Role utilites', description: 'Autoroles, Reaction Roles, ...', url: 'roles', icon: 'mdi-cogs'}
         ],
         server: store.state.server
     })

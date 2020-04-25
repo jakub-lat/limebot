@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace PotatoBot.Models
@@ -18,6 +19,12 @@ namespace PotatoBot.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<GuildData>()
+                .Property(e => e.AutoRolesOnJoin)
+                .HasConversion(
+                    v => string.Join(',', v),
+                    v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).ToList());
+
             modelBuilder.Entity<GuildData>()
                 .HasMany(g => g.Logs)
                 .WithOne(l => l.GuildData)

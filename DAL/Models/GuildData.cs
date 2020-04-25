@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Internal;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -26,6 +27,9 @@ namespace PotatoBot.Models
         public string Id { get; set; }
         public string Prefix { get; set; }
         public List<GuildLog> Logs { get; set; }
+
         public string MutedRoleId { get; set; }
+        public List<string> AutoRolesOnJoin { get; set; }
     }
+
 }

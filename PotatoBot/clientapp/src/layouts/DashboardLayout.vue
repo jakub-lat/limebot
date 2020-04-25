@@ -125,9 +125,10 @@ export default {
 
       this.loaded = false;
       var server = await this.$api.get(`guild/${id}`);
+      var info = await this.$api.get(`guild/${id}/info`);
       this.loaded = true;
       store.commit('setSettings', {...server, id});
-      store.commit('setServer', {...this.user.guilds.find(i=>i.id==id)});
+      store.commit('setServer', {...this.user.guilds.find(i=>i.id==id), ...info});
     },
     async save() {
       try {
