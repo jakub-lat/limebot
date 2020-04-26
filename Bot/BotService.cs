@@ -19,6 +19,7 @@ using Bot.Utils;
 using Bot;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
+using Bot.Music;
 
 namespace PotatoBot.Bot
 {
@@ -30,20 +31,19 @@ namespace PotatoBot.Bot
         CommandsNextExtension commands;
         InteractivityExtension interactivity;
 
-        Lavalink lavalink;
-
         CommandList commandList;
+        Lavalink lava;
 
-        IServiceProvider services;
+        IServiceCollection services;
 
         BotEvents events;
 
         readonly string prefix = "$";
-        readonly string dev_prefix = "!";
+        readonly string dev_prefix = ".";
 
         string connectionString;
 
-        public BotService(IServiceProvider services, string connectionString)
+        public BotService(IServiceCollection services, string connectionString)
         {
             if(instance == null)
             {
@@ -55,6 +55,7 @@ namespace PotatoBot.Bot
             this.services = services;
             this.connectionString = connectionString;
 
+
             discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = Config.settings.BotToken,
@@ -63,11 +64,16 @@ namespace PotatoBot.Bot
                 LogLevel = LogLevel.Debug
             });
 
+            discord.UseLavalink();
+
+            services.AddSingleton(new Lavalink(discord));
+
+            var provider = services.BuildServiceProvider();
             commands = discord.UseCommandsNext(new CommandsNextConfiguration
             {
                 CaseSensitive = false,
                 PrefixResolver = ResolvePrefixAsync,
-                Services = services,
+                Services = provider,
                 EnableMentionPrefix = true,
                 EnableDefaultHelp = false
             });
@@ -75,7 +81,7 @@ namespace PotatoBot.Bot
             commands.RegisterCommands<FunCommands>();
             commands.RegisterCommands<SystemCommands>();
             commands.RegisterCommands<ModerationCommands>();
-            //commands.RegisterCommands<MusicCommands>();
+            commands.RegisterCommands<MusicCommands>();
 
             interactivity = discord.UseInteractivity(new InteractivityConfiguration
             {
@@ -85,7 +91,6 @@ namespace PotatoBot.Bot
             discord.ConnectAsync();
 
             commandList = new CommandList(commands);
-            //lavalink = new Lavalink(discord);
 
 
             events = new BotEvents(connectionString);

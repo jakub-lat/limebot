@@ -49,9 +49,7 @@ namespace PotatoBot
             services.AddDbContext<GuildContext>(options=>
                 options.UseMySql(connString));
 
-            // bot
-            var serviceProvider = services.BuildServiceProvider();
-            bot = new BotService(serviceProvider, connString);
+            bot = new BotService(services, connString);
             services.AddSingleton(bot);
         }
 
