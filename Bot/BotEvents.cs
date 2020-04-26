@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DSharpPlus;
+using DSharpPlus.Entities;
 using DSharpPlus.EventArgs;
 using PotatoBot.Bot.Utils;
 using PotatoBot.Models;
@@ -7,18 +8,49 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace Bot
 {
     public class BotEvents
     {
+        private DiscordClient client;
         private string connectionString;
+        private Timer statusTimer;
+        private int statusIndex = 0;
+        private readonly DiscordActivity[] statuses = new DiscordActivity[] {
+            new DiscordActivity("You!", ActivityType.Watching),
+            new DiscordActivity("Lime sounds", ActivityType.ListeningTo),
+            new DiscordActivity("I hate Lemon", ActivityType.Playing),
+            new DiscordActivity("{guilds} guilds", ActivityType.Watching)
+        };
 
-        public BotEvents(string conn)
+        public BotEvents(DiscordClient client, string conn)
         {
+            this.client = client;
             connectionString = conn;
+
+            statusTimer = new Timer();
+            statusTimer.Elapsed += new ElapsedEventHandler(ChangeStatus);
+            statusTimer.Interval = 20000;
+            statusTimer.Enabled = true;
+
+            client.UpdateStatusAsync(statuses[0], UserStatus.Idle);
         }
 
+        private void ChangeStatus(object source, ElapsedEventArgs e)
+        {
+            var status = statuses[statusIndex];
+            status.Name = status.Name.Replace("{guilds}", client.Guilds.Count.ToString());
+            client.UpdateStatusAsync(status);
+            if(statusIndex > statuses.Length)
+            {
+                statusIndex = 0;
+            } else
+            {
+                statusIndex++;
+            }
+        }
 
         public async Task MessageCreated(MessageCreateEventArgs e)
         {

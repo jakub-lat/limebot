@@ -92,11 +92,9 @@ namespace PotatoBot.Bot
 
             commandList = new CommandList(commands);
 
-
-            events = new BotEvents(connectionString);
+            events = new BotEvents(discord, connectionString);
             discord.GuildMemberAdded += events.MemberJoined;
             discord.GuildMemberRemoved += events.MemberLeft;
-            discord.UpdateStatusAsync(new DiscordActivity("Never go to die",ActivityType.ListeningTo), UserStatus.Idle);
         }
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)

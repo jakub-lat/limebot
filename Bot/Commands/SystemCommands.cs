@@ -64,7 +64,7 @@ namespace PotatoBot.Bot.Commands
             await ctx.RespondAsync($"{emoji} Pong! Ping: {ctx.Client.Ping}ms");
         }
 
-        [Command("userinfo"), Description("Information for commands author")]
+        [Command("userinfo"), Description("User information")]
         public async Task UserInfo(CommandContext ctx) {
             var member = ctx.Member;
             string role = "";
@@ -94,7 +94,7 @@ namespace PotatoBot.Bot.Commands
             await ctx.RespondAsync(null, false, embed.Build());
         }
 
-        [Command("userinfo"), Description("Information for mention member")]
+        [Command("userinfo"), Description("User information")]
         public async Task UserInfo(CommandContext ctx, DiscordMember member)
         {
             string role = null;
@@ -124,7 +124,7 @@ namespace PotatoBot.Bot.Commands
             await ctx.RespondAsync(null, false, embed.Build());
         }
 
-        [Command("botinfo"), Description("Bot information")]
+        [Command("info"), Description("Bot information")]
         public async Task BotInfo(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder
