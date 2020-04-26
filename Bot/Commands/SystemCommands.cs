@@ -17,14 +17,7 @@ namespace PotatoBot.Bot.Commands
     [Category("System")]
     public class SystemCommands : MyCommandModule
     {
-        PerformanceCounter cpuCounter;
-        PerformanceCounter ramCounter;
-        
-        public SystemCommands(GuildContext db) : base(db) { 
-            cpuCounter = new PerformanceCounter("Processor", "% Processor Time", "_Total");
-            ramCounter = new PerformanceCounter("Memory", "Available MBytes");
-        }
-
+        public SystemCommands(GuildContext db) : base(db) { }
 
         [Command("prefix"), Description("Get or set the prefix")]
         public async Task GetPrefix(CommandContext ctx)
@@ -163,10 +156,14 @@ namespace PotatoBot.Bot.Commands
                 Text channels: {textchannels}
                 Voice channels: {voicechannels}");
 
-            var memory = ramCounter.NextValue();
-            var cpu = cpuCounter.NextValue();
-            embed.AddField("**Resource usage**", $"Memory: {Math.Round(memory)} MB\nCPU: {Math.Round(cpu)}%");
-            
+            using(var proc = Process.GetCurrentProcess())
+            {
+                var memory = Math.Round(proc.PrivateMemorySize64 / 1e+6, 2);
+
+                var cpu = Math.Round(proc.TotalProcessorTime / (DateTime.Now - proc.StartTime) * 100);
+                embed.AddField("**Resource usage**", $"Memory: {memory} MB\nCPU: {cpu}%");
+            }
+
 
             await ctx.RespondAsync(null, false, embed.Build());
         }
