@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DAL;
 using System.Diagnostics;
+using PotatoBot.Utils;
 
 namespace PotatoBot.Bot.Commands
 {

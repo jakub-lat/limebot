@@ -1,7 +1,7 @@
 <template>
     <v-container>
         <h1 class="display-1">Manage {{server.name}}</h1>
-        <div class="d-flex pa-3">
+        <div class="d-flex pa-3 flex-wrap">
             <v-card class="ma-3 pa-2" width="300" link hover v-for="panel in panels" :to="panel.url" append :key="panel.title">
                 <v-card-text>
                 <h2 class="mb-3">

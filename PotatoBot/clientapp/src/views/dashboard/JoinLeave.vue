@@ -23,14 +23,14 @@
                     label="Welcome message" 
                     :disabled="!welcomeMessagesEnabled" 
                     textarea maxlength="500" 
-                    hint="Insert {user} to be replaced by mention/username."
+                    hint="Insert: {user} - mention/username, {members} - member count."
                     class="mb-4"/>
                 <my-input 
                     id="leaveMessage" 
                     label="Leave message" 
                     :disabled="!welcomeMessagesEnabled" 
                     textarea maxlength="500"
-                    hint="Insert {user} to be replaced by mention/username."/>
+                    hint="Insert: {user} - mention/username, {members} - member count."/>
             </v-col>
         </v-row>
     </v-container>

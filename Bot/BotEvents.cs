@@ -68,7 +68,11 @@ namespace Bot
                     var channel = args.Guild.Channels[guild.WelcomeMessagesChannel];
                     if(channel != null)
                     {
-                        await channel.SendMessageAsync(guild.WelcomeMessage.Replace("{user}", args.Member.Mention));
+                        await channel.SendMessageAsync(
+                            guild.WelcomeMessage
+                                .Replace("{user}", args.Member.Mention)
+                                .Replace("{members}", args.Guild.MemberCount.ToString())
+                        );
                     }
                 }
 
@@ -95,7 +99,11 @@ namespace Bot
                     var channel = args.Guild.Channels[guild.WelcomeMessagesChannel];
                     if (channel != null)
                     {
-                        await channel.SendMessageAsync(guild.LeaveMessage.Replace("{user}", args.Member.Username + "#" + args.Member.Discriminator));
+                        await channel.SendMessageAsync(
+                            guild.LeaveMessage
+                                .Replace("{user}", args.Member.Username + "#" + args.Member.Discriminator)
+                                .Replace("{members}", args.Guild.MemberCount.ToString())
+                        );
                     }
                 }
             }
