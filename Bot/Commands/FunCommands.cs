@@ -6,6 +6,8 @@ using PotatoBot.Bot.Utils;
 using System.Threading.Tasks;
 using PotatoBot.Models;
 using Bot.Attributes;
+using PotatoBot.Utils;
+
 
 namespace PotatoBot.Bot.Commands
 {

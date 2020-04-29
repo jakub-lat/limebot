@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DAL;
+using PotatoBot.Utils;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -22,7 +23,6 @@ namespace PotatoBot.Bot.Commands
         public async Task GuildInfo(CommandContext ctx)
         {
             var guild = await db.GetGuild(ctx.Guild.Id);
-            await db.LoadLogs(guild);
             await ctx.RespondAsync($"ID: `{guild.Id}`, Prefix: {guild.Prefix}, Muted role: {guild.MutedRoleId}, Logs count: {guild.Logs.Count}");
         }
 
@@ -30,7 +30,7 @@ namespace PotatoBot.Bot.Commands
         public async Task GetPrefix(CommandContext ctx)
         {
             var guild = await db.GetGuild(ctx.Guild.Id);
-            await ctx.RespondAsync($"The prefix is `{guild.Prefix}`");
+            await ctx.RespondAsync($"The prefix is `{guild.Prefix ?? "$"}`");
         }
 
         [Command("prefix"), RequireUserPermissions(DSharpPlus.Permissions.ManageMessages)]

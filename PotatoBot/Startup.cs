@@ -16,9 +16,8 @@ using Pomelo.EntityFrameworkCore.MySql;
 using PotatoBot.Models;
 using PotatoBot.Bot.Utils;
 using DAL;
-using VueCliMiddleware;
 using Microsoft.AspNetCore.SpaServices;
-using kedzior.io.ConnectionStringConverter;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Extensions;
 
 namespace PotatoBot
 {
@@ -47,7 +46,7 @@ namespace PotatoBot
 
             // database
             services.AddDbContext<GuildContext>(options=>
-                options.UseMySql(connString));
+                options.UseNpgsql(connString));
 
             bot = new BotService(services, connString);
             services.AddSingleton(bot);
@@ -92,6 +91,6 @@ namespace PotatoBot
 }
 
 /*
-    Add migration:    dotnet ef migrations add Logs --startup-project PotatoBot --project DAL
+    Add migration:    dotnet ef migrations add Name --startup-project PotatoBot --project DAL
     Update database:  dotnet ef database update --project PotatoBot
 */

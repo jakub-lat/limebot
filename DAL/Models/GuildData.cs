@@ -1,7 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Internal;
+﻿using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
@@ -11,10 +10,9 @@ namespace PotatoBot.Models
     {
         Kick, Ban, Warn, Mute
     }
+    [Keyless]
     public class GuildLog
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int Id { get; set; }
         public GuildData GuildData { get; set; }
         public string Action { get; set; }
         public string Details { get; set; }
@@ -24,13 +22,16 @@ namespace PotatoBot.Models
     }
     public class GuildData
     {
+
         public ulong Id { get; set; }
         public string Prefix { get; set; }
-        public List<GuildLog> Logs { get; set; }
+
+        [Column(TypeName = "jsonb")]
+        public List<GuildLog> Logs { get; set; } = new List<GuildLog>();
 
         public ulong MutedRoleId { get; set; }
 
-        public List<ulong> AutoRolesOnJoin { get; set; }
+        public ulong[] AutoRolesOnJoin { get; set; }
 
         public bool EnableWelcomeMessages { get; set; }
         public ulong WelcomeMessagesChannel { get; set; }

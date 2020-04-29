@@ -4,47 +4,49 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PotatoBot.Models;
 
 namespace DAL.Migrations
 {
     [DbContext(typeof(GuildContext))]
-    [Migration("20200425154914_JoinLeave")]
-    partial class JoinLeave
+    [Migration("20200429142433_Logs5")]
+    partial class Logs5
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn)
                 .HasAnnotation("ProductVersion", "3.1.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 64);
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             modelBuilder.Entity("PotatoBot.Models.GuildData", b =>
                 {
-                    b.Property<ulong>("Id")
+                    b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint unsigned");
+                        .HasColumnType("numeric(20,0)");
 
-                    b.Property<string>("AutoRolesOnJoin")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                    b.Property<decimal[]>("AutoRolesOnJoin")
+                        .HasColumnType("numeric[]");
 
                     b.Property<bool>("EnableWelcomeMessages")
-                        .HasColumnType("tinyint(1)");
+                        .HasColumnType("boolean");
 
                     b.Property<string>("LeaveMessage")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("text");
 
-                    b.Property<ulong>("MutedRoleId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<decimal>("MutedRoleId")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("Prefix")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("text");
 
                     b.Property<string>("WelcomeMessage")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("text");
 
-                    b.Property<ulong>("WelcomeMessagesChannel")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<decimal>("WelcomeMessagesChannel")
+                        .HasColumnType("numeric(20,0)");
 
                     b.HasKey("Id");
 
@@ -54,25 +56,25 @@ namespace DAL.Migrations
             modelBuilder.Entity("PotatoBot.Models.GuildLog", b =>
                 {
                     b.Property<int>("Id")
-                        .HasColumnType("int");
+                        .HasColumnType("integer");
 
                     b.Property<string>("Action")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("text");
 
-                    b.Property<ulong>("AuthorId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<decimal>("AuthorId")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<DateTime>("Date")
-                        .HasColumnType("datetime(6)");
+                        .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("Details")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("text");
 
-                    b.Property<ulong>("GuildDataId")
-                        .HasColumnType("bigint unsigned");
+                    b.Property<decimal?>("GuildDataId")
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("Reason")
-                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -85,9 +87,7 @@ namespace DAL.Migrations
                 {
                     b.HasOne("PotatoBot.Models.GuildData", "GuildData")
                         .WithMany("Logs")
-                        .HasForeignKey("GuildDataId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("GuildDataId");
                 });
 #pragma warning restore 612, 618
         }

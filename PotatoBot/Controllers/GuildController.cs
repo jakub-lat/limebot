@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using PotatoBot.Bot;
 using PotatoBot.Middleware;
 using PotatoBot.Models;
+using PotatoBot.Utils;
 
 namespace PotatoBot.Controllers
 {
@@ -32,13 +33,7 @@ namespace PotatoBot.Controllers
             {
                 if(BotService.instance.IsOnGuild(id))
                 {
-                    var newGuild = new GuildData()
-                    {
-                        Id = id
-                    };
-                    _context.Guilds.Add(newGuild);
-                    guildData = newGuild;
-                    await _context.SaveChangesAsync();
+                    var newGuild = await _context.InsertGuild(id);
                 } else
                 {
                     return NotFound();

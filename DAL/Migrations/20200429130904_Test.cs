@@ -1,10 +1,11 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
+using PotatoBot.Models;
 
 namespace DAL.Migrations
 {
-    public partial class JoinLeave : Migration
+    public partial class Test : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -12,13 +13,13 @@ namespace DAL.Migrations
                 name: "Guilds",
                 columns: table => new
                 {
-                    Id = table.Column<ulong>(nullable: false)
-                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Id = table.Column<decimal>(nullable: false),
                     Prefix = table.Column<string>(nullable: true),
-                    MutedRoleId = table.Column<ulong>(nullable: false),
-                    AutoRolesOnJoin = table.Column<string>(nullable: true),
+                    Logs = table.Column<List<GuildLog>>(type: "jsonb", nullable: true),
+                    MutedRoleId = table.Column<decimal>(nullable: false),
+                    AutoRolesOnJoin = table.Column<List<ulong>>(nullable: true),
                     EnableWelcomeMessages = table.Column<bool>(nullable: false),
-                    WelcomeMessagesChannel = table.Column<ulong>(nullable: false),
+                    WelcomeMessagesChannel = table.Column<decimal>(nullable: false),
                     WelcomeMessage = table.Column<string>(nullable: true),
                     LeaveMessage = table.Column<string>(nullable: true)
                 },
@@ -32,11 +33,11 @@ namespace DAL.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false),
-                    GuildDataId = table.Column<ulong>(nullable: false),
+                    GuildDataId = table.Column<decimal>(nullable: true),
                     Action = table.Column<string>(nullable: true),
                     Details = table.Column<string>(nullable: true),
                     Reason = table.Column<string>(nullable: true),
-                    AuthorId = table.Column<ulong>(nullable: false),
+                    AuthorId = table.Column<decimal>(nullable: false),
                     Date = table.Column<DateTime>(nullable: false)
                 },
                 constraints: table =>
@@ -47,7 +48,7 @@ namespace DAL.Migrations
                         column: x => x.GuildDataId,
                         principalTable: "Guilds",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateIndex(

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
+using PotatoBot.Utils;
 
 namespace Bot
 {
@@ -43,7 +44,7 @@ namespace Bot
             var status = statuses[statusIndex];
             status.Name = status.Name.Replace("{guilds}", client.Guilds.Count.ToString());
             client.UpdateStatusAsync(status);
-            if(statusIndex > statuses.Length)
+            if(statusIndex >= statuses.Length-1)
             {
                 statusIndex = 0;
             } else
@@ -72,7 +73,7 @@ namespace Bot
                 }
 
                 var roles = guild?.AutoRolesOnJoin;
-                if(roles != null && roles.Count > 0)
+                if(roles != null && roles.Length > 0)
                 {
                     foreach (var i in roles)
                     {

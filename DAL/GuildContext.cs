@@ -14,23 +14,24 @@ namespace PotatoBot.Models
         public GuildContext(string conn) => connectionString = conn;
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            if(connectionString != null) options.UseMySql(connectionString);
+            if(connectionString != null) options.UseNpgsql(connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<GuildData>()
+            /*modelBuilder.Entity<GuildData>()
                 .Property(e => e.AutoRolesOnJoin)
                 .HasConversion(
                     v => string.Join(',', v),
                     v => v.Split(',', StringSplitOptions.RemoveEmptyEntries).Select(ulong.Parse).ToList());
+            */
 
-            modelBuilder.Entity<GuildData>()
+            /*modelBuilder.Entity<GuildData>()
                 .HasMany(g => g.Logs)
                 .WithOne(l => l.GuildData)
-                .IsRequired();
+                .IsRequired();*/
         }
-
+         
 
         public DbSet<GuildData> Guilds { get; set; }
         public DbSet<GuildLog> Logs { get; set; }

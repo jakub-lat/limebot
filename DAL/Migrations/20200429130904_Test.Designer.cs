@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PotatoBot.Models;
@@ -10,9 +11,10 @@ using PotatoBot.Models;
 namespace DAL.Migrations
 {
     [DbContext(typeof(GuildContext))]
-    partial class GuildContextModelSnapshot : ModelSnapshot
+    [Migration("20200429130904_Test")]
+    partial class Test
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,8 +28,8 @@ namespace DAL.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("numeric(20,0)");
 
-                    b.Property<decimal[]>("AutoRolesOnJoin")
-                        .HasColumnType("numeric[]");
+                    b.Property<List<ulong>>("AutoRolesOnJoin")
+                        .HasColumnType("numeric(20,0)[]");
 
                     b.Property<bool>("EnableWelcomeMessages")
                         .HasColumnType("boolean");
@@ -35,7 +37,7 @@ namespace DAL.Migrations
                     b.Property<string>("LeaveMessage")
                         .HasColumnType("text");
 
-                    b.Property<ICollection<GuildLog>>("Logs")
+                    b.Property<List<GuildLog>>("Logs")
                         .HasColumnType("jsonb");
 
                     b.Property<decimal>("MutedRoleId")
