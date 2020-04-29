@@ -8,6 +8,7 @@ import Dashboard from '../views/dashboard/Home.vue';
 import GeneralSettings from '../views/dashboard/GeneralSettings.vue';
 import JoinLeave from '../views/dashboard/JoinLeave.vue';
 import Servers from '../views/dashboard/Servers.vue';
+import Logs from '../views/dashboard/Logs.vue';
 
 import NotFound from '../views/NotFound.vue';
 
@@ -37,6 +38,11 @@ const routes = [
         path: ':id/join-leave',
         component: JoinLeave,
         meta: {title: 'Join / leave actions'}
+      },
+      {
+        path: ':id/logs',
+        component: Logs,
+        meta: {title: 'Logs'}
       }
     ]
   },

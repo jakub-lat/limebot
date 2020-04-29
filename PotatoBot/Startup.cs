@@ -65,7 +65,11 @@ namespace PotatoBot
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            if(env.IsDevelopment())
+            {
+                app.UseHttpsRedirection();
+            }
+
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

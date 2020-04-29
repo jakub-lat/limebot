@@ -27,18 +27,17 @@ namespace PotatoBot.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            var redirect = "https://" + Request.Host + "/api/auth/callback";
-            return Redirect($"https://discordapp.com/api/oauth2/authorize?client_id=700001171368181861&redirect_uri={redirect}&response_type=code&scope=guilds%20identify");
+            var redirect = Request.Scheme + "://" + Request.Host + "/api/auth/callback";
+            return Redirect($"https://discordapp.com/api/oauth2/authorize?client_id={Config.settings.ClientID}&redirect_uri={redirect}&response_type=code&scope=guilds%20identify");
         }
 
         [HttpGet("callback")]
         public async Task<IActionResult> Callback([FromQuery] string code)
         {
             if(!ModelState.IsValid) return BadRequest(ModelState);
-
             
             using(var client = new HttpClient()) {
-                var redirect = "https://" + Request.Host + "/api/auth/callback";
+                var redirect = Request.Scheme + "://" + Request.Host + "/api/auth/callback";
 
                 var byteArray = Encoding.ASCII.GetBytes($"{Config.settings.ClientID}:{Config.settings.ClientSecret}");
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));

@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using PotatoBot.Bot;
+using DSharpPlus.Entities;
+using static DSharpPlus.Entities.DiscordEmbedBuilder;
 
 namespace PotatoBot.Utils
 {
@@ -38,6 +41,26 @@ namespace PotatoBot.Utils
             guild.Logs.Add(log);
             ctx.Entry(guild).State = EntityState.Modified;
             await ctx.SaveChangesAsync();
+
+            if(guild.EnableModLogs)
+            {
+                var dc = BotService.instance.discord;
+                var chn = dc.Guilds[guild.Id].Channels[guild.ModLogsChannel];
+
+                var author = dc.Guilds[guild.Id].Members[log.AuthorId];
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = $"{log.Action}: {log.TargetUser}",
+                    Author = new EmbedAuthor
+                    {
+                        Name = author.Username + "#" + author.Discriminator,
+                        IconUrl = dc.Guilds[guild.Id].Members[log.AuthorId].GetAvatarUrl(DSharpPlus.ImageFormat.Png, 64)
+                    },
+                    Description = $"Reason: `{log.Reason}`",
+                    Timestamp = log.Date
+                };
+                await chn.SendMessageAsync(embed: embed);
+            }
         }
     }
 }

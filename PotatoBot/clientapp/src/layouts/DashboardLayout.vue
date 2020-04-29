@@ -41,7 +41,17 @@
             <v-list-item-title>Join / leave actions</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+         <v-list-item exact link :to="`/manage/${this.$route.params.id}/logs`">
+          <v-list-item-action>
+            <v-icon>mdi-text-box-multiple</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Log settings</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
+
         <v-divider/>
+
         <v-list-item exact link to="/commands">
           <v-list-item-action>
             <v-icon>mdi-view-list</v-icon>
