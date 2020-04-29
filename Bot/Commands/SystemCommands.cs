@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DAL;
-using PotatoBot.Utils;
+using System.Diagnostics;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -19,18 +19,11 @@ namespace PotatoBot.Bot.Commands
     {
         public SystemCommands(GuildContext db) : base(db) { }
 
-        [Command("guild")]
-        public async Task GuildInfo(CommandContext ctx)
-        {
-            var guild = await db.GetGuild(ctx.Guild.Id);
-            await ctx.RespondAsync($"ID: `{guild.Id}`, Prefix: {guild.Prefix}, Muted role: {guild.MutedRoleId}, Logs count: {guild.Logs.Count}");
-        }
-
         [Command("prefix"), Description("Get or set the prefix")]
         public async Task GetPrefix(CommandContext ctx)
         {
             var guild = await db.GetGuild(ctx.Guild.Id);
-            await ctx.RespondAsync($"The prefix is `{guild.Prefix ?? "$"}`");
+            await ctx.RespondAsync($"The prefix is `{guild.Prefix}`");
         }
 
         [Command("prefix"), RequireUserPermissions(DSharpPlus.Permissions.ManageMessages)]
@@ -130,7 +123,8 @@ namespace PotatoBot.Bot.Commands
             var embed = new DiscordEmbedBuilder
             {
                 Title = "LimeBOT info",
-                Color = new DiscordColor("#0de25f")
+                Color = new DiscordColor("#0de25f"),
+                Description = "Lime is a simple, multi-purpose bot."
             };
             var users = 0;
             var textchannels = 0;
@@ -138,36 +132,39 @@ namespace PotatoBot.Bot.Commands
             var category = 0;
             foreach (var g in ctx.Client.Guilds)
             {
-                users = users+g.Value.MemberCount;
+                users += g.Value.MemberCount;
                 foreach(var channel in g.Value.Channels)
                 {
                     if (channel.Value.Type==ChannelType.Category)
                     {
-                        category = category + 1;
+                        category++;
                     }
                     if (channel.Value.Type==DSharpPlus.ChannelType.Text)
                     {
-                        textchannels = textchannels + 1;
+                        textchannels++;
                     }
                     if (channel.Value.Type==DSharpPlus.ChannelType.Voice)
                     {
-                        voicechannels = voicechannels + 1;
+                        voicechannels++;
                     }
                 }
             }
-            embed.AddField("**Guilds:**", $"{ctx.Client.Guilds.Count}", true);
-            if (Config.IsDevelopment)
+            embed.AddField("**Stats**", 
+                $@"Guilds: {ctx.Client.Guilds.Count}
+                Users: {users}
+                Categories: {category}
+                Text channels: {textchannels}
+                Voice channels: {voicechannels}");
+
+            using(var proc = Process.GetCurrentProcess())
             {
-                embed.AddField("**Version:**", "Development", true);
+                var memory = Math.Round(proc.PrivateMemorySize64 / 1e+6, 2);
+
+                var cpu = Math.Round(proc.TotalProcessorTime / (DateTime.Now - proc.StartTime) * 100);
+                embed.AddField("**Resource usage**", $"Memory: {memory} MB\nCPU: {cpu}%");
             }
-            else
-            {
-                embed.AddField("**Version:**", "Stable", true);
-            }
-            embed.AddField("**Users:**", $"{users}", true);
-            embed.AddField("**Categories:**", $"{category}", true);
-            embed.AddField("**Text Channels:**", $"{textchannels}", true);
-            embed.AddField("**Voice Channels:**", $"{voicechannels}", true);
+
+
             await ctx.RespondAsync(null, false, embed.Build());
         }
     }
