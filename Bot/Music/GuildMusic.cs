@@ -72,5 +72,24 @@ namespace Bot.Music
             await player.DisconnectAsync();
             lava.Delete(guild);
         }
+
+        private static Random rng = new Random();
+        public async Task Shuffle()
+        {
+            LavalinkTrack track = Queue[Index];
+            Queue.RemoveAt(Index);
+
+            int n = Queue.Count;
+            while (n > 1)
+            {
+                n--;
+                int k = rng.Next(n + 1);
+                LavalinkTrack value = Queue[k];
+                Queue[k] = Queue[n];
+                Queue[n] = value;
+            }
+
+            Queue.Insert(Index, track);
+        }
     }
 }

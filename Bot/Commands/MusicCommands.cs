@@ -116,5 +116,16 @@ namespace PotatoBot.Bot.Commands
                 await ctx.RespondAsync(":octagonal_sign: Stopped");
             }
         }
+
+        [Command("shuffle"), Description("Shuffle queue")]
+        public async Task Shuffle(CommandContext ctx)
+        {
+            var gm = lava.Get(ctx.Guild);
+            if (gm != null)
+            {
+                await gm.Shuffle();
+                await ctx.RespondAsync("Shuffled!");
+            }
+        }
     }
 }
