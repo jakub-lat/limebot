@@ -28,7 +28,7 @@ namespace PotatoBot.Bot.Commands
             await member.SendMessageAsync($"You were banned from **{ctx.Guild.Name}**. Reason: `{reason}`");
 
             await member.BanAsync(30, reason);
-            await db.AddLog(guild, new GuildLog
+            await db.AddLog(ctx, guild, new GuildLog
             {
                 Action = LogAction.Ban.ToString(),
                 Reason = reason,
@@ -47,7 +47,7 @@ namespace PotatoBot.Bot.Commands
 
             await member.RemoveAsync(reason);
 
-            await db.AddLog(guild, new GuildLog
+            await db.AddLog(ctx, guild, new GuildLog
             {
                 Action = LogAction.Kick.ToString(),
                 Reason = reason,
@@ -78,7 +78,7 @@ namespace PotatoBot.Bot.Commands
             await member.GrantRoleAsync(role);
             await ctx.RespondAsync($"Muted **{member.Username}#{member.Discriminator}** with reason: `{reason}`");
 
-            await db.AddLog(guild, new GuildLog
+            await db.AddLog(ctx, guild, new GuildLog
             {
                 Action = LogAction.Mute.ToString(),
                 Reason = reason,

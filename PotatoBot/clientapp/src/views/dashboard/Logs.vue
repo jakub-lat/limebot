@@ -15,6 +15,18 @@
 
                 <channel-input id="modLogsChannel" label="Channel" :disabled="!modLogsEnabled" />
 
+                <v-row class="mt-5">
+                    <v-col>
+                        <h2>Message logs</h2>
+                        <p>Log message deletions or edits.</p>
+                    </v-col>
+                    <v-col cols="auto">
+                        <switch-input id="enableMessageLogs" class="ma-0" v-model="messageLogsEnabled"/>
+                    </v-col>
+                </v-row>
+
+                <channel-input id="messageLogsChannel" label="Channel" :disabled="!messageLogsEnabled" />
+
             </v-col>
         </v-row>
     </v-container>
@@ -27,6 +39,7 @@ export default {
     components: {ChannelInput, SwitchInput},
     data: ()=>({
         modLogsEnabled: false,
+        messageLogsEnabled: false
     })    
 }
 </script>

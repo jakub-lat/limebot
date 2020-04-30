@@ -97,6 +97,8 @@ namespace PotatoBot.Bot
             events = new BotEvents(discord, connectionString);
             discord.GuildMemberAdded += events.MemberJoined;
             discord.GuildMemberRemoved += events.MemberLeft;
+            discord.MessageUpdated += events.MessageEdited;
+            discord.MessageDeleted += events.MessageDeleted;
         }
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)

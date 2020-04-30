@@ -32,6 +32,9 @@ namespace PotatoBot.Models
         public bool EnableModLogs { get; set; }
         public ulong ModLogsChannel { get; set; }
 
+        public bool EnableMessageLogs { get; set; }
+        public ulong MessageLogsChannel { get; set; }
+
         public ulong MutedRoleId { get; set; }
 
         public ulong[] AutoRolesOnJoin { get; set; }

@@ -57,21 +57,21 @@ namespace Bot
         {
         }
 
-        public async Task MemberJoined(GuildMemberAddEventArgs args)
+        public async Task MemberJoined(GuildMemberAddEventArgs e)
         {
             using(var ctx = new GuildContext(connectionString))
             {
-                var guild = await ctx.GetGuild(args.Guild.Id);
+                var guild = await ctx.GetGuild(e.Guild.Id);
 
                 if(guild.EnableWelcomeMessages)
                 {
-                    var channel = args.Guild.Channels[guild.WelcomeMessagesChannel];
+                    var channel = e.Guild.Channels[guild.WelcomeMessagesChannel];
                     if(channel != null)
                     {
                         await channel.SendMessageAsync(
                             guild.WelcomeMessage
-                                .Replace("{user}", args.Member.Mention)
-                                .Replace("{members}", args.Guild.MemberCount.ToString())
+                                .Replace("{user}", e.Member.Mention)
+                                .Replace("{members}", e.Guild.MemberCount.ToString())
                         );
                     }
                 }
@@ -81,30 +81,84 @@ namespace Bot
                 {
                     foreach (var i in roles)
                     {
-                        var role = args.Guild.Roles[i];
-                        if(role != null) await args.Member.GrantRoleAsync(role);
+                        var role = e.Guild.Roles[i];
+                        if(role != null) await e.Member.GrantRoleAsync(role);
                     }
                 }
             }
         }
 
-        public async Task MemberLeft(GuildMemberRemoveEventArgs args)
+        public async Task MemberLeft(GuildMemberRemoveEventArgs e)
         {
             using (var ctx = new GuildContext(connectionString))
             {
-                var guild = await ctx.GetGuild(args.Guild.Id);
+                var guild = await ctx.GetGuild(e.Guild.Id);
 
                 if (guild.EnableWelcomeMessages)
                 {
-                    var channel = args.Guild.Channels[guild.WelcomeMessagesChannel];
-                    if (channel != null)
+                    var channel = e.Guild.Channels[guild.WelcomeMessagesChannel];
+                    await channel.SendMessageAsync(
+                        guild.LeaveMessage
+                            .Replace("{user}", e.Member.Username + "#" + e.Member.Discriminator)
+                            .Replace("{members}", e.Guild.MemberCount.ToString())
+                    );
+                }
+            }
+        }
+
+        public async Task MessageEdited(MessageUpdateEventArgs e)
+        {
+            if (e.Author.IsBot) return;
+            using (var ctx = new GuildContext(connectionString))
+            {
+                var guild = await ctx.GetGuild(e.Guild.Id);
+
+                if (guild.EnableMessageLogs)
+                {
+                    var chn = e.Guild.Channels[guild.MessageLogsChannel];
+
+                    var author = e.Author;
+                    var embed = new DiscordEmbedBuilder
                     {
-                        await channel.SendMessageAsync(
-                            guild.LeaveMessage
-                                .Replace("{user}", args.Member.Username + "#" + args.Member.Discriminator)
-                                .Replace("{members}", args.Guild.MemberCount.ToString())
-                        );
-                    }
+                        Title = $"Message edited",
+                        Author = new DiscordEmbedBuilder.EmbedAuthor
+                        {
+                            Name = author.Username + "#" + author.Discriminator,
+                            IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
+                        },
+                        Description = $"**Before:**\n {e.MessageBefore.Content}\n**After:**\n {e.Message.Content}",
+                        Timestamp = DateTime.Now
+                    };
+                    await chn.SendMessageAsync(embed: embed);
+                }
+            }
+        }
+
+        public async Task MessageDeleted(MessageDeleteEventArgs e)
+        {
+            if (e.Message.Author.IsBot) return;
+            using (var ctx = new GuildContext(connectionString))
+            {
+                var guild = await ctx.GetGuild(e.Guild.Id);
+
+                if (guild.EnableMessageLogs)
+                {
+                    var chn = e.Guild.Channels[guild.MessageLogsChannel];
+
+                    var author = e.Message.Author;
+                    var embed = new DiscordEmbedBuilder
+                    {
+                        Title = $"Message deleted",
+                        Author = new DiscordEmbedBuilder.EmbedAuthor
+                        {
+                            Name = author.Username + "#" + author.Discriminator,
+                            IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
+                        },
+                        Description = $"**Content:**\n {e.Message.Content}",
+                        Timestamp = DateTime.Now
+                    };
+                    await chn.SendMessageAsync(embed: embed);
+
                 }
             }
         }

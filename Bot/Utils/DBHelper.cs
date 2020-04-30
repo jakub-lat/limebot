@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using PotatoBot.Bot;
 using DSharpPlus.Entities;
 using static DSharpPlus.Entities.DiscordEmbedBuilder;
+using DSharpPlus.CommandsNext;
 
 namespace PotatoBot.Utils
 {
@@ -36,25 +37,24 @@ namespace PotatoBot.Utils
             return newGuild;
         }
 
-        public static async Task AddLog(this GuildContext ctx, GuildData guild, GuildLog log)
+        public static async Task AddLog(this GuildContext db, CommandContext ctx, GuildData guild, GuildLog log)
         {
             guild.Logs.Add(log);
-            ctx.Entry(guild).State = EntityState.Modified;
-            await ctx.SaveChangesAsync();
+            db.Entry(guild).State = EntityState.Modified;
+            await db.SaveChangesAsync();
 
             if(guild.EnableModLogs)
             {
-                var dc = BotService.instance.discord;
-                var chn = dc.Guilds[guild.Id].Channels[guild.ModLogsChannel];
+                var chn = ctx.Guild.Channels[guild.ModLogsChannel];
 
-                var author = dc.Guilds[guild.Id].Members[log.AuthorId];
+                var author = ctx.Member;
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"{log.Action}: {log.TargetUser}",
                     Author = new EmbedAuthor
                     {
                         Name = author.Username + "#" + author.Discriminator,
-                        IconUrl = dc.Guilds[guild.Id].Members[log.AuthorId].GetAvatarUrl(DSharpPlus.ImageFormat.Png, 64)
+                        IconUrl = author.GetAvatarUrl(DSharpPlus.ImageFormat.Png, 64)
                     },
                     Description = $"Reason: `{log.Reason}`",
                     Timestamp = log.Date
