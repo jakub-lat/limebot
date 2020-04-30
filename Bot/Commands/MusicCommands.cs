@@ -67,8 +67,18 @@ namespace PotatoBot.Bot.Commands
                 return;
             }
 
-            await gm.Add(trackLoad.Tracks.First());
-            await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
+            if(trackLoad.Tracks.Count() == 1)
+            {
+                await gm.Add(trackLoad.Tracks.First());
+                await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
+            } else
+            {
+                foreach(var track in trackLoad.Tracks)
+                {
+                    await gm.Add(track);
+                }
+                await ctx.RespondAsync($"Added {trackLoad.Tracks.Count()} tracks to queue");
+            }
         }
 
         [Command("play")]
