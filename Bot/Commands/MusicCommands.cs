@@ -68,11 +68,11 @@ namespace PotatoBot.Bot.Commands
             }
 
             await gm.Add(trackLoad.Tracks.First());
-            await ctx.RespondAsync("Queued 1 track(s)");
+            await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
         }
 
         [Command("play")]
-        public async Task PlaySearch(CommandContext ctx, string query)
+        public async Task PlaySearch(CommandContext ctx, [RemainingText] string query)
         {
             var gm = await BeforePlay(ctx);
 
@@ -90,8 +90,13 @@ namespace PotatoBot.Bot.Commands
                 }
 
                 await gm.Add(trackLoad.Tracks.First());
-                await ctx.RespondAsync("Queued 1 track(s)");
+                await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
             }
+        }
+        [Command("play")]
+        public async Task PlayResume(CommandContext ctx)
+        {
+            await Resume(ctx);
         }
 
         [Command("skip"), Aliases("s"), Description("Skip to next song")]
@@ -109,14 +114,39 @@ namespace PotatoBot.Bot.Commands
         public async Task Queue(CommandContext ctx)
         {
             var gm = lava.Get(ctx.Guild);
-            if (gm == null) await ctx.RespondAsync("Not playing rn!");
+            if (gm == null || gm.player.CurrentState.CurrentTrack == null) await ctx.RespondAsync("Not playing rn!");
             else
             {
-                var queue = gm.Queue.Select((item, index) => {
-                    string x = index == gm.Index ? "▶️" : (index + 1).ToString();
-                    return $"{x}.  {item.Title}";
+                var queue = gm.Queue.Take(25).Select((item, index) => {
+                    string x = index == gm.Index ? "▶️" : $"{index + 1}.";
+                    return $"{x} {item.Title}";
                 }).ToList();
-                await ctx.RespondAsync($"```{string.Join("\n", queue)}```");
+
+                var curr = gm.player.CurrentState;
+
+                var duration = $"{curr.PlaybackPosition.Minutes}:{curr.PlaybackPosition.Seconds} / {curr.CurrentTrack.Length.Minutes}:{curr.CurrentTrack.Length.Seconds}";
+
+                var percent = (curr.PlaybackPosition / curr.CurrentTrack.Length) * 20;
+                var position = "[";
+                
+                for(var i=0; i<percent-1; i++) position += "=";
+                position += ">";
+
+                for(var y=0; y<20-percent-1; y++) position += " ";
+                position += "]";
+
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = $":notes: Queue for {ctx.Guild.Name}",
+                    Description = $@"```
+                    {string.Join("\n", queue)}
+                    {(gm.Queue.Count > 25 ? "..." : "")}
+                    ```
+                    Now playing: **{gm.Queue[gm.Index].Title}**
+                    ```{(gm.isPaused ? "⏸️" : "▶️")} {duration} {position}```
+                    "
+                };
+                await ctx.RespondAsync(embed: embed);
             }
         }
 
@@ -138,7 +168,7 @@ namespace PotatoBot.Bot.Commands
             if (gm != null)
             {
                 await gm.Stop();
-                await ctx.RespondAsync(":octagonal_sign: Stopped");
+                await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":stop_button:"));
             }
         }
 
@@ -160,7 +190,7 @@ namespace PotatoBot.Bot.Commands
             if (gm != null)
             {
                 await gm.Pause();
-                await ctx.RespondAsync(":pause_button: Paused");
+                await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":pause_button:"));
             }
         }
 
@@ -168,10 +198,10 @@ namespace PotatoBot.Bot.Commands
         public async Task Resume(CommandContext ctx)
         {
             var gm = lava.Get(ctx.Guild);
-            if (gm != null)
+            if (gm != null && gm.isPaused)
             {
                 await gm.Resume();
-                await ctx.RespondAsync(":arrow_forward: Resumed");
+                await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":arrow_forward:"));
             }
         }
     }
