@@ -36,8 +36,11 @@ namespace Bot.Music
 
         private async Task PlaybackFinished(TrackFinishEventArgs e)
         {
-            if (Index < Queue.Count - 1) await textChannel.SendMessageAsync("Queue ended");
-            else if (skipped) skipped = false;
+            if (skipped) skipped = false;
+            else if (Index >= Queue.Count - 1) {
+                await Stop();
+                await textChannel.SendMessageAsync("Queue ended"); 
+            }
             else await Next();
         }
 
@@ -65,13 +68,14 @@ namespace Bot.Music
                 var embed = new DiscordEmbedBuilder
                 {
                     Color = new DiscordColor(Config.settings.embedColor),
-                    Title = $"Now playing: **[{Queue[Index].Title}]({Queue[Index].Uri})**"
+                    Title = $"Now playing: **{Queue[Index].Title}**",
+                    Url = Queue[Index].Uri.ToString()
                 };
                 await textChannel.SendMessageAsync(embed: embed);
             }
             else
             {
-                await player.StopAsync();
+                await Stop();
             }
         }
 

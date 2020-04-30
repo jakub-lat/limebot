@@ -87,7 +87,7 @@ namespace PotatoBot.Bot
 
             interactivity = discord.UseInteractivity(new InteractivityConfiguration
             {
-                Timeout = TimeSpan.FromMinutes(10)
+                Timeout = TimeSpan.FromMinutes(5)
             });
 
             discord.ConnectAsync();

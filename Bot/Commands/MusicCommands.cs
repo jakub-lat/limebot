@@ -16,6 +16,7 @@ using PotatoBot.Utils;
 using Bot.Utils;
 using DSharpPlus.Interactivity;
 using DAL;
+using DSharpPlus.Interactivity.Enums;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -137,8 +138,8 @@ namespace PotatoBot.Bot.Commands
 
             var queue = gm.Queue.Select((item, index) =>
             {
-                string x = index == gm.Index ? "▶️" : $"{index + 1}.";
-                return $"{x} {(item.Title.Length > 30 ? item.Title : item.Title.Substring(0, Math.Min(item.Title.Length, 30)) + "...")}";
+                string x = index == gm.Index ? "▶️" : $" {index + 1}.";
+                return $"{x} {(item.Title.Length <= 30 ? item.Title : item.Title.Substring(0, Math.Min(item.Title.Length, 30)) + "...")}";
             }).ToList();
 
 
@@ -172,7 +173,16 @@ namespace PotatoBot.Bot.Commands
                 pages.Add(new Page(embed: embed));
             }
 
-            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.Member, pages);
+            var emojis = new PaginationEmojis
+            {
+                SkipLeft = null,
+                SkipRight = null,
+                Stop = DiscordEmoji.FromUnicode("⏹"),
+                Left = DiscordEmoji.FromUnicode("⬆️"),
+                Right = DiscordEmoji.FromUnicode("⬇️")
+            };
+
+            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.Member, pages, emojis, PaginationBehaviour.Ignore);
             
         }
 
