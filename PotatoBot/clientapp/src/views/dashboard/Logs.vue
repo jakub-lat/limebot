@@ -6,13 +6,14 @@
                 <v-row>
                     <v-col>
                         <h2>Moderation logs</h2>
+                        <p>Log actions like kick, ban or mute</p>
                     </v-col>
                     <v-col cols="auto">
                         <switch-input id="enableModLogs" class="ma-0" v-model="modLogsEnabled"/>
                     </v-col>
                 </v-row>
 
-                <channel-input id="modLogsChannel" label="Moderation logs channel" :disabled="!modLogsEnabled" />
+                <channel-input id="modLogsChannel" label="Channel" :disabled="!modLogsEnabled" />
 
             </v-col>
         </v-row>

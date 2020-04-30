@@ -13,7 +13,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PotatoBot.Utils;
-
+using Bot.Utils;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -21,8 +21,10 @@ namespace PotatoBot.Bot.Commands
     public class MusicCommands : MyCommandModule
     {
         private Lavalink lava;
+        private YoutubeSearch yt;
         public MusicCommands(GuildContext db, Lavalink lava) : base(db) {
             this.lava = lava;
+            this.yt = new YoutubeSearch();
         }
 
         public override async Task BeforeExecutionAsync(CommandContext ctx)
@@ -67,6 +69,29 @@ namespace PotatoBot.Bot.Commands
 
             await gm.Add(trackLoad.Tracks.First());
             await ctx.RespondAsync("Queued 1 track(s)");
+        }
+
+        [Command("play")]
+        public async Task PlaySearch(CommandContext ctx, string query)
+        {
+            var gm = await BeforePlay(ctx);
+
+            var result = await yt.Search(query);
+            if(result == null)
+            {
+                await ctx.RespondAsync(":warning: Nothing found :(");
+            } else
+            {
+                var trackLoad = await lava.node.Rest.GetTracksAsync("https://youtube.com/watch?v=" + result.id.videoId);
+                if (trackLoad.LoadResultType == LavalinkLoadResultType.LoadFailed || !trackLoad.Tracks.Any())
+                {
+                    await ctx.RespondAsync($":warning: No tracks were found!");
+                    return;
+                }
+
+                await gm.Add(trackLoad.Tracks.First());
+                await ctx.RespondAsync("Queued 1 track(s)");
+            }
         }
 
         [Command("skip"), Aliases("s"), Description("Skip to next song")]

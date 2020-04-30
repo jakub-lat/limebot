@@ -12,6 +12,7 @@ namespace DAL
         public string ClientSecret { get; set; }
         public string BotToken { get; set; }
         public string LavalinkPassword { get; set; }
+        public string YoutubeApiKey { get; set; }
     }
 
     public static class Config
