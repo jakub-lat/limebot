@@ -8,6 +8,7 @@ using PotatoBot.Bot;
 using DSharpPlus.Entities;
 using static DSharpPlus.Entities.DiscordEmbedBuilder;
 using DSharpPlus.CommandsNext;
+using DAL;
 
 namespace PotatoBot.Utils
 {
@@ -57,7 +58,8 @@ namespace PotatoBot.Utils
                         IconUrl = author.GetAvatarUrl(DSharpPlus.ImageFormat.Png, 64)
                     },
                     Description = $"Reason: `{log.Reason}`",
-                    Timestamp = log.Date
+                    Timestamp = log.Date,
+                    Color = new DiscordColor(Config.settings.embedColor)
                 };
                 await chn.SendMessageAsync(embed: embed);
             }

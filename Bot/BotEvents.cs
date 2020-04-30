@@ -10,6 +10,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using PotatoBot.Utils;
+using DAL;
 
 namespace Bot
 {
@@ -127,7 +128,8 @@ namespace Bot
                             IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
                         },
                         Description = $"**Before:**\n {e.MessageBefore.Content}\n**After:**\n {e.Message.Content}",
-                        Timestamp = DateTime.Now
+                        Timestamp = DateTime.Now,
+                        Color = new DiscordColor(Config.settings.embedColor)
                     };
                     await chn.SendMessageAsync(embed: embed);
                 }
@@ -155,7 +157,8 @@ namespace Bot
                             IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
                         },
                         Description = $"**Content:**\n {e.Message.Content}",
-                        Timestamp = DateTime.Now
+                        Timestamp = DateTime.Now,
+                        Color = new DiscordColor(Config.settings.embedColor)
                     };
                     await chn.SendMessageAsync(embed: embed);
 

@@ -1,4 +1,5 @@
-﻿using DSharpPlus.Entities;
+﻿using DAL;
+using DSharpPlus.Entities;
 using DSharpPlus.Lavalink;
 using DSharpPlus.Lavalink.EventArgs;
 using System;
@@ -35,8 +36,9 @@ namespace Bot.Music
 
         private async Task PlaybackFinished(TrackFinishEventArgs e)
         {
-            if (skipped) skipped = false;
-            else await Skip();
+            if (Index < Queue.Count - 1) await textChannel.SendMessageAsync("Queue ended");
+            else if (skipped) skipped = false;
+            else await Next();
         }
 
         public async Task Add(LavalinkTrack track)
@@ -53,21 +55,26 @@ namespace Bot.Music
             await player.PlayAsync(Queue[Index]);
         }
 
-        public async Task Skip()
+        public async Task Next()
         {
-            if (Index < Queue.Count)
+            if (Index < Queue.Count - 1)
             {
                 Index++;
                 skipped = true;
-                Play();
-                await textChannel.SendMessageAsync($"Now playing: **{Queue[Index].Title}**");
+                await Play();
+                var embed = new DiscordEmbedBuilder
+                {
+                    Color = new DiscordColor(Config.settings.embedColor),
+                    Title = $"Now playing: **[{Queue[Index].Title}]({Queue[Index].Uri})**"
+                };
+                await textChannel.SendMessageAsync(embed: embed);
             }
             else
             {
                 await player.StopAsync();
-                await textChannel.SendMessageAsync("Queue ended");
             }
         }
+
 
         public async Task Stop()
         {
@@ -76,7 +83,7 @@ namespace Bot.Music
         }
 
         private static Random rng = new Random();
-        public async Task Shuffle()
+        public void Shuffle()
         {
             LavalinkTrack track = Queue[Index];
             Queue.RemoveAt(Index);

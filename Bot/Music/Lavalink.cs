@@ -39,8 +39,7 @@ namespace Bot.Music
 
         public GuildMusic Get(DiscordGuild guild)
         {
-            if (!guildMusic.ContainsKey(guild.Id)) return null;
-            return guildMusic[guild.Id];
+            return guildMusic.GetValueOrDefault(guild.Id);
         }
         public async Task InitGuildMusic(DiscordGuild guild, DiscordVoiceState vs, DiscordChannel chn)
         {
