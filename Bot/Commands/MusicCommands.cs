@@ -127,5 +127,27 @@ namespace PotatoBot.Bot.Commands
                 await ctx.RespondAsync("Shuffled!");
             }
         }
+
+        [Command("pause"), Description("Pause the track.")]
+        public async Task Pause(CommandContext ctx)
+        {
+            var gm = lava.Get(ctx.Guild);
+            if (gm != null)
+            {
+                await gm.Pause();
+                await ctx.RespondAsync(":pause_button: Paused");
+            }
+        }
+
+        [Command("resume"), Description("Resume the track.")]
+        public async Task Resume(CommandContext ctx)
+        {
+            var gm = lava.Get(ctx.Guild);
+            if (gm != null)
+            {
+                await gm.Resume();
+                await ctx.RespondAsync(":arrow_forward: Resumed");
+            }
+        }
     }
 }

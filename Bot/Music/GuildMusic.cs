@@ -18,6 +18,8 @@ namespace Bot.Music
         public int Index { get; private set; } = 0;
         private bool skipped = false;
 
+        public bool isPaused=false;
+
         public GuildMusic(Lavalink lava, DiscordGuild guild, DiscordChannel textChannel)
         {
             this.lava = lava;
@@ -90,6 +92,18 @@ namespace Bot.Music
             }
 
             Queue.Insert(Index, track);
+        }
+
+        public async Task Pause()
+        {
+            await player.PauseAsync();
+            isPaused = true;
+        }
+
+        public async Task Resume()
+        {
+            await player.ResumeAsync();
+            isPaused = false;
         }
     }
 }
