@@ -87,5 +87,17 @@ namespace PotatoBot.Bot.Commands
                 Date = DateTime.UtcNow
             });
         }
+
+        [Command("purge"), Description("Deletes last x messages"), Aliases("clear"), RequireBotPermissions(Permissions.ManageMessages)]
+        public async Task PurgeChat(CommandContext ctx, uint amount)
+        {
+            var messages = await ctx.Channel.GetMessagesAsync((int)amount + 1);
+
+            await ctx.Channel.DeleteMessagesAsync(messages);
+            const int delay = 5000;
+            var m = await ctx.RespondAsync($"Purge completed. _This message will be deleted in {delay / 1000} seconds._");
+            await Task.Delay(delay);
+            await m.DeleteAsync();
+        }
     }
 }
