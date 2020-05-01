@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using PotatoBot.Utils;
 using DAL;
+using DSharpPlus.CommandsNext.Converters;
 
 namespace Bot
 {
@@ -45,10 +46,11 @@ namespace Bot
             var status = statuses[statusIndex];
             status.Name = status.Name.Replace("{guilds}", client.Guilds.Count.ToString());
             client.UpdateStatusAsync(status);
-            if(statusIndex >= statuses.Length-1)
+            if (statusIndex >= statuses.Length - 1)
             {
                 statusIndex = 0;
-            } else
+            }
+            else
             {
                 statusIndex++;
             }
@@ -60,14 +62,14 @@ namespace Bot
 
         public async Task MemberJoined(GuildMemberAddEventArgs e)
         {
-            using(var ctx = new GuildContext(connectionString))
+            using (var ctx = new GuildContext(connectionString))
             {
                 var guild = await ctx.GetGuild(e.Guild.Id);
 
-                if(guild.EnableWelcomeMessages)
+                if (guild.EnableWelcomeMessages)
                 {
                     var channel = e.Guild.Channels[guild.WelcomeMessagesChannel];
-                    if(channel != null)
+                    if (channel != null)
                     {
                         await channel.SendMessageAsync(
                             guild.WelcomeMessage
@@ -78,12 +80,12 @@ namespace Bot
                 }
 
                 var roles = guild?.AutoRolesOnJoin;
-                if(roles != null && roles.Length > 0)
+                if (roles != null && roles.Length > 0)
                 {
                     foreach (var i in roles)
                     {
                         var role = e.Guild.Roles[i];
-                        if(role != null) await e.Member.GrantRoleAsync(role);
+                        if (role != null) await e.Member.GrantRoleAsync(role);
                     }
                 }
             }
@@ -127,9 +129,12 @@ namespace Bot
                             Name = author.Username + "#" + author.Discriminator,
                             IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
                         },
-                        Description = $"**Before:**\n {e.MessageBefore.Content}\n**After:**\n {e.Message.Content}",
+                        Description = $@"{Formatter.BlockCode(e.MessageBefore.Content.Replace("```", "\\`\\`\\`"))}
+                        **To:** {Formatter.BlockCode(e.Message.Content.Replace("```", "\\`\\`\\`"))}
+                        **In channel** {e.Channel.Mention} ([Jump]({e.Message.JumpLink}))",
                         Timestamp = DateTime.Now,
-                        Color = new DiscordColor("#cad628")
+                        Color = new DiscordColor("#cad628"),
+                        Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User ID: {e.Author.Id}" }
                     };
                     await chn.SendMessageAsync(embed: embed);
                 }
@@ -156,9 +161,11 @@ namespace Bot
                             Name = author.Username + "#" + author.Discriminator,
                             IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
                         },
-                        Description = $"**Content:**\n {e.Message.Content}",
+                        Description = @$"{Formatter.BlockCode(e.Message.Content.Replace("```", "\\`\\`\\`"))}
+                        **In channel** {e.Channel.Mention}",
                         Timestamp = DateTime.Now,
-                        Color = new DiscordColor("#9b2212")
+                        Color = new DiscordColor("#9b2212"),
+                        Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User ID: {e.Message.Author.Id}" }
                     };
                     await chn.SendMessageAsync(embed: embed);
 
