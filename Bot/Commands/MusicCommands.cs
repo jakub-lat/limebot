@@ -125,7 +125,7 @@ namespace PotatoBot.Bot.Commands
         [Command("skip"), Aliases("s"), Description("Skip to next song"), RequireVC]
         public async Task Skip(CommandContext ctx)
         {
-            await gm.Next();
+            await gm.Next(true);
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":track_next:"));
         }
 
@@ -175,7 +175,7 @@ namespace PotatoBot.Bot.Commands
 
             var emojis = new PaginationEmojis
             {
-                SkipLeft = null,
+                SkipLeft = DiscordEmoji.FromUnicode("🏠"),
                 SkipRight = null,
                 Stop = DiscordEmoji.FromUnicode("⏹"),
                 Left = DiscordEmoji.FromUnicode("⬆️"),
@@ -227,11 +227,24 @@ namespace PotatoBot.Bot.Commands
             }
         }
 
-        [Command("seek"), Description("Seeks to specified time"), RequireVC]
+        [Command("seek"), Description("Seeks to specified time (example: 2m30s)"), RequireVC]
         public async Task Seek(CommandContext ctx, [RemainingText] TimeSpan position)
         {
-            Console.WriteLine(position);
             await gm.player?.SeekAsync(position);
+            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":fast_forward:"));
+        }
+
+        [Command("forward"), Aliases("fastforward", "ff"), Description("Forward the track by given amount (example: 2m30s)"), RequireVC]
+        public async Task Forward(CommandContext ctx, [RemainingText] TimeSpan position)
+        {
+            await gm.player?.SeekAsync(gm.player.CurrentState.PlaybackPosition + position);
+            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":fast_forward:"));
+        }
+
+        [Command("rewind"), Aliases("re", "rew"), Description("Rewind the track by given amount (example: 2m30s)"), RequireVC]
+        public async Task Rewind(CommandContext ctx, [RemainingText] TimeSpan position)
+        {
+            await gm.player?.SeekAsync(gm.player.CurrentState.PlaybackPosition - position);
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":fast_forward:"));
         }
     }

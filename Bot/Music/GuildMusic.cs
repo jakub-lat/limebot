@@ -58,12 +58,12 @@ namespace Bot.Music
             await player.PlayAsync(Queue[Index]);
         }
 
-        public async Task Next()
+        public async Task Next(bool skip = false)
         {
             if (Index < Queue.Count - 1)
             {
                 Index++;
-                skipped = true;
+                if(skip) skipped = true;
                 await Play();
                 var embed = new DiscordEmbedBuilder
                 {

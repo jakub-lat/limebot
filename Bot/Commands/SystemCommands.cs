@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using DAL;
 using System.Diagnostics;
 using PotatoBot.Utils;
+using System.Reflection;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -88,7 +89,7 @@ namespace PotatoBot.Bot.Commands
             await ctx.RespondAsync($"{emoji} Pong! Ping: {ctx.Client.Ping}ms");
         }
 
-        [Command("userinfo"), Description("User information")]
+        [Command("userinfo"), Aliases("user"), Description("User information")]
         public async Task UserInfo(CommandContext ctx, DiscordMember user = null) {
             user ??= ctx.Member;
             var embed = new DiscordEmbedBuilder
@@ -160,6 +161,10 @@ namespace PotatoBot.Bot.Commands
                 var cpu = Math.Round(proc.TotalProcessorTime / (DateTime.Now - proc.StartTime) * 100);
                 embed.AddField("**Resource usage**", $"Memory: {memory} MB\nCPU: {cpu}%");
             }
+
+            embed.AddField("**Versions**", $@".Net Core: 3.1
+                Asp.Net Core: 2.2.0
+                DSharpPlus: {ctx.Client.VersionString}");
 
 
             await ctx.RespondAsync(null, false, embed.Build());
