@@ -129,7 +129,7 @@ namespace Bot
                         },
                         Description = $"**Before:**\n {e.MessageBefore.Content}\n**After:**\n {e.Message.Content}",
                         Timestamp = DateTime.Now,
-                        Color = new DiscordColor(Config.settings.embedColor)
+                        Color = new DiscordColor("#cad628")
                     };
                     await chn.SendMessageAsync(embed: embed);
                 }
@@ -138,7 +138,7 @@ namespace Bot
 
         public async Task MessageDeleted(MessageDeleteEventArgs e)
         {
-            if (e.Message.Author.IsBot) return;
+            if (e.Message.Author?.IsBot == true) return;
             using (var ctx = new GuildContext(connectionString))
             {
                 var guild = await ctx.GetGuild(e.Guild.Id);
@@ -158,7 +158,7 @@ namespace Bot
                         },
                         Description = $"**Content:**\n {e.Message.Content}",
                         Timestamp = DateTime.Now,
-                        Color = new DiscordColor(Config.settings.embedColor)
+                        Color = new DiscordColor("#9b2212")
                     };
                     await chn.SendMessageAsync(embed: embed);
 

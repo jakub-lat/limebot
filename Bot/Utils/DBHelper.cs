@@ -49,6 +49,15 @@ namespace PotatoBot.Utils
                 var chn = ctx.Guild.Channels[guild.ModLogsChannel];
 
                 var author = ctx.Member;
+
+                var color = new DiscordColor(Enum.Parse<LogAction>(log.Action) switch
+                {
+                    LogAction.Mute => "#cad628",
+                    LogAction.Ban => "#7c0b01",
+                    LogAction.Kick => "#c61735",
+                    LogAction.Warn => "#0d86dd",
+                    _ => "#0d86dd"
+                });
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"{log.Action}: {log.TargetUser}",
@@ -59,7 +68,7 @@ namespace PotatoBot.Utils
                     },
                     Description = $"Reason: `{log.Reason}`",
                     Timestamp = log.Date,
-                    Color = new DiscordColor(Config.settings.embedColor)
+                    Color = color
                 };
                 await chn.SendMessageAsync(embed: embed);
             }
