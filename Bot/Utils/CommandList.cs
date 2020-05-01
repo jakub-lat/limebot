@@ -24,7 +24,7 @@ namespace Bot.Utils
         public string Name { get; set; }
         public string Description { get; set; }
         public IReadOnlyList<string> Aliases { get; set; }
-        public IReadOnlyList<CommandArgumentData> Arguments { get; set; }
+        public IEnumerable<IEnumerable<CommandArgumentData>> Overloads { get; set; }
     }
     public class CommandList
     {
@@ -40,26 +40,25 @@ namespace Bot.Utils
                 var attribute = attributeRaw as CategoryAttribute;
                 var cat = attribute?.Name ?? "uncategorized";
 
-                foreach(var overload in cmd.Overloads)
+
+                var data = new CommandData
                 {
-                    var data = new CommandData
-                    {
-                        Name = cmd.Name,
-                        Description = cmd.Description,
-                        Aliases = cmd.Aliases,
-                        Arguments = overload.Arguments.Select(a =>
-                            new CommandArgumentData
-                            {
-                                Name = a.Name,
-                                Description = a.Description,
-                                Type = a.Type.Name,
-                                Default = a.DefaultValue,
-                                Optional = a.IsOptional,
-                                CatchAll = a.IsCatchAll
-                        }).ToList()
-                    };
-                    AddCommand(data, cat);
-                }
+                    Name = cmd.Name,
+                    Description = cmd.Description,
+                    Aliases = cmd.Aliases,
+                    Overloads = cmd.Overloads.Select(o => o.Arguments.Select(a =>
+                          new CommandArgumentData
+                          {
+                              Name = a.Name,
+                              Description = a.Description,
+                              Type = a.Type.Name,
+                              Default = a.DefaultValue,
+                              Optional = a.IsOptional,
+                              CatchAll = a.IsCatchAll
+                          }))
+                };
+                AddCommand(data, cat);
+                
             }
         }
 

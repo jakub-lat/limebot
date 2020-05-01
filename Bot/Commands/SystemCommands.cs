@@ -23,8 +23,7 @@ namespace PotatoBot.Bot.Commands
         [Command("prefix"), Description("Get or set the prefix")]
         public async Task GetPrefix(CommandContext ctx)
         {
-            var guild = await db.GetGuild(ctx.Guild.Id);
-            await ctx.RespondAsync($"The prefix is `{guild.Prefix}`");
+            await ctx.RespondAsync($"The prefix is `{ctx.Prefix}`");
         }
 
         [Command("prefix"), RequireUserPermissions(DSharpPlus.Permissions.ManageMessages)]
@@ -41,12 +40,43 @@ namespace PotatoBot.Bot.Commands
         {
             var url = "https://potatodiscordbot.azurewebsites.net";
             var embed = new DiscordEmbedBuilder {
-                Title = "LimeBOT help",
-                Description = $"Hey! I am **LIME**.\n If you are stuck, **[here is a list of my commands]({url}/commands)**.\nIf you want to configure me, **[login to dashboard]({url}/manage/{ctx.Guild.Id})**",
-                Color = new DiscordColor("#0de25f")
+                Title = "Lime help",
+                Description = @$"Hey! I am **LIME**. Nice to see you ;)
+                If you are stuck, **[here is a list of my commands]({url}/commands)**.
+                If you want to configure me, **[login to dashboard]({url}/manage/{ctx.Guild.Id})**
+
+                _Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified command_",
+                Color = new DiscordColor(Config.settings.embedColor)
             };
             await ctx.RespondAsync(null, false, embed.Build());
         }
+
+        [Command("help")]
+        public async Task HelpCommand(CommandContext ctx, string command)
+        {
+            var cnext = ctx.Client.GetCommandsNext();
+            var cmd = cnext.RegisteredCommands.GetValueOrDefault(command);
+            if(cmd == null)
+            {
+                await ctx.RespondAsync("Command not found!");
+            } else
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = $"Command: {cmd.Name}",
+                    Color = new DiscordColor(Config.settings.embedColor),
+                    Description = $@"**Description:**
+                    {cmd.Description}
+
+                    {(cmd.Aliases.Any() ? $"**Aliases:** `{string.Join(", ", cmd.Aliases)}`" : "")}
+
+                    **Usage:**
+                    ```{string.Join("\n", cmd.Overloads.Select(o=>$"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a=>string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```"
+                };
+                await ctx.RespondAsync(embed: embed);
+            }
+        }
+
 
         [Command("ping"), Description("Bot ping")]
         public async Task Ping(CommandContext ctx)
@@ -59,72 +89,38 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("userinfo"), Description("User information")]
-        public async Task UserInfo(CommandContext ctx) {
-            var member = ctx.Member;
-            string role = "";
-            foreach (var r in member.Roles)
-            {
-                role = r.Mention;
-            }
+        public async Task UserInfo(CommandContext ctx, DiscordMember user = null) {
+            user ??= ctx.Member;
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Information as {member.Username}#{member.Discriminator}",
-                ThumbnailUrl = member.AvatarUrl,
-                Color = new DiscordColor("#0de25f"),
+                Title = $"User: {user.Username}#{user.Discriminator}",
+                ThumbnailUrl = user.AvatarUrl,
+                Color = new DiscordColor(Config.settings.embedColor),
             };
-            var nickname = member.Nickname;
-            if (nickname == null)
-            {
-                nickname = "none";
-            }
-            embed.AddField("**Username:**", member.Username, true);
-            embed.AddField("**Nickname:**", nickname, true);
-            embed.AddField("**Id:**", ""+member.Id, true);
-            embed.AddField("**Role:**", role, true);
-            if (Config.developer.Contains(member.Id))
-            {
+
+            embed.AddField("**Username:**", user.Username, true);
+
+            if (user.Nickname != null) 
+                embed.AddField("**Nickname:**", user.Nickname, true);
+
+            embed.AddField("**Id:**", ""+user.Id, true);
+
+            embed.AddField("**Top role:**", user.Roles.OrderByDescending(i => i.Position).FirstOrDefault().Mention, true);
+
+            if (Config.developer.Contains(user.Id)) 
                 embed.AddField("**Developer:**", "true", true);
-            }
+
             await ctx.RespondAsync(null, false, embed.Build());
         }
 
-        [Command("userinfo"), Description("User information")]
-        public async Task UserInfo(CommandContext ctx, DiscordMember member)
-        {
-            string role = null;
-            foreach (var r in member.Roles)
-            {
-                role = r.Mention;
-            }
-            var embed = new DiscordEmbedBuilder
-            {
-                Title = $"Information as {member.Username}#{member.Discriminator}",
-                ThumbnailUrl = member.AvatarUrl,
-                Color = new DiscordColor("#0de25f"),
-            };
-            var nickname = member.Nickname;
-            if (nickname == null)
-            {
-                nickname = "none";
-            }
-            embed.AddField("**Username:**", member.Username, true);
-            embed.AddField("**Nickname:**", nickname, true);
-            embed.AddField("**Id:**", "" + member.Id, true);
-            embed.AddField("**Role:**", role, true);
-            if (Config.developer.Contains(member.Id))
-            {
-                embed.AddField("**Developer:**", "true", true);
-            }
-            await ctx.RespondAsync(null, false, embed.Build());
-        }
 
         [Command("info"), Description("Bot information")]
         public async Task BotInfo(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder
             {
-                Title = "LimeBOT info",
-                Color = new DiscordColor("#0de25f"),
+                Title = "Lime Bot info",
+                Color = new DiscordColor(Config.settings.embedColor),
                 Description = "Lime is a simple, multi-purpose bot."
             };
             var users = 0;

@@ -2,16 +2,26 @@
     <v-container>
         <h1 class="display-1">Manage {{server.name}}</h1>
         <div class="d-flex pa-3 flex-wrap">
-            <v-card class="ma-3 pa-2" width="300" link hover v-for="panel in panels" :to="panel.url" append :key="panel.title">
-                <v-card-text>
-                <h2 class="mb-3">
-                    {{panel.title}} <v-icon class="headline float-right">{{panel.icon}}</v-icon>
-                </h2>
-                <div>
-                    {{panel.description}}
-                </div>
-                </v-card-text>
-            </v-card>
+            <v-hover
+                v-slot:default="{ hover }"
+                v-for="panel in panels" :key="panel.title"
+            >
+                <v-card 
+                    class="ma-3 pa-2" 
+                    width="300" 
+                    link append :to="panel.url"
+                    :elevation="hover ? 12 : 2" 
+                >
+                    <v-card-text>
+                    <h2 class="mb-3">
+                        {{panel.title}} <v-icon class="headline float-right">{{panel.icon}}</v-icon>
+                    </h2>
+                    <div>
+                        {{panel.description}}
+                    </div>
+                    </v-card-text>
+                </v-card>
+            </v-hover>
         </div>
     </v-container>
 </template>
