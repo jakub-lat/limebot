@@ -31,6 +31,25 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
+        public async Task Ban(CommandContext ctx, DiscordMember member, string reason = "No reason")
+        {
+
+            await member.SendMessageAsync($"You were banned from **{ctx.Guild.Name}**. Reason: `{reason}`");
+
+            await member.BanAsync(0, reason);
+            await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
+            {
+                Action = LogAction.Ban,
+                Reason = reason,
+                AuthorId = ctx.Member.Id,
+                TargetUser = member.Username + "#" + member.Discriminator,
+                Date = DateTime.UtcNow
+            });
+
+            await ctx.RespondAsync($"Banned **{member.Username}#{member.Discriminator}** with reason: `{reason}`");
+        }
+
+        [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
         public async Task Ban(CommandContext ctx, DiscordMember member, uint deleteMessageDays, string reason = "No reason")
         {
             if(deleteMessageDays < 0 || deleteMessageDays > 7)
@@ -44,7 +63,7 @@ namespace PotatoBot.Bot.Commands
             await member.BanAsync((int)deleteMessageDays, reason);
             await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
             {
-                Action = LogAction.Ban.ToString(),
+                Action = LogAction.Ban,
                 Reason = reason,
                 AuthorId = ctx.Member.Id,
                 TargetUser = member.Username + "#" + member.Discriminator,
@@ -92,7 +111,7 @@ namespace PotatoBot.Bot.Commands
 
             await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
             {
-                Action = LogAction.Unban.ToString(),
+                Action = LogAction.Unban,
                 Reason = reason,
                 AuthorId = ctx.Member.Id,
                 TargetUser = user.Username + "#" + user.Discriminator,
@@ -111,7 +130,7 @@ namespace PotatoBot.Bot.Commands
 
             await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
             {
-                Action = LogAction.Kick.ToString(),
+                Action = LogAction.Kick,
                 Reason = reason,
                 AuthorId = ctx.Member.Id,
                 TargetUser = member.Username + "#" + member.Discriminator,
@@ -121,7 +140,7 @@ namespace PotatoBot.Bot.Commands
             await ctx.RespondAsync($"Kicked **{member.Username}#{member.Discriminator}** with reason: `{reason}`");
         }
 
-        [Command("mute"), Description("Mutes an user for specified time"), RequirePermissions(Permissions.ManageRoles)]
+        [Command("mute"), Description("Mutes an user (so they cannot type/speak) for specified time"), RequirePermissions(Permissions.ManageRoles)]
         public async Task TempMute(CommandContext ctx, DiscordMember member, TimeSpan? time, string reason = "No reason")
         {
             var role = ctx.Guild.Roles.GetValueOrDefault(guild.MutedRoleId);
@@ -164,7 +183,7 @@ namespace PotatoBot.Bot.Commands
 
             await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
             {
-                Action = LogAction.Mute.ToString(),
+                Action = LogAction.Mute,
                 Reason = reason,
                 AuthorId = ctx.Member.Id,
                 TargetUser = member.Username + "#" + member.Discriminator,
@@ -191,7 +210,7 @@ namespace PotatoBot.Bot.Commands
 
             await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
             {
-                Action = LogAction.Unmute.ToString(),
+                Action = LogAction.Unmute,
                 Reason = reason,
                 AuthorId = ctx.Member.Id,
                 TargetUser = member.Username + "#" + member.Discriminator,
@@ -214,11 +233,12 @@ namespace PotatoBot.Bot.Commands
             db.Entry(guild).State = EntityState.Modified;
             await db.SaveChangesAsync();
 
+
             await ctx.RespondAsync($"Warned **{member.Mention}** with reason: `{reason}`. (total: {warnCount + 1} warns)");
 
             await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
             {
-                Action = LogAction.Warn.ToString(),
+                Action = LogAction.Warn,
                 Reason = reason,
                 AuthorId = ctx.Member.Id,
                 TargetUser = member.Username + "#" + member.Discriminator,

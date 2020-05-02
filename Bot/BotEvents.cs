@@ -83,7 +83,7 @@ namespace Bot
                         var member = dGuild.Members[muted.UserId];
                         await ctx.AddLog(dGuild, client.CurrentUser, guild, new GuildLog
                         {
-                            Action = LogAction.Unmute.ToString(),
+                            Action = LogAction.Unmute,
                             AuthorId = client.CurrentUser.Id,
                             Date = DateTime.Now,
                             Reason = "Auto unmute",

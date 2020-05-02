@@ -15,13 +15,17 @@ namespace PotatoBot.Models
     public class GuildLog
     {
         public GuildData GuildData { get; set; }
-        public string Action { get; set; }
+        public LogAction Action { get; set; }
         public string TargetUser { get; set; }
         public string Reason { get; set; }
         public ulong AuthorId { get; set; }
         public DateTime Date { get; set; }
     }
 
+    public enum WarnAction
+    {
+        Kick, Ban, Mute1d, Mute2d, Mute3d, Mute7d
+    }
 
     public class GuildData
     {
@@ -32,6 +36,12 @@ namespace PotatoBot.Models
         public List<GuildLog> Logs { get; set; } = new List<GuildLog>();
 
         public List<Warn> Warns { get; set; }
+
+        /*
+        public bool EnableWarnAction { get; set; }
+        public int WarnActionTreshold { get; set; }
+        public WarnAction WarnActionType { get; set; }
+        */
 
         public bool EnableModLogs { get; set; }
         public ulong ModLogsChannel { get; set; }

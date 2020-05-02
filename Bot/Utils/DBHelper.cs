@@ -49,7 +49,7 @@ namespace PotatoBot.Utils
             {
                 var chn = dGuild.Channels[guild.ModLogsChannel];
 
-                var color = new DiscordColor(Enum.Parse<LogAction>(log.Action) switch
+                var color = new DiscordColor(log.Action switch
                 {
                     LogAction.Mute => "#cad628",
                     LogAction.Ban => "#7c0b01",
