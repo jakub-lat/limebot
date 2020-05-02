@@ -8,12 +8,13 @@ using PotatoBot.Bot;
 using DSharpPlus.Entities;
 using static DSharpPlus.Entities.DiscordEmbedBuilder;
 using DSharpPlus.CommandsNext;
-using DAL;
+using PotatoBot;
 
 namespace PotatoBot.Utils
 {
     public static class DBHelper
     {
+
         public static async Task<GuildData> GetGuild(this GuildContext ctx, ulong id)
         {
             var guild = await ctx.Guilds.FindAsync(id);
@@ -38,7 +39,7 @@ namespace PotatoBot.Utils
             return newGuild;
         }
 
-        public static async Task AddLog(this GuildContext db, CommandContext ctx, GuildData guild, GuildLog log)
+        public static async Task AddLog(this GuildContext db, DSharpPlus.Entities.DiscordGuild dGuild, DSharpPlus.Entities.DiscordUser author, GuildData guild, GuildLog log)
         {
             guild.Logs.Add(log);
             db.Entry(guild).State = EntityState.Modified;
@@ -46,9 +47,7 @@ namespace PotatoBot.Utils
 
             if(guild.EnableModLogs)
             {
-                var chn = ctx.Guild.Channels[guild.ModLogsChannel];
-
-                var author = ctx.Member;
+                var chn = dGuild.Channels[guild.ModLogsChannel];
 
                 var color = new DiscordColor(Enum.Parse<LogAction>(log.Action) switch
                 {
@@ -56,7 +55,7 @@ namespace PotatoBot.Utils
                     LogAction.Ban => "#7c0b01",
                     LogAction.Kick => "#c61735",
                     LogAction.Warn => "#0d86dd",
-                    _ => "#0d86dd"
+                    _ => Config.settings.embedColor
                 });
                 var embed = new DiscordEmbedBuilder
                 {

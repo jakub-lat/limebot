@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql;
 using PotatoBot.Models;
 using PotatoBot.Bot.Utils;
-using DAL;
+using PotatoBot;
 using Microsoft.AspNetCore.SpaServices;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Extensions;
 

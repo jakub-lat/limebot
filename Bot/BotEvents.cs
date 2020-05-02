@@ -10,8 +10,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Timers;
 using PotatoBot.Utils;
-using DAL;
-using DSharpPlus.CommandsNext.Converters;
+using PotatoBot;
+using Microsoft.EntityFrameworkCore;
 
 namespace Bot
 {
@@ -19,6 +19,7 @@ namespace Bot
     {
         private DiscordClient client;
         private string connectionString;
+
         private Timer statusTimer;
         private int statusIndex = 0;
         private readonly DiscordActivity[] statuses = new DiscordActivity[] {
@@ -27,6 +28,8 @@ namespace Bot
             new DiscordActivity("I hate Lemon", ActivityType.Playing),
             new DiscordActivity("{guilds} guilds", ActivityType.Watching)
         };
+
+        private Timer unmuteTimer;
 
         public BotEvents(DiscordClient client, string conn)
         {
@@ -39,6 +42,12 @@ namespace Bot
             statusTimer.Enabled = true;
 
             client.UpdateStatusAsync(statuses[0], UserStatus.Idle);
+
+            unmuteTimer = new Timer();
+            unmuteTimer.Elapsed += new ElapsedEventHandler(UnmuteTask);
+            unmuteTimer.Interval = 60000;
+            unmuteTimer.Enabled = true;
+            UnmuteTask();
         }
 
         private void ChangeStatus(object source, ElapsedEventArgs e)
@@ -56,8 +65,39 @@ namespace Bot
             }
         }
 
-        public async Task MessageCreated(MessageCreateEventArgs e)
+        private async void UnmuteTask(object source = null, ElapsedEventArgs e = null)
         {
+            using (var ctx = new GuildContext(connectionString))
+            {
+                var expired = ctx.MutedUsers.Where(i => i.Time <= DateTime.UtcNow);
+                foreach(var muted in await expired.ToListAsync())
+                {
+                    try
+                    {
+                        var guild = await ctx.GetGuild(muted.GuildId);
+                        var dGuild = client.Guilds[muted.GuildId];
+
+                        var role = dGuild.Roles[guild.MutedRoleId];
+                        _ = dGuild.Members[muted.UserId].RevokeRoleAsync(role);
+
+                        var member = dGuild.Members[muted.UserId];
+                        await ctx.AddLog(dGuild, client.CurrentUser, guild, new GuildLog
+                        {
+                            Action = LogAction.Unmute.ToString(),
+                            AuthorId = client.CurrentUser.Id,
+                            Date = DateTime.Now,
+                            Reason = "Auto unmute",
+                            TargetUser = member.Username + "#" + member.Discriminator
+                        });
+                    } catch
+                    {
+                        Console.WriteLine($"Error while unmuting user:");
+                        Console.WriteLine(muted.ToString());
+                    }
+                }
+                ctx.MutedUsers.RemoveRange(expired);
+                await ctx.SaveChangesAsync();
+            }
         }
 
         public async Task MemberJoined(GuildMemberAddEventArgs e)

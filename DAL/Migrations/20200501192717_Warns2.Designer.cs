@@ -8,11 +8,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PotatoBot.Models;
 
-namespace DAL.Migrations
+namespace PotatoBot.Migrations
 {
     [DbContext(typeof(GuildContext))]
-    [Migration("20200429183807_ModLogsChannel")]
-    partial class ModLogsChannel
+    [Migration("20200501192717_Warns2")]
+    partial class Warns2
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -22,6 +22,27 @@ namespace DAL.Migrations
                 .HasAnnotation("ProductVersion", "5.0.0-preview.3.20181.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            modelBuilder.Entity("DAL.Models.MutedUser", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<decimal>("GuildId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<decimal>("UserId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MutedUsers");
+                });
+
             modelBuilder.Entity("PotatoBot.Models.GuildData", b =>
                 {
                     b.Property<decimal>("Id")
@@ -30,6 +51,9 @@ namespace DAL.Migrations
 
                     b.Property<decimal[]>("AutoRolesOnJoin")
                         .HasColumnType("numeric[]");
+
+                    b.Property<bool>("EnableMessageLogs")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("EnableModLogs")
                         .HasColumnType("boolean");
@@ -43,6 +67,9 @@ namespace DAL.Migrations
                     b.Property<List<GuildLog>>("Logs")
                         .HasColumnType("jsonb");
 
+                    b.Property<decimal>("MessageLogsChannel")
+                        .HasColumnType("numeric(20,0)");
+
                     b.Property<decimal>("ModLogsChannel")
                         .HasColumnType("numeric(20,0)");
 
@@ -51,6 +78,9 @@ namespace DAL.Migrations
 
                     b.Property<string>("Prefix")
                         .HasColumnType("text");
+
+                    b.Property<Dictionary<ulong, List<string>>>("Warns")
+                        .HasColumnType("jsonb");
 
                     b.Property<string>("WelcomeMessage")
                         .HasColumnType("text");
@@ -61,38 +91,6 @@ namespace DAL.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Guilds");
-                });
-
-            modelBuilder.Entity("PotatoBot.Models.GuildLog", b =>
-                {
-                    b.Property<string>("Action")
-                        .HasColumnType("text");
-
-                    b.Property<decimal>("AuthorId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<decimal?>("GuildDataId")
-                        .HasColumnType("numeric(20,0)");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("text");
-
-                    b.Property<string>("TargetUser")
-                        .HasColumnType("text");
-
-                    b.HasIndex("GuildDataId");
-
-                    b.ToTable("Logs");
-                });
-
-            modelBuilder.Entity("PotatoBot.Models.GuildLog", b =>
-                {
-                    b.HasOne("PotatoBot.Models.GuildData", "GuildData")
-                        .WithMany()
-                        .HasForeignKey("GuildDataId");
                 });
 #pragma warning restore 612, 618
         }

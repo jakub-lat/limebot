@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DAL;
+using PotatoBot;
 using System.Diagnostics;
 using PotatoBot.Utils;
 using System.Reflection;
@@ -125,34 +125,16 @@ namespace PotatoBot.Bot.Commands
                 Description = "Lime is a simple, multi-purpose bot."
             };
             var users = 0;
-            var textchannels = 0;
-            var voicechannels = 0;
-            var category = 0;
+            var channels = 0;
             foreach (var g in ctx.Client.Guilds)
             {
                 users += g.Value.MemberCount;
-                foreach(var channel in g.Value.Channels)
-                {
-                    if (channel.Value.Type==ChannelType.Category)
-                    {
-                        category++;
-                    }
-                    if (channel.Value.Type==DSharpPlus.ChannelType.Text)
-                    {
-                        textchannels++;
-                    }
-                    if (channel.Value.Type==DSharpPlus.ChannelType.Voice)
-                    {
-                        voicechannels++;
-                    }
-                }
+                channels += g.Value.Channels.Count;
             }
-            embed.AddField("**Stats**", 
-                $@"Guilds: {ctx.Client.Guilds.Count}
-                Users: {users}
-                Categories: {category}
-                Text channels: {textchannels}
-                Voice channels: {voicechannels}");
+            embed.AddField("**Stats**",
+$@"Guilds: {ctx.Client.Guilds.Count}
+Users: {users}
+Channels: {channels}");
 
             using(var proc = Process.GetCurrentProcess())
             {
@@ -162,9 +144,10 @@ namespace PotatoBot.Bot.Commands
                 embed.AddField("**Resource usage**", $"Memory: {memory} MB\nCPU: {cpu}%");
             }
 
-            embed.AddField("**Versions**", $@".Net Core: 3.1
-                Asp.Net Core: 2.2.0
-                DSharpPlus: {ctx.Client.VersionString}");
+            embed.AddField("**Versions**", 
+$@".Net Core: 3.1
+Asp.Net Core: 2.2.0
+DSharpPlus: {ctx.Client.VersionString}");
 
 
             await ctx.RespondAsync(null, false, embed.Build());

@@ -1,15 +1,14 @@
 ﻿using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
-using PotatoBot.Models;
 
-namespace DAL.Migrations
+namespace PotatoBot.Migrations
 {
-    public partial class Logs4 : Migration
+    public partial class Warns : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<List<GuildLog>>(
-                name: "Logs",
+            migrationBuilder.AddColumn<Dictionary<ulong, int>>(
+                name: "Warns",
                 table: "Guilds",
                 type: "jsonb",
                 nullable: true);
@@ -18,7 +17,7 @@ namespace DAL.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "Logs",
+                name: "Warns",
                 table: "Guilds");
         }
     }

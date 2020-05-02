@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace DAL.Migrations
+namespace PotatoBot.Migrations
 {
-    public partial class Logs7 : Migration
+    public partial class Warns3 : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

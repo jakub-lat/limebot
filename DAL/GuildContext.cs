@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using PotatoBot.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,6 +35,6 @@ namespace PotatoBot.Models
          
 
         public DbSet<GuildData> Guilds { get; set; }
-        public DbSet<GuildLog> Logs { get; set; }
+        public DbSet<MutedUser> MutedUsers { get; set; }
     }
 }

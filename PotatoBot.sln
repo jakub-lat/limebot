@@ -12,6 +12,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DAL", "DAL\DAL.csproj", "{B
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bot", "Bot\Bot.csproj", "{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBot", "TestBot\TestBot.csproj", "{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +32,10 @@ Global
 		{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

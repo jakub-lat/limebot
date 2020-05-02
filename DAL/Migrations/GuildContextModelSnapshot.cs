@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PotatoBot.Models;
 
-namespace DAL.Migrations
+namespace PotatoBot.Migrations
 {
     [DbContext(typeof(GuildContext))]
     partial class GuildContextModelSnapshot : ModelSnapshot
@@ -67,36 +67,58 @@ namespace DAL.Migrations
                     b.ToTable("Guilds");
                 });
 
-            modelBuilder.Entity("PotatoBot.Models.GuildLog", b =>
+            modelBuilder.Entity("PotatoBot.Models.MutedUser", b =>
                 {
-                    b.Property<string>("Action")
-                        .HasColumnType("text");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
+
+                    b.Property<decimal>("GuildId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<decimal>("UserId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("MutedUsers");
+                });
+
+            modelBuilder.Entity("PotatoBot.Models.Warn", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<decimal>("AuthorId")
                         .HasColumnType("numeric(20,0)");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<decimal?>("GuildDataId")
+                    b.Property<decimal?>("GuildId")
                         .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("Reason")
                         .HasColumnType("text");
 
-                    b.Property<string>("TargetUser")
-                        .HasColumnType("text");
+                    b.Property<decimal>("UserId")
+                        .HasColumnType("numeric(20,0)");
 
-                    b.HasIndex("GuildDataId");
+                    b.HasKey("Id");
 
-                    b.ToTable("Logs");
+                    b.HasIndex("GuildId");
+
+                    b.ToTable("Warn");
                 });
 
-            modelBuilder.Entity("PotatoBot.Models.GuildLog", b =>
+            modelBuilder.Entity("PotatoBot.Models.Warn", b =>
                 {
-                    b.HasOne("PotatoBot.Models.GuildData", "GuildData")
-                        .WithMany()
-                        .HasForeignKey("GuildDataId");
+                    b.HasOne("PotatoBot.Models.GuildData", "Guild")
+                        .WithMany("Warns")
+                        .HasForeignKey("GuildId");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using PotatoBot.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
@@ -8,9 +10,8 @@ namespace PotatoBot.Models
 {
     public enum LogAction
     {
-        Kick, Ban, Warn, Mute
+        Kick, Ban, Warn, Mute, Unmute
     }
-    [Keyless]
     public class GuildLog
     {
         public GuildData GuildData { get; set; }
@@ -20,14 +21,17 @@ namespace PotatoBot.Models
         public ulong AuthorId { get; set; }
         public DateTime Date { get; set; }
     }
+
+
     public class GuildData
     {
-
         public ulong Id { get; set; }
         public string Prefix { get; set; }
 
         [Column(TypeName = "jsonb")]
         public List<GuildLog> Logs { get; set; } = new List<GuildLog>();
+
+        public List<Warn> Warns { get; set; }
 
         public bool EnableModLogs { get; set; }
         public ulong ModLogsChannel { get; set; }

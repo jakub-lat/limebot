@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using PotatoBot.Utils;
 using Bot.Utils;
 using DSharpPlus.Interactivity;
-using DAL;
+using PotatoBot;
 using DSharpPlus.Interactivity.Enums;
 
 namespace PotatoBot.Bot.Commands
@@ -96,6 +96,12 @@ namespace PotatoBot.Bot.Commands
             }
         }
 
+        [Command("play"), RequireVC]
+        public async Task PlayResume(CommandContext ctx)
+        {
+            await Resume(ctx);
+        }
+
         [Command("play"), BeforePlay]
         public async Task PlaySearch(CommandContext ctx, [RemainingText] string query)
         {
@@ -116,11 +122,7 @@ namespace PotatoBot.Bot.Commands
                 await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
             }
         }
-        [Command("play"), RequireVC]
-        public async Task PlayResume(CommandContext ctx)
-        {
-            await Resume(ctx);
-        }
+        
 
         [Command("skip"), Aliases("s"), Description("Skip to next song"), RequireVC]
         public async Task Skip(CommandContext ctx)

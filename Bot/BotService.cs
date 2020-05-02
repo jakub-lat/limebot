@@ -11,7 +11,7 @@ using PotatoBot.Models;
 using PotatoBot.Bot.Utils;
 using Microsoft.Extensions.Configuration;
 using PotatoBot;
-using DAL;
+using PotatoBot;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics;
@@ -63,7 +63,8 @@ namespace PotatoBot.Bot
                 Token = Config.settings.BotToken,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = true,
-                LogLevel = LogLevel.Debug
+                LogLevel = LogLevel.Debug,
+                MessageCacheSize = 512
             });
 
             discord.UseLavalink();
