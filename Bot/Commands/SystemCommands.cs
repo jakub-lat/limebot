@@ -43,10 +43,10 @@ namespace PotatoBot.Bot.Commands
             var embed = new DiscordEmbedBuilder {
                 Title = "Lime help",
                 Description = @$"Hey! I am **LIME**. Nice to see you ;)
-                If you are stuck, **[here is a list of my commands]({url}/commands)**.
-                If you want to configure me, **[login to dashboard]({url}/manage/{ctx.Guild.Id})**
+If you are stuck, **[here is a list of my commands]({url}/commands)**.
+If you want to configure me, **[login to dashboard]({url}/manage/{ctx.Guild.Id})**
 
-                _Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified command_",
+_Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified command_",
                 Color = new DiscordColor(Config.settings.embedColor)
             };
             await ctx.RespondAsync(null, false, embed.Build());
@@ -67,12 +67,12 @@ namespace PotatoBot.Bot.Commands
                     Title = $"Command: {cmd.Name}",
                     Color = new DiscordColor(Config.settings.embedColor),
                     Description = $@"**Description:**
-                    {cmd.Description}
+{cmd.Description}
 
-                    {(cmd.Aliases.Any() ? $"**Aliases:** `{string.Join(", ", cmd.Aliases)}`" : "")}
+{(cmd.Aliases.Any() ? $"**Aliases:** `{string.Join(", ", cmd.Aliases)}`" : "")}
 
-                    **Usage:**
-                    ```{string.Join("\n", cmd.Overloads.Select(o=>$"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a=>string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```"
+**Usage:**
+```{string.Join("\n", cmd.Overloads.Select(o=>$"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a=>string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```"
                 };
                 await ctx.RespondAsync(embed: embed);
             }

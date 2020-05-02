@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using PotatoBot.Bot;
 using DSharpPlus.Entities;
-using static DSharpPlus.Entities.DiscordEmbedBuilder;
 using DSharpPlus.CommandsNext;
 using PotatoBot;
 
@@ -60,7 +59,7 @@ namespace PotatoBot.Utils
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = $"{log.Action}: {log.TargetUser}",
-                    Author = new EmbedAuthor
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
                     {
                         Name = author.Username + "#" + author.Discriminator,
                         IconUrl = author.GetAvatarUrl(DSharpPlus.ImageFormat.Png, 64)

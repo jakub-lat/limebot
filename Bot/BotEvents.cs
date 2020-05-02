@@ -170,8 +170,8 @@ namespace Bot
                             IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
                         },
                         Description = $@"{Formatter.BlockCode(e.MessageBefore.Content.Replace("```", "\\`\\`\\`"))}
-                        **To:** {Formatter.BlockCode(e.Message.Content.Replace("```", "\\`\\`\\`"))}
-                        **In channel** {e.Channel.Mention} ([Jump]({e.Message.JumpLink}))",
+**To:** {Formatter.BlockCode(e.Message.Content.Replace("```", "\\`\\`\\`"))}
+**In channel** {e.Channel.Mention} ([Jump]({e.Message.JumpLink}))",
                         Timestamp = DateTime.Now,
                         Color = new DiscordColor("#cad628"),
                         Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User ID: {e.Author.Id}" }
@@ -202,7 +202,7 @@ namespace Bot
                             IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
                         },
                         Description = @$"{Formatter.BlockCode(e.Message.Content.Replace("```", "\\`\\`\\`"))}
-                        **In channel** {e.Channel.Mention}",
+**In channel** {e.Channel.Mention}",
                         Timestamp = DateTime.Now,
                         Color = new DiscordColor("#9b2212"),
                         Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User ID: {e.Message.Author.Id}" }

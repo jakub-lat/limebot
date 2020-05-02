@@ -31,7 +31,7 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
-        public async Task Ban(CommandContext ctx, DiscordMember member, string reason = "No reason")
+        public async Task Ban(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
 
             await member.SendMessageAsync($"You were banned from **{ctx.Guild.Name}**. Reason: `{reason}`");
@@ -50,7 +50,7 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
-        public async Task Ban(CommandContext ctx, DiscordMember member, uint deleteMessageDays, string reason = "No reason")
+        public async Task Ban(CommandContext ctx, DiscordMember member, uint deleteMessageDays, [RemainingText] string reason = "No reason")
         {
             if(deleteMessageDays < 0 || deleteMessageDays > 7)
             {
@@ -105,7 +105,7 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("unban"), Description("Removes user ban"), RequirePermissions(Permissions.BanMembers)]
-        public async Task Unban(CommandContext ctx, DSharpPlus.Entities.DiscordUser user, string reason = "No reason")
+        public async Task Unban(CommandContext ctx, DSharpPlus.Entities.DiscordUser user, [RemainingText] string reason = "No reason")
         {
             await ctx.Guild.UnbanMemberAsync(user);
 
@@ -122,7 +122,7 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("kick"), Description("Kicks an user"), RequirePermissions(Permissions.KickMembers)]
-        public async Task Kick(CommandContext ctx, DiscordMember member, string reason = "No reason")
+        public async Task Kick(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
             await member.SendMessageAsync($"You were kicked from **{ctx.Guild.Name}**. Reason: `{reason}`");
 
@@ -141,7 +141,7 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("mute"), Description("Mutes an user (so they cannot type/speak) for specified time"), RequirePermissions(Permissions.ManageRoles)]
-        public async Task TempMute(CommandContext ctx, DiscordMember member, TimeSpan? time, string reason = "No reason")
+        public async Task TempMute(CommandContext ctx, DiscordMember member, TimeSpan? time, [RemainingText] string reason = "No reason")
         {
             var role = ctx.Guild.Roles.GetValueOrDefault(guild.MutedRoleId);
 
@@ -192,13 +192,13 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("mute")]
-        public async Task Mute(CommandContext ctx, DiscordMember member, string reason = "No reason")
+        public async Task Mute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
             await TempMute(ctx, member, null, reason);
         }
 
         [Command("unmute"), Description("Unmutes an user"), RequirePermissions(Permissions.ManageRoles)]
-        public async Task Unmute(CommandContext ctx, DiscordMember member, string reason = "No reason")
+        public async Task Unmute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
             var role = ctx.Guild.Roles.GetValueOrDefault(guild.MutedRoleId);
 
@@ -219,7 +219,7 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("warn"), Aliases("warning"), Description("Warns an user"), RequireUserPermissions(Permissions.ManageRoles)]
-        public async Task Warn(CommandContext ctx, DiscordMember member, string reason = "No reason")
+        public async Task Warn(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
             var warnCount = await db.Entry(guild).Collection(i => i.Warns).Query().Where(i => i.UserId == member.Id).CountAsync();
 
@@ -246,7 +246,6 @@ namespace PotatoBot.Bot.Commands
             });
         }
 
-
         [Command("warns"), Aliases("warnings"), Description("Display user warnings"), RequireUserPermissions(Permissions.ManageRoles)]
         public async Task WarnList(CommandContext ctx, DiscordMember member)
         {
@@ -259,22 +258,30 @@ namespace PotatoBot.Bot.Commands
                     Name = $"{member.Username}#{member.Discriminator}",
                     IconUrl = member.GetAvatarUrl(ImageFormat.Png, 64)
                 },
-                Title = $"User has {warns.Count} warnings",
-                Description = string.Join("\n", warns.Select((i, n) => $"{n + 1}. {i.Reason} (from {ctx.Guild.Members[i.AuthorId].Mention})").ToList()),
-                Color = new DiscordColor(Config.settings.embedColor),
-                Footer = new DiscordEmbedBuilder.EmbedFooter
-                {
-                    Text = $"Type {ctx.Prefix}delwarn <@member> <id> to revoke the warning"
-                }
+                Title = $"Found {warns.Count} warnings",
+                Description = string.Join("\n", warns.Select((i, n) => $"{n + 1}. {i.Reason} (from {ctx.Guild.Members[i.AuthorId].Mention})").ToList()) + $"\n\n**Type `{ctx.Prefix}delwarn <member> <#>` to remove selected warning**",
+                Color = new DiscordColor(Config.settings.embedColor)
             };
             await ctx.RespondAsync(embed: embed.Build());
         }
 
-        [Command("delwarn"), Aliases("deletewarn")]
-        public async Task WarnRemove(CommandContext ctx, DiscordMember member, uint id)
+        [Command("delwarn"), Aliases("deletewarn", "unwarn"), Description("Removes specific warning from user"), RequireUserPermissions(Permissions.ManageRoles)]
+        public async Task DelwarnInfo(CommandContext ctx, DiscordMember member = null)
+        {
+            if(member == null)
+            {
+                await ctx.RespondAsync($"Type `{ctx.Prefix}delwarn <member> <#>` to delete a warning. To see a list of warns for an user, type `{ctx.Prefix}warns <member>`");
+            } else
+            {
+                await WarnList(ctx, member);
+            }
+        }
+
+        [Command("delwarn")]
+        public async Task RemoveWarn(CommandContext ctx, DiscordMember member, uint id)
         {
             var warns = await db.Entry(guild).Collection(i => i.Warns).Query().Where(i => i.UserId == member.Id).ToListAsync();
-            var warn = warns.ElementAtOrDefault((int)id);
+            var warn = warns.ElementAtOrDefault((int)id - 1);
             if(warn == null)
             {
                 await ctx.RespondAsync($"Warning with id {id} for this user not found.");
@@ -283,7 +290,7 @@ namespace PotatoBot.Bot.Commands
                 guild.Warns.RemoveAll(i => i.Id == warn.Id);
                 await db.SaveChangesAsync();
 
-                await ctx.RespondAsync($"Removed warning with reason `{warn.Reason}` for this user.");
+                await ctx.RespondAsync($"Removed warning with reason `{warn.Reason}` for **{member.Username}#{member.Discriminator}**.");
             }
             
         }

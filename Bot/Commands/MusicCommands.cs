@@ -172,8 +172,8 @@ namespace PotatoBot.Bot.Commands
                 {
                     Title = $":notes: Queue for {ctx.Guild.Name} ({(i/10)+1}/{pageCount})",
                     Description = $@"```{string.Join("\n", queue.Skip(i).Take(10).ToList())} {(gm.Queue.Count > 10 + i ? "\n..." : "")}```
-                    Now playing: **{gm.Queue[gm.Index].Title}**
-                    ```{(gm.IsPaused ? "⏸️" : "▶️")} {duration} {position}```",
+Now playing: **{gm.Queue[gm.Index].Title}**
+```{(gm.IsPaused ? "⏸️" : "▶️")} {duration} {position}```",
                     Color = new DiscordColor(Config.settings.embedColor)
                 };
                 pages.Add(new Page(embed: embed));
