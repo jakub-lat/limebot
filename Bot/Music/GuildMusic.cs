@@ -14,18 +14,25 @@ namespace Bot.Music
         private Lavalink lava;
         private DiscordGuild guild;
         private DiscordChannel textChannel;
+
+        private string prefix;
+
+        private bool skipped = false;
+
         public LavalinkGuildConnection player;
         public List<LavalinkTrack> Queue { get; private set; } = new List<LavalinkTrack>();
         public int Index { get; private set; } = 0;
-        private bool skipped = false;
 
-        public bool isPaused=false;
+        public bool IsPaused { get; private set; } = false;
 
-        public GuildMusic(Lavalink lava, DiscordGuild guild, DiscordChannel textChannel)
+        public bool Is24_7 { get; set; } = false;
+
+        public GuildMusic(Lavalink lava, DiscordGuild guild, DiscordChannel textChannel, string prefix = "$")
         {
             this.lava = lava;
             this.guild = guild;
             this.textChannel = textChannel;
+            this.prefix = prefix;
         }
 
         public async Task InitPlayer(DiscordChannel vc)
@@ -79,11 +86,16 @@ namespace Bot.Music
             }
         }
 
-
         public async Task Stop()
         {
             await player.DisconnectAsync();
             lava.Delete(guild);
+        }
+
+        public async Task Disconnect()
+        {
+            await Stop();
+            await textChannel.SendMessageAsync($"Disconnected. No one stayed with me :slight_frown: (to enable 24/7 music type `{prefix}24-7`)");
         }
 
         private static Random rng = new Random();
@@ -108,13 +120,13 @@ namespace Bot.Music
         public async Task Pause()
         {
             await player.PauseAsync();
-            isPaused = true;
+            IsPaused = true;
         }
 
         public async Task Resume()
         {
             await player.ResumeAsync();
-            isPaused = false;
+            IsPaused = false;
         }
     }
 }

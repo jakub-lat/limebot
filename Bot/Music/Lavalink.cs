@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace Bot.Music
 {
@@ -41,15 +42,24 @@ namespace Bot.Music
         {
             return guildMusic.GetValueOrDefault(guild.Id);
         }
-        public async Task InitGuildMusic(DiscordGuild guild, DiscordVoiceState vs, DiscordChannel chn)
+        public async Task InitGuildMusic(DiscordGuild guild, DiscordVoiceState vs, DiscordChannel chn, string prefix)
         {
-            var gm = new GuildMusic(this, guild,  chn);
+            var gm = new GuildMusic(this, guild, chn, prefix);
             await gm.InitPlayer(vs.Channel);
             guildMusic.Add(guild.Id, gm);
         }
         public void Delete(DiscordGuild guild)
         {
             guildMusic.Remove(guild.Id);
+        }
+
+        public async Task VoiceStateUpdated(VoiceStateUpdateEventArgs e)
+        {
+            var gm = Get(e.Guild);
+            if (gm != null && !gm.Is24_7 && e.Before?.Channel == gm?.player?.Channel && e.Before?.Channel?.Users.Count() == 1)
+            {
+                await gm?.Disconnect();
+            }
         }
     }
 }

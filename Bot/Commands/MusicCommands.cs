@@ -17,6 +17,7 @@ using Bot.Utils;
 using DSharpPlus.Interactivity;
 using PotatoBot;
 using DSharpPlus.Interactivity.Enums;
+using Bot.Entities;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -33,11 +34,12 @@ namespace PotatoBot.Bot.Commands
         private GuildMusic gm;
         public MusicCommands(GuildContext db, Lavalink lava) : base(db) {
             this.lava = lava;
-            this.yt = new YoutubeSearch();
+            yt = new YoutubeSearch();
         }
 
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
+            gm = null;
             var requireVC = ctx.Command.CustomAttributes.FirstOrDefault(i => i.GetType() == typeof(RequireVCAttribute));
             var beforePlay = ctx.Command.CustomAttributes.FirstOrDefault(i => i.GetType() == typeof(BeforePlayAttribute));
             if(requireVC != null)
@@ -52,7 +54,7 @@ namespace PotatoBot.Bot.Commands
 
             if(beforePlay != null)
             {
-                if (gm == null) await lava.InitGuildMusic(ctx.Guild, ctx.Member.VoiceState, ctx.Channel);
+                if (gm == null) await lava.InitGuildMusic(ctx.Guild, ctx.Member.VoiceState, ctx.Channel, ctx.Prefix);
                 if (gm?.player.Channel == null)
                 {
                     var chn = ctx.Member.VoiceState.Channel;
@@ -63,9 +65,11 @@ namespace PotatoBot.Bot.Commands
                     await ctx.RespondAsync(":warning: Already playing on different channel");
                     throw new CommandCanceledException();
                 }
-            } else if (gm == null) throw new CommandCanceledException();
+            }
             
             gm = lava.Get(ctx.Guild);
+
+            if (gm == null) throw new CommandCanceledException();
 
             await base.BeforeExecutionAsync(ctx);
         }
@@ -85,14 +89,14 @@ namespace PotatoBot.Bot.Commands
             if(trackLoad.Tracks.Count() == 1)
             {
                 await gm.Add(trackLoad.Tracks.First());
-                await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
+                await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue.");
             } else
             {
                 foreach(var track in trackLoad.Tracks)
                 {
                     await gm.Add(track);
                 }
-                await ctx.RespondAsync($"Added {trackLoad.Tracks.Count()} tracks to queue");
+                await ctx.RespondAsync($"Added {trackLoad.Tracks.Count()} tracks to queue.");
             }
         }
 
@@ -140,7 +144,7 @@ namespace PotatoBot.Bot.Commands
 
             var queue = gm.Queue.Select((item, index) =>
             {
-                string x = index == gm.Index ? "▶️" : $" {index + 1}.";
+                string x = index == gm.Index ? "▶️" : $"{index + 1}.";
                 return $"{x} {(item.Title.Length <= 30 ? item.Title : item.Title.Substring(0, Math.Min(item.Title.Length, 30)) + "...")}";
             }).ToList();
 
@@ -169,7 +173,7 @@ namespace PotatoBot.Bot.Commands
                     Title = $":notes: Queue for {ctx.Guild.Name} ({(i/10)+1}/{pageCount})",
                     Description = $@"```{string.Join("\n", queue.Skip(i).Take(10).ToList())} {(gm.Queue.Count > 10 + i ? "\n..." : "")}```
                     Now playing: **{gm.Queue[gm.Index].Title}**
-                    ```{(gm.isPaused ? "⏸️" : "▶️")} {duration} {position}```",
+                    ```{(gm.IsPaused ? "⏸️" : "▶️")} {duration} {position}```",
                     Color = new DiscordColor(Config.settings.embedColor)
                 };
                 pages.Add(new Page(embed: embed));
@@ -184,20 +188,31 @@ namespace PotatoBot.Bot.Commands
                 Right = DiscordEmoji.FromUnicode("⬇️")
             };
 
-            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.Member, pages, emojis, PaginationBehaviour.Ignore);
-            
+            var paginated = new MyPaginatedMessage(ctx, pages, emojis, gm.Index / 10);
+            await paginated.SendAsync();
+            await interactivity.WaitForCustomPaginationAsync(paginated);
         }
 
         [Command("volume"), Aliases("vol"), Description("Set player volume"), RequireVC]
         public async Task Volume(CommandContext ctx, int volume)
         {
+            if(volume < 0 || volume > 150)
+            {
+                await ctx.RespondAsync("Volume must be between 0 and 150");
+                return;
+            }
             await gm.player.SetVolumeAsync(volume);
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
         }
 
-        [Command("stop"), Description("Clear queue and disconnect from VC")]
+        [Command("stop"), Aliases("leave", "disconnect"), Description("Clear queue and disconnect from VC")]
         public async Task Stop(CommandContext ctx)
         {
+            if(ctx.Member?.VoiceState?.Channel != gm?.player?.Channel && gm?.player?.Channel?.Users.Count() != 1)
+            {
+                await ctx.RespondAsync(":warning: You need to be in the same voice channel as me!");
+                return;
+            }
             await gm.Stop();
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":stop_button:"));
         }
@@ -212,7 +227,7 @@ namespace PotatoBot.Bot.Commands
         [Command("pause"), Description("Pause the track."), RequireVC]
         public async Task Pause(CommandContext ctx)
         {
-            if(!gm.isPaused)
+            if(!gm.IsPaused)
             {
                 await gm.Pause();
                 await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":pause_button:"));
@@ -222,7 +237,7 @@ namespace PotatoBot.Bot.Commands
         [Command("resume"), Description("Resume the track."), RequireVC]
         public async Task Resume(CommandContext ctx)
         {
-            if (gm.isPaused)
+            if (gm.IsPaused)
             {
                 await gm.Resume();
                 await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":arrow_forward:"));
@@ -248,6 +263,19 @@ namespace PotatoBot.Bot.Commands
         {
             await gm.player?.SeekAsync(gm.player.CurrentState.PlaybackPosition - position);
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":fast_forward:"));
+        }
+
+        [Command("24-7"), Description("Toggles 24/7 mode, so bot won't disconnect when everyone leaves the voice chat"), RequireVC]
+        public async Task Toggle24_7(CommandContext ctx)
+        {
+            gm.Is24_7 = !gm.Is24_7;
+            if(gm.Is24_7)
+            {
+                await ctx.RespondAsync("Enabled **24/7 mode**! Now I won't leave when the channel will be empty.");
+            } else
+            {
+                await ctx.RespondAsync("Disabled **24/7 mode**. I will now leave when the channel will be empty.");
+            }
         }
     }
 }

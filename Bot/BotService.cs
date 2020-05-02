@@ -69,7 +69,8 @@ namespace PotatoBot.Bot
 
             discord.UseLavalink();
 
-            services.AddSingleton(new Lavalink(discord));
+            lava = new Lavalink(discord);
+            services.AddSingleton(lava);
 
             var provider = services.BuildServiceProvider();
             commands = discord.UseCommandsNext(new CommandsNextConfiguration
@@ -101,6 +102,7 @@ namespace PotatoBot.Bot
             discord.GuildMemberRemoved += events.MemberLeft;
             discord.MessageUpdated += events.MessageEdited;
             discord.MessageDeleted += events.MessageDeleted;
+            discord.VoiceStateUpdated += lava.VoiceStateUpdated;
         }
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)

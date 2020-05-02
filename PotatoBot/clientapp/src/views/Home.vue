@@ -136,6 +136,7 @@ export default {
         subtitle: 'Customize join / leave actions, like autoroles and welcome & leave messages.',
         color: 'cyan accent-4'
       }
+      // stats, reactionroles
     ]
   })
 };
