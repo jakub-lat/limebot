@@ -12,8 +12,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using PotatoBot.Utils;
 using Microsoft.EntityFrameworkCore;
-using PotatoBot.Models;
 using Bot.Extensions;
+using DSharpPlus.Interactivity;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -31,11 +31,17 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
-        public async Task Ban(CommandContext ctx, DiscordMember member, string reason = "No reason")
+        public async Task Ban(CommandContext ctx, DiscordMember member, uint deleteMessageDays, string reason = "No reason")
         {
+            if(deleteMessageDays < 0 || deleteMessageDays > 7)
+            {
+                await ctx.RespondAsync("Argument `<deleteMessagedays>` must be betweeen 0 and 7!");
+                return;
+            }
+
             await member.SendMessageAsync($"You were banned from **{ctx.Guild.Name}**. Reason: `{reason}`");
 
-            await member.BanAsync(30, reason);
+            await member.BanAsync((int)deleteMessageDays, reason);
             await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
             {
                 Action = LogAction.Ban.ToString(),
@@ -44,6 +50,56 @@ namespace PotatoBot.Bot.Commands
                 TargetUser = member.Username + "#" + member.Discriminator,
                 Date = DateTime.UtcNow
             });
+
+            await ctx.RespondAsync($"Banned **{member.Username}#{member.Discriminator}** with reason: `{reason}`");
+        }
+
+        [Command("bans"), Description("Shows a list of bans"), RequirePermissions(Permissions.BanMembers)]
+        public async Task Bans(CommandContext ctx)
+        {
+            var interactivity = ctx.Client.GetInteractivity();
+            var bans = await ctx.Guild.GetBansAsync();
+
+            var embedBase = new DiscordEmbedBuilder
+            {
+                Color = new DiscordColor(Config.settings.embedColor)
+            };
+
+            var pageCount = (bans.Count - 1) / 10 + 1;
+            var pages = bans.Select((x, i) => new { str = $"{i+1}. **{x.User.Username}#{x.User.Discriminator}** (`{x.User.Id}`) - {x.Reason}", index = i })
+                .GroupBy(x => x.index / 10)
+                .Select(i => new Page
+                {
+                    Embed = embedBase.WithTitle($"Bans for **{ctx.Guild.Name}** ({i.Key + 1}/{pageCount})")
+                        .WithDescription(string.Join("\n", i.Select(x => x.str).ToList()))
+                });
+
+            var emojis = new PaginationEmojis
+            {
+                SkipLeft = DiscordEmoji.FromUnicode("🏠"),
+                SkipRight = null,
+                Stop = DiscordEmoji.FromUnicode("⏹"),
+                Left = DiscordEmoji.FromUnicode("⬆️"),
+                Right = DiscordEmoji.FromUnicode("⬇️")
+            };
+            await interactivity.SendPaginatedMessageAsync(ctx.Channel, ctx.Member, pages, emojis);
+        }
+
+        [Command("unban"), Description("Removes user ban"), RequirePermissions(Permissions.BanMembers)]
+        public async Task Unban(CommandContext ctx, DSharpPlus.Entities.DiscordUser user, string reason = "No reason")
+        {
+            await ctx.Guild.UnbanMemberAsync(user);
+
+            await db.AddLog(ctx.Guild, ctx.Member, guild, new GuildLog
+            {
+                Action = LogAction.Unban.ToString(),
+                Reason = reason,
+                AuthorId = ctx.Member.Id,
+                TargetUser = user.Username + "#" + user.Discriminator,
+                Date = DateTime.UtcNow
+            });
+
+            await ctx.RespondAsync($"Removed ban **{user.Username}#{user.Discriminator}** with reason: `{reason}`");
         }
 
         [Command("kick"), Description("Kicks an user"), RequirePermissions(Permissions.KickMembers)]
@@ -61,6 +117,8 @@ namespace PotatoBot.Bot.Commands
                 TargetUser = member.Username + "#" + member.Discriminator,
                 Date = DateTime.UtcNow
             });
+
+            await ctx.RespondAsync($"Kicked **{member.Username}#{member.Discriminator}** with reason: `{reason}`");
         }
 
         [Command("mute"), Description("Mutes an user for specified time"), RequirePermissions(Permissions.ManageRoles)]
@@ -68,7 +126,7 @@ namespace PotatoBot.Bot.Commands
         {
             var role = ctx.Guild.Roles.GetValueOrDefault(guild.MutedRoleId);
 
-            if(role == null)
+            if (role == null)
             {
                 await ctx.RespondAsync("Creating muted role...");
                 role = await ctx.Guild.CreateRoleAsync("Muted", Permissions.AccessChannels | Permissions.ReadMessageHistory, null, null, false);
@@ -81,11 +139,11 @@ namespace PotatoBot.Bot.Commands
 
             await member.GrantRoleAsync(role);
 
-            if(time != null)
+            if (time != null)
             {
                 var unmuteTime = DateTime.UtcNow + (time ?? new TimeSpan());
                 var check = await db.MutedUsers.Where(i => i.UserId == member.Id && i.GuildId == ctx.Guild.Id).FirstOrDefaultAsync();
-                if(check == null)
+                if (check == null)
                 {
                     db.MutedUsers.Add(new MutedUser
                     {
@@ -98,7 +156,7 @@ namespace PotatoBot.Bot.Commands
                     check.Time = unmuteTime;
                     db.Entry(check).State = EntityState.Modified;
                 }
-                
+
                 await db.SaveChangesAsync();
             }
 
@@ -168,6 +226,7 @@ namespace PotatoBot.Bot.Commands
             });
         }
 
+
         [Command("warns"), Aliases("warnings"), Description("Display user warnings"), RequireUserPermissions(Permissions.ManageRoles)]
         public async Task WarnList(CommandContext ctx, DiscordMember member)
         {
@@ -175,11 +234,38 @@ namespace PotatoBot.Bot.Commands
 
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"Warns for {member.Username}#{member.Discriminator}",
-                Description = string.Join("\n", warns.Select((i, n) => $"**{n+1}**. {i.Reason} (from {ctx.Guild.Members[i.AuthorId].Mention})").ToList()),
-                Color = new DiscordColor(Config.settings.embedColor)
+                Author = new DiscordEmbedBuilder.EmbedAuthor
+                {
+                    Name = $"{member.Username}#{member.Discriminator}",
+                    IconUrl = member.GetAvatarUrl(ImageFormat.Png, 64)
+                },
+                Title = $"User has {warns.Count} warnings",
+                Description = string.Join("\n", warns.Select((i, n) => $"{n + 1}. {i.Reason} (from {ctx.Guild.Members[i.AuthorId].Mention})").ToList()),
+                Color = new DiscordColor(Config.settings.embedColor),
+                Footer = new DiscordEmbedBuilder.EmbedFooter
+                {
+                    Text = $"Type {ctx.Prefix}delwarn <@member> <id> to revoke the warning"
+                }
             };
             await ctx.RespondAsync(embed: embed.Build());
+        }
+
+        [Command("delwarn"), Aliases("deletewarn")]
+        public async Task WarnRemove(CommandContext ctx, DiscordMember member, uint id)
+        {
+            var warns = await db.Entry(guild).Collection(i => i.Warns).Query().Where(i => i.UserId == member.Id).ToListAsync();
+            var warn = warns.ElementAtOrDefault((int)id);
+            if(warn == null)
+            {
+                await ctx.RespondAsync($"Warning with id {id} for this user not found.");
+            } else
+            {
+                guild.Warns.RemoveAll(i => i.Id == warn.Id);
+                await db.SaveChangesAsync();
+
+                await ctx.RespondAsync($"Removed warning with reason `{warn.Reason}` for this user.");
+            }
+            
         }
 
         [Command("purge"), Description("Deletes last specified amount of messages"), Aliases("clear"), RequireBotPermissions(Permissions.ManageMessages)]

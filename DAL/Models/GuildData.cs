@@ -10,7 +10,7 @@ namespace PotatoBot.Models
 {
     public enum LogAction
     {
-        Kick, Ban, Warn, Mute, Unmute
+        Kick, Ban, Warn, Mute, Unmute, Unban
     }
     public class GuildLog
     {
