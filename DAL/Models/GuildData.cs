@@ -15,7 +15,9 @@ namespace PotatoBot.Models
     public class GuildLog
     {
         public GuildData GuildData { get; set; }
+
         public LogAction Action { get; set; }
+
         public string TargetUser { get; set; }
         public string Reason { get; set; }
         public ulong AuthorId { get; set; }
@@ -32,8 +34,10 @@ namespace PotatoBot.Models
         public ulong Id { get; set; }
         public string Prefix { get; set; }
 
+        /*
         [Column(TypeName = "jsonb")]
         public List<GuildLog> Logs { get; set; } = new List<GuildLog>();
+        */
 
         public List<Warn> Warns { get; set; }
 

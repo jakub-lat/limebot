@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PotatoBot.Models;
@@ -9,9 +10,10 @@ using PotatoBot.Models;
 namespace PotatoBot.Migrations
 {
     [DbContext(typeof(GuildContext))]
-    partial class GuildContextModelSnapshot : ModelSnapshot
+    [Migration("20200502091306_RemoveLogsField")]
+    partial class RemoveLogsField
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,7 +109,7 @@ namespace PotatoBot.Migrations
 
                     b.HasIndex("GuildId");
 
-                    b.ToTable("Warns");
+                    b.ToTable("Warn");
                 });
 
             modelBuilder.Entity("PotatoBot.Models.Warn", b =>

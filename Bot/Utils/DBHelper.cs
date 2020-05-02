@@ -41,9 +41,9 @@ namespace PotatoBot.Utils
 
         public static async Task AddLog(this GuildContext db, DSharpPlus.Entities.DiscordGuild dGuild, DSharpPlus.Entities.DiscordUser author, GuildData guild, GuildLog log)
         {
-            guild.Logs.Add(log);
+            /*guild.Logs.Add(log);
             db.Entry(guild).State = EntityState.Modified;
-            await db.SaveChangesAsync();
+            await db.SaveChangesAsync();*/
 
             if(guild.EnableModLogs)
             {

@@ -36,5 +36,6 @@ namespace PotatoBot.Models
 
         public DbSet<GuildData> Guilds { get; set; }
         public DbSet<MutedUser> MutedUsers { get; set; }
+        public DbSet<Warn> Warns { get; set; }
     }
 }
