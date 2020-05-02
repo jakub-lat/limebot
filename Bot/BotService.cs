@@ -81,10 +81,11 @@ namespace PotatoBot.Bot
                 EnableDefaultHelp = false
             });
 
-            commands.RegisterCommands<FunCommands>();
-            commands.RegisterCommands<SystemCommands>();
             commands.RegisterCommands<ModerationCommands>();
             commands.RegisterCommands<MusicCommands>();
+            commands.RegisterCommands<SystemCommands>();
+            commands.RegisterCommands<FunCommands>();
+
 
             interactivity = discord.UseInteractivity(new InteractivityConfiguration
             {
