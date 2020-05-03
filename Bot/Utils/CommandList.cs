@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Bot.Utils
@@ -37,41 +38,56 @@ namespace Bot.Utils
                 var attributeRaw = type.GetCustomAttributes(true)
                     .FirstOrDefault(x => x is CategoryAttribute);
 
+                Console.WriteLine($"Found command {cmd.QualifiedName}");
+
                 var attribute = attributeRaw as CategoryAttribute;
                 var cat = attribute?.Name ?? "uncategorized";
 
-
-                var data = new CommandData
-                {
-                    Name = cmd.Name,
-                    Description = cmd.Description,
-                    Aliases = cmd.Aliases,
-                    Overloads = cmd.Overloads.Select(o => o.Arguments.Select(a =>
-                          new CommandArgumentData
-                          {
-                              Name = a.Name,
-                              Description = a.Description,
-                              Type = a.Type.Name,
-                              Default = a.DefaultValue,
-                              Optional = a.IsOptional,
-                              CatchAll = a.IsCatchAll
-                          }))
-                };
-                AddCommand(data, cat);
-                
+                AddCommand(cmd, cat);
             }
         }
 
-        private void AddCommand(CommandData cmd, string category)
+        private void AddCommand(Command command, string category, string parent = null)
         {
-            if (list.ContainsKey(category))
+            if(command is CommandGroup)
             {
-                list[category].Add(cmd);
-            }
-            else
+                var cg = command as CommandGroup;
+                foreach (Command c in cg.Children)
+                {
+                    AddCommand(c, category, parent != null ? parent + " " + cg.Name : cg.Name);
+                }
+            } else
             {
-                list.Add(category, new List<CommandData> { cmd });
+                var cmd = GenerateCommand(command, parent);
+                if (list.ContainsKey(category))
+                {
+                    list[category].Add(cmd);
+                }
+                else
+                {
+                    list.Add(category, new List<CommandData> { cmd });
+                }
             }
+        }
+
+        private CommandData GenerateCommand(Command cmd, string parent)
+        {
+            return new CommandData
+            {
+                Name = parent != null ? parent + " " + cmd.Name : cmd.Name,
+                Description = cmd.Description,
+                Aliases = cmd.Aliases,
+                Overloads = cmd.Overloads.Select(o => o.Arguments.Select(a =>
+                      new CommandArgumentData
+                      {
+                          Name = a.Name,
+                          Description = a.Description,
+                          Type = a.Type.Name,
+                          Default = a.DefaultValue,
+                          Optional = a.IsOptional,
+                          CatchAll = a.IsCatchAll
+                      }))
+            };
         }
     }
 }

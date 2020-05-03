@@ -9,7 +9,7 @@
           Lime
         </h1>
         <h2 class="headline">
-          Keep calm. Lime is just there.
+          Boost your discord server with Lime power!
         </h2>
         <v-btn color="primary darken-1" class="mt-4 mr-5" to="/invite" large>
            <v-icon left>mdi-account-plus</v-icon>

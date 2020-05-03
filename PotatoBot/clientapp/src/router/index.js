@@ -9,6 +9,8 @@ import GeneralSettings from '../views/dashboard/GeneralSettings.vue';
 import JoinLeave from '../views/dashboard/JoinLeave.vue';
 import Servers from '../views/dashboard/Servers.vue';
 import Logs from '../views/dashboard/Logs.vue';
+import ReactionRoles from '../views/dashboard/ReactionRoles.vue';
+
 
 import NotFound from '../views/NotFound.vue';
 
@@ -43,6 +45,11 @@ const routes = [
         path: ':id/logs',
         component: Logs,
         meta: {title: 'Logs'}
+      },
+      {
+        path: ':id/reaction-roles',
+        component: ReactionRoles,
+        meta: {title: 'Reaction role settings'}
       }
     ]
   },
@@ -56,7 +63,7 @@ const routes = [
   {
     path: '/invite',
     beforeEnter: (to)=>{
-      window.location.href = to.query.id ? Vue.$api.path(`redirect/invite/?id=${to.query.id}`) : Vue.$api.path('invite');
+      window.location.href = to.query.id ? Vue.$api.path(`redirect/invite/?id=${to.query.id}`) : Vue.$api.path('redirect/invite');
     }
   },
   {
@@ -64,7 +71,7 @@ const routes = [
     beforeEnter: (to, from, next) => {
       if(to.query.token) {
         Vue.$cookies.set('token', to.query.token);
-        next('/manage');
+        next(to.query.redirect || '/manage');
       } else {
         next('/');
       }

@@ -135,7 +135,7 @@ namespace PotatoBot.Bot.Commands
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":track_next:"));
         }
 
-        [Command("queue"), Aliases("q"), Description("Music queue")]
+        [Command("queue"), Aliases("q", "np", "nowplaying"), Description("Music queue")]
         public async Task Queue(CommandContext ctx)
         {
             if (gm == null || gm.player.CurrentState.CurrentTrack == null) { await ctx.RespondAsync("Not playing rn!"); return; }

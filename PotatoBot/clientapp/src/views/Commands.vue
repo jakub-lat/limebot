@@ -93,8 +93,18 @@
                                     :key="i"
                                     class="blue-grey darken-4"
                                 >
-                                    <v-expansion-panel-header class="text-capitalize">
-                                        {{command.name}}
+                                    <v-expansion-panel-header>
+                                        <template v-slot:default="{ open }">
+                                            <span style="max-width: 90%">
+                                                <pre style="width: 60px" class="float-left">{{command.name}}</pre>
+                                                <v-fade-transition>
+                                                    <span class="text-truncate text--secondary ml-10 float-left" style="max-width: 50%" v-if="!open">
+                                                        {{command.description}}
+                                                    </span>
+                                                </v-fade-transition>
+                                                
+                                            </span>
+                                        </template>
                                     </v-expansion-panel-header>
                                     <v-expansion-panel-content >
                                         <p>{{command.description}}</p>
@@ -129,8 +139,7 @@ export default {
             description: '',
             overloads: '',
             aliases: []
-        },
-        tab: null,
+        }
     }),
     async created() {
         this.commands = await this.$api.get('commands');
@@ -154,6 +163,17 @@ export default {
             console.log(cmd);
             this.command = cmd;
             this.dialog = true;
+        }
+    },
+    computed: {
+        tab: {
+            get() {
+                let x = Object.keys(this.commands).findIndex(i=>i.toLowerCase() == this.$route.hash.substr(1).replace('-', ' '));
+                return x == -1 ? 0 : x;
+            },
+            set(v) {
+                location.hash = Object.keys(this.commands)[v].toLowerCase().replace(' ', '-');
+            }
         }
     }
 }

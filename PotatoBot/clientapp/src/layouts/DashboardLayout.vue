@@ -25,6 +25,9 @@
             <v-list-item-title>Dashboard</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+
+        <v-subheader>SETTINGS</v-subheader>
+
         <v-list-item exact link :to="`/manage/${this.$route.params.id}/general`">
           <v-list-item-action>
             <v-icon>mdi-cog</v-icon>
@@ -41,7 +44,7 @@
             <v-list-item-title>Join / leave actions</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-         <v-list-item exact link :to="`/manage/${this.$route.params.id}/logs`">
+        <v-list-item exact link :to="`/manage/${this.$route.params.id}/logs`">
           <v-list-item-action>
             <v-icon>mdi-text-box-multiple</v-icon>
           </v-list-item-action>
@@ -49,9 +52,17 @@
             <v-list-item-title>Log settings</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
+        <v-list-item exact link :to="`/manage/${this.$route.params.id}/reaction-roles`">
+          <v-list-item-action>
+            <v-icon>mdi-emoticon-wink</v-icon>
+          </v-list-item-action>
+          <v-list-item-content>
+            <v-list-item-title>Reaction roles</v-list-item-title>
+          </v-list-item-content>
+        </v-list-item>
 
         <v-divider/>
-
+        <v-subheader>OTHER</v-subheader>
         <v-list-item exact link to="/commands">
           <v-list-item-action>
             <v-icon>mdi-view-list</v-icon>
@@ -167,7 +178,7 @@ export default {
   },
   async created () {
     const token = this.$cookies.get('token');
-    if(!token) window.location.href = this.$api.path('auth');
+    if(!token) window.location.href = this.$api.path(`auth?redirect=${this.$route.path}`);
     else {
       try {
         var r = await this.$api.get('auth/user');
@@ -175,7 +186,7 @@ export default {
         store.commit('setUser', r);
         this.loaded = true;
       } catch(e) {
-        window.location.href = this.$api.path('auth');
+        window.location.href = this.$api.path(`auth?redirect=${this.$route.path}`);
       }
     }
     this.loadServer();

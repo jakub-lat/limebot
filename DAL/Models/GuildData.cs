@@ -61,6 +61,8 @@ namespace PotatoBot.Models
         public ulong WelcomeMessagesChannel { get; set; }
         public string WelcomeMessage { get; set; } = "Welcome, **{user}**! You are the {members}. member.";
         public string LeaveMessage { get; set; } = "**{user}** left :(";
+
+        public bool ReactionRolesNotifyDM { get; set; } = false;
     }
 
 }

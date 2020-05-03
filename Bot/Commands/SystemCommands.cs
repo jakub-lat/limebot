@@ -39,7 +39,7 @@ namespace PotatoBot.Bot.Commands
         [Command("help"), Description("If you are stuck")]
         public async Task Help(CommandContext ctx)
         {
-            var url = "https://potatodiscordbot.azurewebsites.net";
+            var url = Config.settings.DashboardURL;
             var embed = new DiscordEmbedBuilder {
                 Title = "Lime help",
                 Description = @$"Hey! I am **LIME**. Nice to see you ;)
@@ -68,9 +68,7 @@ _Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified 
                     Color = new DiscordColor(Config.settings.embedColor),
                     Description = $@"**Description:**
 {cmd.Description}
-
 {(cmd.Aliases.Any() ? $"**Aliases:** `{string.Join(", ", cmd.Aliases)}`" : "")}
-
 **Usage:**
 ```{string.Join("\n", cmd.Overloads.Select(o=>$"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a=>string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```"
                 };

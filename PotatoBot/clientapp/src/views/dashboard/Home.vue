@@ -32,7 +32,8 @@ export default {
         panels: [
             {title: 'General settings', description: 'Configure general options', url: 'general', icon: 'mdi-cogs'},
             {title: 'Join / leave actions', description: 'Autoroles, welcome messages', url: 'join-leave', icon: 'mdi-account-plus'},
-            {title: 'Log settings', description: 'Mod logs / message logs', url: 'logs', icon: 'mdi-text-box-multiple'}
+            {title: 'Log settings', description: 'Mod logs / message logs', url: 'logs', icon: 'mdi-text-box-multiple'},
+            {title: 'Reaction roles', description: 'Reaction role settings', url: 'reaction-roles', icon: 'mdi-emoticon-wink'}
         ],
         server: store.state.server
     })

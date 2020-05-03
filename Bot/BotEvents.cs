@@ -212,5 +212,42 @@ namespace Bot
                 }
             }
         }
+
+        public async Task MessageReactionAdd(MessageReactionAddEventArgs e)
+        {
+            using(var ctx = new GuildContext(connectionString))
+            {
+                var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();
+
+                if (rr == null) return;
+
+                var member = e.User as DiscordMember;
+                var role = e.Guild.Roles[rr.RoleId];
+                await member.GrantRoleAsync(role);
+
+                var guild = await ctx.GetGuild(e.Guild.Id);
+                if(guild.ReactionRolesNotifyDM)
+                    await member.SendMessageAsync($"Added role **@{role.Name}** on **{e.Guild.Name}**");
+            }
+        }
+
+        public async Task MessageReactionRemove(MessageReactionRemoveEventArgs e)
+        {
+            if (e.User.IsBot) return;
+            using (var ctx = new GuildContext(connectionString))
+            {
+                var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();
+
+                if (rr == null) return;
+
+                var member = e.User as DiscordMember;
+                var role = e.Guild.Roles[rr.RoleId];
+                await member.RevokeRoleAsync(role);
+
+                var guild = await ctx.GetGuild(e.Guild.Id);
+                if(guild.ReactionRolesNotifyDM) 
+                    await member.SendMessageAsync($"Removed role **@{role.Name}** on **{e.Guild.Name}**");
+            }
+        }
     }
 }

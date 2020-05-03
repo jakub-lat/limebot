@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using PotatoBot.Middleware;
 using PotatoBot.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace PotatoBot.Controllers
 {
@@ -25,10 +26,14 @@ namespace PotatoBot.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        public IActionResult Index([FromQuery] string redirect = null)
         {
-            var redirect = Request.Scheme + "://" + Request.Host + "/api/auth/callback";
-            return Redirect($"https://discordapp.com/api/oauth2/authorize?client_id={Config.settings.ClientID}&redirect_uri={redirect}&response_type=code&scope=guilds%20identify");
+            if(redirect != null)
+            {
+                Response.Cookies.Append("redirect", redirect, new CookieOptions { Expires = DateTime.Now.AddMinutes(2) });
+            }
+            var redirectTo = Request.Scheme + "://" + Request.Host + "/api/auth/callback";
+            return Redirect($"https://discordapp.com/api/oauth2/authorize?client_id={Config.settings.ClientID}&redirect_uri={redirectTo}&response_type=code&scope=guilds%20identify");
         }
 
         [HttpGet("callback")]
@@ -45,7 +50,8 @@ namespace PotatoBot.Controllers
                 var resp = await client.PostAsync($"https://discordapp.com/api/oauth2/token?grant_type=authorization_code&code={code}&redirect_uri={redirect}", null);
                 var data = JsonConvert.DeserializeObject<DiscordTokenResponse>(await resp.Content.ReadAsStringAsync());
 
-                return Redirect($"/callback?token={data.AccessToken}");
+                
+                return Redirect($"/callback?token={data.AccessToken}&redirect={Request.Cookies["redirect"] ?? ""}");
             }
         }
 

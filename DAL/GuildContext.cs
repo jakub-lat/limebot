@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DAL.Models;
 
 namespace PotatoBot.Models
 {
@@ -15,7 +16,7 @@ namespace PotatoBot.Models
         public GuildContext(string conn) => connectionString = conn;
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            if(connectionString != null) options.UseNpgsql(connectionString);
+            if (connectionString != null) options.UseNpgsql(connectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -32,10 +33,11 @@ namespace PotatoBot.Models
                 .WithOne(l => l.GuildData)
                 .IsRequired();*/
         }
-         
+
 
         public DbSet<GuildData> Guilds { get; set; }
         public DbSet<MutedUser> MutedUsers { get; set; }
         public DbSet<Warn> Warns { get; set; }
+        public DbSet<ReactionRole> ReactionRoles { get; set; }
     }
 }

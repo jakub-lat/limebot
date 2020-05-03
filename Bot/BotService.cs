@@ -21,7 +21,7 @@ using DSharpPlus.Lavalink;
 using DSharpPlus.Net;
 using Bot.Music;
 using PotatoBot.Utils;
-
+using Bot.Commands;
 
 namespace PotatoBot.Bot
 {
@@ -84,6 +84,7 @@ namespace PotatoBot.Bot
 
             commands.RegisterCommands<ModerationCommands>();
             commands.RegisterCommands<MusicCommands>();
+            commands.RegisterCommands<ReactionRoleCommands>();
             commands.RegisterCommands<SystemCommands>();
             commands.RegisterCommands<FunCommands>();
 
@@ -103,6 +104,8 @@ namespace PotatoBot.Bot
             discord.MessageUpdated += events.MessageEdited;
             discord.MessageDeleted += events.MessageDeleted;
             discord.VoiceStateUpdated += lava.VoiceStateUpdated;
+            discord.MessageReactionAdded += events.MessageReactionAdd;
+            discord.MessageReactionRemoved += events.MessageReactionRemove;
         }
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)
@@ -117,7 +120,7 @@ namespace PotatoBot.Bot
             using(var ctx = new GuildContext(connectionString))
             {
                 var data = await ctx.GetGuild(guild.Id);
-                var pfx = data?.Prefix ?? prefix;
+                var pfx = string.IsNullOrWhiteSpace(data?.Prefix) ? prefix : data.Prefix;
 
                 if (msg.MentionedUsers.Any(i => i.Id == discord.CurrentUser.Id))
                 {

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PotatoBot.Models;
@@ -9,9 +10,10 @@ using PotatoBot.Models;
 namespace PotatoBot.Migrations
 {
     [DbContext(typeof(GuildContext))]
-    partial class GuildContextModelSnapshot : ModelSnapshot
+    [Migration("20200502204425_ReactionRoles")]
+    partial class ReactionRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,7 +28,7 @@ namespace PotatoBot.Migrations
                         .HasColumnType("integer")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
-                    b.Property<string>("Emoji")
+                    b.Property<string>("Emote")
                         .HasColumnType("text");
 
                     b.Property<decimal>("GuildId")
@@ -34,9 +36,6 @@ namespace PotatoBot.Migrations
 
                     b.Property<decimal>("MessageId")
                         .HasColumnType("numeric(20,0)");
-
-                    b.Property<string>("MessageJumpLink")
-                        .HasColumnType("text");
 
                     b.Property<decimal>("RoleId")
                         .HasColumnType("numeric(20,0)");
@@ -78,9 +77,6 @@ namespace PotatoBot.Migrations
 
                     b.Property<string>("Prefix")
                         .HasColumnType("text");
-
-                    b.Property<bool>("ReactionRolesNotifyDM")
-                        .HasColumnType("boolean");
 
                     b.Property<string>("WelcomeMessage")
                         .HasColumnType("text");
