@@ -22,30 +22,34 @@ namespace Bot.Commands
     {
         public ReactionRoleCommands(GuildContext db) : base(db) { }
 
-        [GroupCommand, Aliases("help"), Description("Info about reaction roles")]
+        [GroupCommand, Command("help"), Description("Info about reaction roles")]
         public async Task Help(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder
             {
                 Title = "Reaction roles help",
                 Color = new DiscordColor(Config.settings.embedColor),
-                Description = $@"To create a new reaction role, type `{ctx.Prefix}rr create <message id> <emoji> <role>`.
-To get a list of reaction roles in this server, type `{ctx.Prefix}rr list`
-To remove a reaction role, type `{ctx.Prefix}rr remove <index>`"
+                Description = $@"**Creating** a new reaction role: `{ctx.Prefix}rr create <message link> <emoji> <role>`. 
+To get message link, simply right click on a message, and select `Copy message link`.
+
+**List** of reaction roles in this server: `{ctx.Prefix}rr list`
+
+**Removing** a reaction role: `{ctx.Prefix}rr remove <index>`"
             };
             await ctx.RespondAsync(embed: embed);
         }
 
         [Command("create"), Description("Creates a reaction role for specified message and emoji"), RequirePermissions(DSharpPlus.Permissions.ManageRoles)]
-        public async Task Create(CommandContext ctx, DiscordMessage message, DiscordEmoji emoji, DSharpPlus.Entities.DiscordRole role)
+        public async Task Create(CommandContext ctx, DiscordMessage messageLink, DiscordEmoji emoji, DSharpPlus.Entities.DiscordRole role)
         {
+            Console.WriteLine("test");
             if(role.Position > ctx.Guild.CurrentMember.Hierarchy)
             {
                 await ctx.RespondAsync(":warning: I can't use that role - it's too high! Move the role below me, or use a different one.");
                 return;
             }
 
-            var check = await db.ReactionRoles.Where(i => i.GuildId == ctx.Guild.Id && i.MessageId == message.Id && i.Emoji == emoji.ToString()).FirstOrDefaultAsync();
+            var check = await db.ReactionRoles.Where(i => i.GuildId == ctx.Guild.Id && i.MessageId == messageLink.Id && i.Emoji == emoji.ToString()).FirstOrDefaultAsync();
             if(check != null)
             {
                 await ctx.RespondAsync(":warning: This reaction role is already in use!");
@@ -54,7 +58,7 @@ To remove a reaction role, type `{ctx.Prefix}rr remove <index>`"
             
             try
             {
-                await message.CreateReactionAsync(emoji);
+                await messageLink.CreateReactionAsync(emoji);
             } catch
             {
                 await ctx.RespondAsync(":warning: I can't use that emoji! Try to specify a different one.");
@@ -65,8 +69,8 @@ To remove a reaction role, type `{ctx.Prefix}rr remove <index>`"
             {
                 Emoji = emoji.ToString(),
                 GuildId = ctx.Guild.Id,
-                MessageId = message.Id,
-                MessageJumpLink = message.JumpLink.ToString(),
+                MessageId = messageLink.Id,
+                MessageJumpLink = messageLink.JumpLink.ToString(),
                 RoleId = role.Id
             });
             await db.SaveChangesAsync();

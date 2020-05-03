@@ -38,8 +38,6 @@ namespace Bot.Utils
                 var attributeRaw = type.GetCustomAttributes(true)
                     .FirstOrDefault(x => x is CategoryAttribute);
 
-                Console.WriteLine($"Found command {cmd.QualifiedName}");
-
                 var attribute = attributeRaw as CategoryAttribute;
                 var cat = attribute?.Name ?? "uncategorized";
 
