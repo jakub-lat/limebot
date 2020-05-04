@@ -42,11 +42,12 @@ namespace Bot.Music
         {
             return guildMusic.GetValueOrDefault(guild.Id);
         }
-        public async Task InitGuildMusic(DiscordGuild guild, DiscordVoiceState vs, DiscordChannel chn, string prefix)
+        public async Task<GuildMusic> InitGuildMusic(DiscordGuild guild, DiscordVoiceState vs, DiscordChannel chn, string prefix)
         {
             var gm = new GuildMusic(this, guild, chn, prefix);
             await gm.InitPlayer(vs.Channel);
             guildMusic.Add(guild.Id, gm);
+            return gm;
         }
         public void Delete(DiscordGuild guild)
         {

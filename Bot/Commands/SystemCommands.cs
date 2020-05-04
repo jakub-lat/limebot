@@ -30,7 +30,6 @@ namespace PotatoBot.Bot.Commands
         [Command("prefix"), RequireUserPermissions(DSharpPlus.Permissions.ManageMessages)]
         public async Task SetPrefix(CommandContext ctx, string newPrefix)
         {
-            var guild = await db.GetGuild(ctx.Guild.Id);
             guild.Prefix = newPrefix;
             await db.SaveChangesAsync();
             await ctx.RespondAsync($"Set the prefix to `{newPrefix}`");

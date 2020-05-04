@@ -8,6 +8,7 @@ namespace PotatoBot
 {
     public class Settings
     {
+        public string ConnectionString { get; set; }
         public string ClientID { get; set; }
         public string ClientSecret { get; set; }
         public string BotToken { get; set; }

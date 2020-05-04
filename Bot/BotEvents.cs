@@ -12,13 +12,14 @@ using System.Timers;
 using PotatoBot.Utils;
 using PotatoBot;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Proxies;
+using DAL.Models;
 
 namespace Bot
 {
     public class BotEvents
     {
         private DiscordClient client;
-        private string connectionString;
 
         private Timer statusTimer;
         private int statusIndex = 0;
@@ -31,10 +32,11 @@ namespace Bot
 
         private Timer unmuteTimer;
 
-        public BotEvents(DiscordClient client, string conn)
+        private Random rnd = new Random();
+
+        public BotEvents(DiscordClient client)
         {
             this.client = client;
-            connectionString = conn;
 
             statusTimer = new Timer();
             statusTimer.Elapsed += new ElapsedEventHandler(ChangeStatus);
@@ -67,7 +69,7 @@ namespace Bot
 
         private async void UnmuteTask(object source = null, ElapsedEventArgs e = null)
         {
-            using (var ctx = new GuildContext(connectionString))
+            using (var ctx = new GuildContext())
             {
                 var expired = ctx.MutedUsers.Where(i => i.Time <= DateTime.UtcNow);
                 foreach(var muted in await expired.ToListAsync())
@@ -100,9 +102,51 @@ namespace Bot
             }
         }
 
+        public async Task MessageCreated(MessageCreateEventArgs e)
+        {
+            if (e.Author.IsBot) return;
+            using(var ctx = new GuildContext())
+            {
+                var guild = await ctx.GetGuild(e.Guild.Id);
+                if (!guild.EnableLeveling) return;
+                var member = await ctx.Entry(guild).Collection(i=>i.Members).Query().Where(i=>i.UserId == e.Author.Id).FirstOrDefaultAsync();
+                if(member == null)
+                {
+                    member = new GuildMember
+                    {
+                        UserId = e.Author.Id,
+                        XP = guild.MinMessageXP,
+                        LastMessaged = DateTime.Now
+                    };
+                    guild.Members.Add(member);
+                } else if(DateTime.Now >= member.LastMessaged.AddMinutes(1))
+                {
+                    if (DateTime.Now <= member.LastMessaged.AddMinutes(2))
+                    {
+                        member.XP += rnd.Next(guild.MinMessageXP, guild.MaxMessageXP);
+                        member.LastMessaged = DateTime.Now;
+
+                        if(guild.EnableLevelUpMessage)
+                        {
+                            var lvl = member.XP / guild.RequiredXPToLevelUp;
+                            if (lvl > (member.XP - 10) / guild.RequiredXPToLevelUp)
+                            {
+                                await e.Channel.SendMessageAsync(guild.LevelUpMessage.Replace("{user}", e.Author.Mention).Replace("{level}", lvl.ToString()));
+                            }
+                        }
+                    }
+                    else
+                    {
+                        member.LastMessaged = DateTime.Now;
+                    }
+                }
+
+                await ctx.SaveChangesAsync();
+            }
+        }
         public async Task MemberJoined(GuildMemberAddEventArgs e)
         {
-            using (var ctx = new GuildContext(connectionString))
+            using (var ctx = new GuildContext())
             {
                 var guild = await ctx.GetGuild(e.Guild.Id);
 
@@ -133,7 +177,7 @@ namespace Bot
 
         public async Task MemberLeft(GuildMemberRemoveEventArgs e)
         {
-            using (var ctx = new GuildContext(connectionString))
+            using (var ctx = new GuildContext())
             {
                 var guild = await ctx.GetGuild(e.Guild.Id);
 
@@ -152,7 +196,7 @@ namespace Bot
         public async Task MessageEdited(MessageUpdateEventArgs e)
         {
             if (e.Author.IsBot) return;
-            using (var ctx = new GuildContext(connectionString))
+            using (var ctx = new GuildContext())
             {
                 var guild = await ctx.GetGuild(e.Guild.Id);
 
@@ -184,7 +228,7 @@ namespace Bot
         public async Task MessageDeleted(MessageDeleteEventArgs e)
         {
             if (e.Message.Author?.IsBot == true) return;
-            using (var ctx = new GuildContext(connectionString))
+            using (var ctx = new GuildContext())
             {
                 var guild = await ctx.GetGuild(e.Guild.Id);
 
@@ -215,7 +259,7 @@ namespace Bot
 
         public async Task MessageReactionAdd(MessageReactionAddEventArgs e)
         {
-            using(var ctx = new GuildContext(connectionString))
+            using(var ctx = new GuildContext())
             {
                 var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();
 
@@ -234,7 +278,7 @@ namespace Bot
         public async Task MessageReactionRemove(MessageReactionRemoveEventArgs e)
         {
             if (e.User.IsBot) return;
-            using (var ctx = new GuildContext(connectionString))
+            using (var ctx = new GuildContext())
             {
                 var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();
 

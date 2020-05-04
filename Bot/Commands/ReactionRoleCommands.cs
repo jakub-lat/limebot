@@ -42,7 +42,6 @@ To get message link, simply right click on a message, and select `Copy message l
         [Command("create"), Description("Creates a reaction role for specified message and emoji"), RequirePermissions(DSharpPlus.Permissions.ManageRoles)]
         public async Task Create(CommandContext ctx, DiscordMessage messageLink, DiscordEmoji emoji, DSharpPlus.Entities.DiscordRole role)
         {
-            Console.WriteLine("test");
             if(role.Position > ctx.Guild.CurrentMember.Hierarchy)
             {
                 await ctx.RespondAsync(":warning: I can't use that role - it's too high! Move the role below me, or use a different one.");

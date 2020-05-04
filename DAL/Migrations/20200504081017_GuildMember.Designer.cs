@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PotatoBot.Models;
@@ -9,9 +10,10 @@ using PotatoBot.Models;
 namespace PotatoBot.Migrations
 {
     [DbContext(typeof(GuildContext))]
-    partial class GuildContextModelSnapshot : ModelSnapshot
+    [Migration("20200504081017_GuildMember")]
+    partial class GuildMember
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,9 +83,6 @@ namespace PotatoBot.Migrations
                     b.Property<decimal[]>("AutoRolesOnJoin")
                         .HasColumnType("numeric[]");
 
-                    b.Property<bool>("EnableLevelUpMessage")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("EnableLeveling")
                         .HasColumnType("boolean");
 
@@ -97,9 +96,6 @@ namespace PotatoBot.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<string>("LeaveMessage")
-                        .HasColumnType("text");
-
-                    b.Property<string>("LevelUpMessage")
                         .HasColumnType("text");
 
                     b.Property<decimal>("MessageLogsChannel")
@@ -116,9 +112,6 @@ namespace PotatoBot.Migrations
 
                     b.Property<bool>("ReactionRolesNotifyDM")
                         .HasColumnType("boolean");
-
-                    b.Property<int>("RequiredXPToLevelUp")
-                        .HasColumnType("integer");
 
                     b.Property<string>("WelcomeMessage")
                         .HasColumnType("text");

@@ -1,10 +1,13 @@
 <template>
-<v-switch
-    :label="label"
-    width="200px"
-    v-model="value"
-    v-bind="$attrs"
-    />
+    <v-slider
+        v-model="value"
+        class="align-center"
+        v-bind="$attrs"
+        thumb-label
+        :label="label"
+    >
+        <slot/>
+    </v-slider>
 </template>
 <script>
 import store from '@/store';

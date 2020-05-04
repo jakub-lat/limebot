@@ -21,10 +21,6 @@ using Bot.Entities;
 
 namespace PotatoBot.Bot.Commands
 {
-    class CommandCanceledException : Exception
-    {
-
-    }
 
     [Category("Music")]
     public class MusicCommands : MyCommandModule
@@ -52,9 +48,10 @@ namespace PotatoBot.Bot.Commands
                 }
             }
 
-            if(beforePlay != null)
+            gm = lava.Get(ctx.Guild);
+            if (beforePlay != null)
             {
-                if (gm == null) await lava.InitGuildMusic(ctx.Guild, ctx.Member.VoiceState, ctx.Channel, ctx.Prefix);
+                if (gm == null) gm = await lava.InitGuildMusic(ctx.Guild, ctx.Member.VoiceState, ctx.Channel, ctx.Prefix);
                 if (gm?.player.Channel == null)
                 {
                     var chn = ctx.Member.VoiceState.Channel;
@@ -67,8 +64,6 @@ namespace PotatoBot.Bot.Commands
                 }
             }
             
-            gm = lava.Get(ctx.Guild);
-
             if (gm == null) throw new CommandCanceledException();
 
             await base.BeforeExecutionAsync(ctx);

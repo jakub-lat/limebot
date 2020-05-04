@@ -10,13 +10,12 @@ namespace PotatoBot.Models
 {
     public class GuildContext : DbContext
     {
-        string connectionString = null;
-
         public GuildContext(DbContextOptions opts) : base(opts) { }
-        public GuildContext(string conn) => connectionString = conn;
+        public GuildContext() { }
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            if (connectionString != null) options.UseNpgsql(connectionString);
+            options.UseNpgsql(Config.settings.ConnectionString);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -39,5 +38,6 @@ namespace PotatoBot.Models
         public DbSet<MutedUser> MutedUsers { get; set; }
         public DbSet<Warn> Warns { get; set; }
         public DbSet<ReactionRole> ReactionRoles { get; set; }
+        public DbSet<GuildMember> Members { get; set; }
     }
 }

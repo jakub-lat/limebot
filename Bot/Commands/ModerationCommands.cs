@@ -22,18 +22,14 @@ namespace PotatoBot.Bot.Commands
     {
         public ModerationCommands(GuildContext db) : base(db) { }
 
-        GuildData guild;
-
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
-            guild = await db.GetGuild(ctx.Guild.Id);
             await base.BeforeExecutionAsync(ctx);
         }
 
         [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
         public async Task Ban(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
-
             await member.SendMessageAsync($"You were banned from **{ctx.Guild.Name}**. Reason: `{reason}`");
 
             await member.BanAsync(0, reason);
@@ -221,7 +217,7 @@ namespace PotatoBot.Bot.Commands
         [Command("warn"), Aliases("warning"), Description("Warns an user"), RequireUserPermissions(Permissions.ManageRoles)]
         public async Task Warn(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
-            var warnCount = await db.Entry(guild).Collection(i => i.Warns).Query().Where(i => i.UserId == member.Id).CountAsync();
+            var warnCount = await db.Entry(guild).Collection(i=>i.Warns).Query().Where(i => i.UserId == member.Id).CountAsync();
 
             guild.Warns.Add(new Warn
             {

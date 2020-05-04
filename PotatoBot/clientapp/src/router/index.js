@@ -10,6 +10,7 @@ import JoinLeave from '../views/dashboard/JoinLeave.vue';
 import Servers from '../views/dashboard/Servers.vue';
 import Logs from '../views/dashboard/Logs.vue';
 import ReactionRoles from '../views/dashboard/ReactionRoles.vue';
+import Ranking from '../views/dashboard/Ranking.vue';
 
 
 import NotFound from '../views/NotFound.vue';
@@ -50,6 +51,11 @@ const routes = [
         path: ':id/reaction-roles',
         component: ReactionRoles,
         meta: {title: 'Reaction role settings'}
+      },
+      {
+        path: ':id/ranking',
+        component: Ranking,
+        meta: {title: 'XP / Leveling settings'}
       }
     ]
   },

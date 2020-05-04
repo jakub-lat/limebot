@@ -43,12 +43,10 @@ namespace PotatoBot
 
             var connString = Configuration.GetConnectionString("DefaultConnection");
             
-
             // database
-            services.AddDbContext<GuildContext>(options=>
-                options.UseNpgsql(connString));
+            services.AddDbContext<GuildContext>();
 
-            bot = new BotService(services, connString);
+            bot = new BotService(services);
             services.AddSingleton(bot);
         }
 

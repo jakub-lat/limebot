@@ -43,9 +43,7 @@ namespace PotatoBot.Bot
         readonly string prefix = "$";
         readonly string dev_prefix = ".";
 
-        string connectionString;
-
-        public BotService(IServiceCollection services, string connectionString)
+        public BotService(IServiceCollection services)
         {
             if(instance == null)
             {
@@ -55,7 +53,6 @@ namespace PotatoBot.Bot
                 throw new Exception("Bot already running!");
             }
             this.services = services;
-            this.connectionString = connectionString;
 
 
             discord = new DiscordClient(new DiscordConfiguration
@@ -84,6 +81,7 @@ namespace PotatoBot.Bot
 
             commands.RegisterCommands<ModerationCommands>();
             commands.RegisterCommands<MusicCommands>();
+            commands.RegisterCommands<RankingCommands>();
             commands.RegisterCommands<ReactionRoleCommands>();
             commands.RegisterCommands<SystemCommands>();
             commands.RegisterCommands<FunCommands>();
@@ -98,7 +96,8 @@ namespace PotatoBot.Bot
 
             commandList = new CommandList(commands);
 
-            events = new BotEvents(discord, connectionString);
+            events = new BotEvents(discord);
+            discord.MessageCreated += events.MessageCreated;
             discord.GuildMemberAdded += events.MemberJoined;
             discord.GuildMemberRemoved += events.MemberLeft;
             discord.MessageUpdated += events.MessageEdited;
@@ -110,14 +109,14 @@ namespace PotatoBot.Bot
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)
         {
-            if(Config.IsDevelopment)
+            if (Config.IsDevelopment)
             {
                 return msg.GetStringPrefixLength(dev_prefix);
             }
             var guild = msg.Channel.Guild;
             if (guild == null) return -1;
 
-            using(var ctx = new GuildContext(connectionString))
+            using(var ctx = new GuildContext())
             {
                 var data = await ctx.GetGuild(guild.Id);
                 var pfx = string.IsNullOrWhiteSpace(data?.Prefix) ? prefix : data.Prefix;
@@ -130,6 +129,7 @@ namespace PotatoBot.Bot
                 var prefixLocation = msg.GetStringPrefixLength(pfx);
                 return prefixLocation;
             }
+
         }
 
         public bool IsOnGuild(ulong id)
