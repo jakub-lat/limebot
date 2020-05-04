@@ -30,18 +30,24 @@ namespace Bot.Commands
         [Command("rank"), Description("Shows your XP, level and ranking position")]
         public async Task Rank(CommandContext ctx)
         {
-            var members = (await db.Entry(guild).Collection(i => i.Members).Query().OrderBy(x => x).Take(250).ToListAsync()).Select((x, i) => new { index = i, member = x });
-            var member = members.Where(x => x.member.UserId == ctx.Member.Id).FirstOrDefault();
+            var members = (await db.Entry(guild).Collection(i => i.Members).Query().OrderBy(x => x.XP).Take(100).ToListAsync()).Select((x, i) => new { index = i, member = x });
+            var raw = members.Where(x => x.member.UserId == ctx.Member.Id).FirstOrDefault();
+            var position = raw == null ? "100+" : (raw.index + 1).ToString();
+            var member = raw == null ? await db.Entry(guild).Collection(i => i.Members).Query().Where(x => x.UserId == ctx.Member.Id).FirstOrDefaultAsync() : raw.member;
 
             var embed = new DiscordEmbedBuilder
             {
                 Title = ctx.Member.Username,
-                Description = $@"XP: {member.member.XP}
-Level: {member.member.XP / 100}
-Rank: #{member.index + 1}",
+                Description = $@"XP: {member?.XP}
+Level: {member?.XP / 100}
+Rank: #{position}",
                 Color = new DiscordColor(Config.settings.embedColor)
             };
             await ctx.RespondAsync(embed: embed);
+
+            /*var member = await db.Members.FromSqlRaw("WITH ranking AS (SELECT *, row_number() over(ORDER BY \"XP\" DESC) AS \"Position\" FROM \"Members\") SELECT * FROM ranking WHERE \"UserId\"={0} AND \"GuildId\"={1}", ctx.Member.Id, ctx.Guild.Id).ToListAsync();
+
+            Console.WriteLine(member[0].Position);*/
         }
 
         [Command("leaderboard"), Aliases("top", "lb"), Description("Shows top 20 active users")]

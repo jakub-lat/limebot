@@ -56,7 +56,7 @@ namespace Bot
         {
             var status = statuses[statusIndex];
             status.Name = status.Name.Replace("{guilds}", client.Guilds.Count.ToString());
-            client.UpdateStatusAsync(status);
+            client.UpdateStatusAsync(status, UserStatus.Idle);
             if (statusIndex >= statuses.Length - 1)
             {
                 statusIndex = 0;

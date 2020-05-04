@@ -35,8 +35,8 @@
                     maxId="maxMessageXP"
                     label="XP to get every message"
                     :disabled="!levelingEnabled"
-                    :min="5"
-                    :max="2000"
+                    :min="2"
+                    :max="100"
                 />
                 <slider-input 
                     id="requiredXPToLevelUp"

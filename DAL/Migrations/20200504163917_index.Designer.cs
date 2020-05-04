@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PotatoBot.Models;
@@ -9,9 +10,10 @@ using PotatoBot.Models;
 namespace PotatoBot.Migrations
 {
     [DbContext(typeof(GuildContext))]
-    partial class GuildContextModelSnapshot : ModelSnapshot
+    [Migration("20200504163917_index")]
+    partial class index
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -28,6 +30,10 @@ namespace PotatoBot.Migrations
 
                     b.Property<decimal?>("GuildId")
                         .HasColumnType("numeric(20,0)");
+
+                    b.Property<int>("Index")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("LastMessaged")
                         .HasColumnType("timestamp without time zone");

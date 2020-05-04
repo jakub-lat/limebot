@@ -21,7 +21,7 @@ namespace PotatoBot
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                    webBuilder.UseUrls("http://0.0.0.0:5000");
+                    if(Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development") webBuilder.UseUrls("http://0.0.0.0:5000");
                 });
     }
 }

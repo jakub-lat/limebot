@@ -33,6 +33,7 @@ namespace PotatoBot.Models
 
     public class GuildData
     {
+
         public ulong Id { get; set; }
         public string Prefix { get; set; }
 
@@ -71,12 +72,12 @@ namespace PotatoBot.Models
         public bool EnableLevelUpMessage { get; set; } = true;
         public string LevelUpMessage { get; set; } = "Gz {user}, you just got to level {level}!";
 
-        [Range(5, 2000)]
-        public int RequiredXPToLevelUp { get; set; } = 150;
+        [Range(5, 1000)]
+        public int RequiredXPToLevelUp { get; set; } = 350;
 
-        [Range(5, 2000)]
+        [Range(2, 100)]
         public int MinMessageXP { get; set; } = 10;
-        [Range(5, 2000)]
+        [Range(2, 100)]
         public int MaxMessageXP { get; set; } = 25;
 
         public List<GuildMember> Members { get; set; }

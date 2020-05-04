@@ -12,12 +12,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using PotatoBot.Bot;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql;
 using PotatoBot.Models;
-using PotatoBot.Bot.Utils;
-using PotatoBot;
-using Microsoft.AspNetCore.SpaServices;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Extensions;
 
 namespace PotatoBot
 {
