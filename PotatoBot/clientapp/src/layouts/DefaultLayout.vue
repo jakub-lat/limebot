@@ -68,6 +68,13 @@
     </v-app-bar>
     <v-content>
     <router-view />
+    <v-footer absolute class="px-12 py-3">
+      <v-col
+        cols="12"
+      >
+        &copy; {{ new Date().getFullYear() }} the <strong>Lime Bot Team</strong>
+      </v-col>
+    </v-footer>
 </v-content>
 </v-app>
 </template>

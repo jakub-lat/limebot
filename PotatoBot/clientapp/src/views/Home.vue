@@ -96,14 +96,6 @@
         </v-hover>
       </v-col>
     </v-row>
-
-    <v-footer absolute class="px-12 py-3">
-      <v-col
-        cols="12"
-      >
-        &copy; {{ new Date().getFullYear() }} the <strong>Lime Bot Team</strong>
-      </v-col>
-    </v-footer>
   </v-container>
 </template>
 
