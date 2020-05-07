@@ -43,8 +43,7 @@ namespace PotatoBot.Bot.Commands
                 var chn = ctx.Member?.VoiceState?.Channel;
                 if (chn == null)
                 {
-                    await ctx.RespondAsync(":warning: You need to be in a voice channel!");
-                    throw new CommandCanceledException();
+                    throw new CommandCanceledException("You need to be in a voice channel!");
                 }
             }
 
@@ -59,12 +58,11 @@ namespace PotatoBot.Bot.Commands
                 }
                 else if (gm?.player.Channel != ctx.Member.VoiceState.Channel)
                 {
-                    await ctx.RespondAsync(":warning: Already playing on different channel");
-                    throw new CommandCanceledException();
+                    throw new CommandCanceledException("Already playing on different channel");
                 }
             }
             
-            if (gm == null) throw new CommandCanceledException();
+            if (gm == null) throw new CommandCanceledException("Not playing anything on this server");
 
             await base.BeforeExecutionAsync(ctx);
         }
@@ -140,7 +138,7 @@ namespace PotatoBot.Bot.Commands
             var queue = gm.Queue.Select((item, index) =>
             {
                 string x = index == gm.Index ? "▶️" : $"{index + 1}.";
-                return $"{x} {(item.Title.Length <= 30 ? item.Title : item.Title.Substring(0, Math.Min(item.Title.Length, 30)) + "...")}";
+                return $"{x} {item.Title.Truncate(30)}";
             }).ToList();
 
 

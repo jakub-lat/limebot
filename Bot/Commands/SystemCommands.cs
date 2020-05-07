@@ -13,6 +13,7 @@ using PotatoBot;
 using System.Diagnostics;
 using PotatoBot.Utils;
 using System.Reflection;
+using System.Text;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -61,15 +62,16 @@ _Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified 
                 await ctx.RespondAsync("Command not found!");
             } else
             {
+                var desc = new StringBuilder();
+                desc.AppendLine("**Description:**").AppendLine(cmd.Description).AppendLine();
+                if (cmd.Aliases.Any()) desc.AppendLine($"**Aliases:** `{string.Join(", ", cmd.Aliases)}`").AppendLine();
+                desc.AppendLine("**Usage:**")
+                    .AppendLine($"```{string.Join("\n", cmd.Overloads.Select(o => $"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a => string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```");
                 var embed = new DiscordEmbedBuilder
                 {
-                    Title = $"Command: {cmd.Name}",
+                    Title = $"Usage: {cmd.Name}",
                     Color = new DiscordColor(Config.settings.embedColor),
-                    Description = $@"**Description:**
-{cmd.Description}
-{(cmd.Aliases.Any() ? $"**Aliases:** `{string.Join(", ", cmd.Aliases)}`" : "")}
-**Usage:**
-```{string.Join("\n", cmd.Overloads.Select(o=>$"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a=>string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```"
+                    Description = desc.ToString()
                 };
                 await ctx.RespondAsync(embed: embed);
             }

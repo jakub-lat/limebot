@@ -14,6 +14,10 @@ using PotatoBot;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Proxies;
 using DAL.Models;
+using DSharpPlus.CommandsNext;
+using Bot.Utils;
+using DSharpPlus.CommandsNext.Exceptions;
+using System.Security.Cryptography;
 
 namespace Bot
 {
@@ -102,6 +106,31 @@ namespace Bot
             }
         }
 
+        public async Task CommandErrored(CommandErrorEventArgs e)
+        {
+            if (e.Exception is CommandCanceledException ex && !string.IsNullOrEmpty(ex.Message))
+            {
+                await e.Context.RespondAsync($":warning: {ex.Message}");
+            } else if (e.Exception is ArgumentException)
+            {
+                var cmd = e.Command;
+                var ctx = e.Context;
+
+                var desc = new StringBuilder();
+                desc.AppendLine("**Description:**").AppendLine(cmd.Description).AppendLine();
+                if (cmd.Aliases.Any()) desc.AppendLine($"**Aliases:** `{string.Join(", ", cmd.Aliases)}`").AppendLine();
+                desc.AppendLine("**Usage:**")
+                    .AppendLine($"```{string.Join("\n", cmd.Overloads.Select(o => $"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a => string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```");
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = $"Usage: {cmd.Name}",
+                    Color = new DiscordColor(Config.settings.embedColor),
+                    Description = desc.ToString()
+                };
+                await ctx.RespondAsync(embed: embed);
+            }
+        }
+        
         public async Task MessageCreated(MessageCreateEventArgs e)
         {
             if (e.Author.IsBot) return;

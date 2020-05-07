@@ -22,6 +22,7 @@ using DSharpPlus.Net;
 using Bot.Music;
 using PotatoBot.Utils;
 using Bot.Commands;
+using DSharpPlus.EventArgs;
 
 namespace PotatoBot.Bot
 {
@@ -40,9 +41,6 @@ namespace PotatoBot.Bot
 
         BotEvents events;
 
-        readonly string prefix = "$";
-        readonly string dev_prefix = ".";
-
         public BotService(IServiceCollection services)
         {
             if(instance == null)
@@ -54,15 +52,16 @@ namespace PotatoBot.Bot
             }
             this.services = services;
 
-
             discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = Config.settings.BotToken,
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = true,
-                LogLevel = LogLevel.Debug,
+                LogLevel = LogLevel.Info,
                 MessageCacheSize = 512
             });
+
+            events = new BotEvents(discord);
 
             discord.UseLavalink();
 
@@ -78,6 +77,8 @@ namespace PotatoBot.Bot
                 EnableMentionPrefix = true,
                 EnableDefaultHelp = false
             });
+
+            commands.CommandErrored += events.CommandErrored;
 
             commands.RegisterCommands<ModerationCommands>();
             commands.RegisterCommands<MusicCommands>();
@@ -96,7 +97,7 @@ namespace PotatoBot.Bot
 
             commandList = new CommandList(commands);
 
-            events = new BotEvents(discord);
+            discord.Ready += async (ReadyEventArgs e) => Console.WriteLine("Bot ready");
             discord.MessageCreated += events.MessageCreated;
             discord.GuildMemberAdded += events.MemberJoined;
             discord.GuildMemberRemoved += events.MemberLeft;
@@ -111,7 +112,7 @@ namespace PotatoBot.Bot
         {
             if (Config.IsDevelopment)
             {
-                return msg.GetStringPrefixLength(dev_prefix);
+                return msg.GetStringPrefixLength(Config.settings.DefaultPrefix);
             }
             var guild = msg.Channel.Guild;
             if (guild == null) return -1;
@@ -119,7 +120,7 @@ namespace PotatoBot.Bot
             using(var ctx = new GuildContext())
             {
                 var data = await ctx.GetGuild(guild.Id);
-                var pfx = string.IsNullOrWhiteSpace(data?.Prefix) ? prefix : data.Prefix;
+                var pfx = string.IsNullOrWhiteSpace(data?.Prefix) ? Config.settings.DefaultPrefix : data.Prefix;
 
                 if (msg.MentionedUsers.Any(i => i.Id == discord.CurrentUser.Id))
                 {
