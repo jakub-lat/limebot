@@ -110,7 +110,7 @@ namespace Bot
         {
             if (e.Exception is CommandCanceledException ex && !string.IsNullOrEmpty(ex.Message))
             {
-                await e.Context.RespondAsync($":warning: {ex.Message}");
+                //await e.Context.RespondAsync($":warning: {ex.Message}");
             } else if (e.Exception is ArgumentException)
             {
                 var cmd = e.Command;
@@ -175,8 +175,21 @@ namespace Bot
                 await ctx.SaveChangesAsync();
             }
             
-            if (guild.EnableReputation && (e.Message.Content.StartsWith("thanks") || e.Message.Content.StartsWith("thx")))
+            if (e.Message.Content.StartsWith("thanks") || e.Message.Content.StartsWith("thx"))
             {
+                if (!guild.EnableReputation)
+                {
+                    if (((DiscordMember)e.Author).PermissionsIn(e.Channel).HasPermission(Permissions.ManageGuild)) {
+                        var embed = new DiscordEmbedBuilder
+                        {
+                            Title = "Reputation is disabled for this server",
+                            Description = $"[Click here]({Config.settings.DashboardURL}/manage/{e.Guild.Id}/ranking) to enable it",
+                            Color = new DiscordColor(Config.settings.embedColor)
+                        };
+                        await e.Channel.SendMessageAsync(embed: embed);
+                    }
+                    return;
+                }
                 var mentions = e.MentionedUsers.Where(x => x.Id != e.Author.Id && x.IsBot == false);
                 if (!mentions.Any()) return;
                 foreach (var user in mentions)
@@ -198,17 +211,7 @@ namespace Bot
                     await ctx.SaveChangesAsync();
                 }
                 await e.Channel.SendMessageAsync($"You gave karma (+{guild.ReputationXP} XP) to {string.Join(", ", mentions.Select(x => x.Mention))}.");
-            }
-            else if (!guild.EnableReputation && ((DiscordMember)e.Author).PermissionsIn(e.Channel).HasPermission(Permissions.ManageGuild))
-            {
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = "Reputation is disabled for this server",
-                    Description = $"[Click here]({Config.settings.DashboardURL}/manage/{e.Guild.Id}/reputation) to enable it",
-                    Color = new DiscordColor(Config.settings.embedColor)
-                };
-                await e.Channel.SendMessageAsync(embed: embed);
-            }
+            } 
         }
         public async Task MemberJoined(GuildMemberAddEventArgs e)
         {

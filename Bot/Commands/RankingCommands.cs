@@ -1,5 +1,6 @@
 ﻿using Bot.Attributes;
 using Bot.Utils;
+using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
 using DSharpPlus.Entities;
@@ -28,7 +29,17 @@ namespace Bot.Commands
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
             await base.BeforeExecutionAsync(ctx);
-            if (!guild.EnableLeveling) throw new CommandCanceledException("Leveling is disabled in this server!");
+            if (!guild.EnableLeveling) {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Leveling is disabled for this server",
+                    Color = new DiscordColor(Config.settings.embedColor)
+                };
+                if (ctx.Member.PermissionsIn(ctx.Channel).HasPermission(Permissions.ManageGuild)) 
+                    embed.Description = $"[Click here]({Config.settings.DashboardURL}/manage/{ctx.Guild.Id}/ranking) to enable it";
+                await ctx.RespondAsync(embed: embed);
+                throw new CommandCanceledException(); 
+            }
         }
 
         const float scale = 1.5f;
