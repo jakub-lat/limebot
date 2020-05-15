@@ -22,7 +22,7 @@ using Bot.Entities;
 namespace PotatoBot.Bot.Commands
 {
 
-    [Category("Music")]
+    [Category("Music"), RequireGuild]
     public class MusicCommands : MyCommandModule
     {
         private Lavalink lava;

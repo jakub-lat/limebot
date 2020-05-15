@@ -110,10 +110,11 @@ namespace PotatoBot.Bot
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)
         {
-            if (Config.IsDevelopment)
+            if (Config.IsDevelopment || msg.Channel.Guild == null)
             {
                 return msg.GetStringPrefixLength(Config.settings.DefaultPrefix);
             }
+
             var guild = msg.Channel.Guild;
             if (guild == null) return -1;
 

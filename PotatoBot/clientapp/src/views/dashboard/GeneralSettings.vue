@@ -3,7 +3,7 @@
         <h1 class="display-1 mb-3">General settings</h1>
         <v-row>
             <v-col md="6">
-                <my-input id="prefix" label="Prefix (default: $)"/>
+                <my-input id="prefix" label="Prefix" default="$"/>
             </v-col>
         </v-row>
     </v-container>

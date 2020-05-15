@@ -8,7 +8,7 @@ namespace Bot.Utils
 {
     public static class GraphicsHelper
     {
-        public static void DrawRoundedRectangle(this Graphics gfx, Rectangle Bounds, int CornerRadius, Color FillColor)
+        public static void DrawRoundedRectangle(this Graphics gfx, RectangleF Bounds, int CornerRadius, Color FillColor)
         {
             GraphicsPath gfxPath = new GraphicsPath();
             gfxPath.AddArc(Bounds.X, Bounds.Y, CornerRadius, CornerRadius, 180, 90);

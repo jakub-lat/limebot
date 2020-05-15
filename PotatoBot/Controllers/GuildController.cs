@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DAL.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PotatoBot.Bot;
@@ -77,6 +78,7 @@ namespace PotatoBot.Controllers
             if (!await Authentication.CheckAuth(HttpContext, id)) return Unauthorized();
             if (id != guildData.Id)
             {
+                Console.WriteLine("wrong id");
                 return BadRequest();
             }
 
@@ -114,6 +116,57 @@ namespace PotatoBot.Controllers
             return CreatedAtAction("GetGuildData", new { id = guildData.Id }, guildData);
         }
         */
+
+        public class LeaderboardResult { 
+            public string GuildName { get; set; }
+            public string GuildIcon { get; set; }
+            public List<RankingMember> Leaderboard { get; set; }
+        }
+
+        [HttpGet("{id}/leaderboard")]
+        public async Task<ActionResult<LeaderboardResult>> GetLeaderboard(ulong id)
+        {
+            var guildData = await _context.Guilds.FindAsync(id);
+
+            if (guildData == null)
+            {
+                if (BotService.instance.IsOnGuild(id))
+                {
+                    var newGuild = await _context.InsertGuild(id);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+
+            var tasks = (await _context.Entry(guildData).Collection(i => i.Members).Query().OrderByDescending(x => x.XP).Take(100).ToListAsync())
+                .Select(async x => {
+                    var user = await BotService.instance.discord.GetUserAsync(x.UserId);
+                    var level = (x.XP / guildData.RequiredXPToLevelUp);
+                    var percent = x.XP / (float)((level + 1) * guildData.RequiredXPToLevelUp);
+                    return new RankingMember
+                    {
+                        XP = x.XP,
+                        Level = level,
+                        NextLevelPercent = (int)(percent * 100),
+                        Username = user.Username,
+                        Discriminator = user.Discriminator,
+                        AvatarURL = user.GetAvatarUrl(DSharpPlus.ImageFormat.Jpeg, 128)
+                    };
+                }).ToList();
+
+            var leaderboard = (await Task.WhenAll(tasks)).ToList();
+
+            var guild = await BotService.instance.discord.GetGuildAsync(id);
+
+            return Ok(new LeaderboardResult
+            {
+                Leaderboard = leaderboard,
+                GuildName = guild.Name,
+                GuildIcon = guild.IconUrl
+            });
+        }
 
         private bool GuildDataExists(ulong id)
         {

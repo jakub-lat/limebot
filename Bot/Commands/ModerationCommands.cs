@@ -302,5 +302,23 @@ namespace PotatoBot.Bot.Commands
             await Task.Delay(delay);
             await m.DeleteAsync();
         }
+
+        [Command("lock"), Description("Lock current channel, so people can't type there")]
+        public async Task LockChannel(CommandContext ctx)
+        {
+            await ctx.Channel.AddOverwriteAsync(ctx.Guild.EveryoneRole, deny: Permissions.SendMessages);
+            await ctx.RespondAsync($"Channel is now locked. Type {ctx.Prefix}unlock to unlock it.");
+        }
+
+        [Command("unlock"), Description("Unlock current channel")]
+        public async Task UnlockChannel(CommandContext ctx)
+        {
+            var overwrite = ctx.Channel.PermissionOverwrites.Where(x => x.Type == OverwriteType.Role && x.Id == ctx.Guild.EveryoneRole.Id).FirstOrDefault();
+            if(overwrite != null)
+            {
+                await overwrite.UpdateAsync(allow: overwrite.Allowed, deny: overwrite.Denied.Revoke(Permissions.SendMessages));
+            }
+            await ctx.RespondAsync("Unlocked the channel.");
+        }
     }
 }

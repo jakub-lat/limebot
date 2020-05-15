@@ -11,6 +11,7 @@ import Servers from '../views/dashboard/Servers.vue';
 import Logs from '../views/dashboard/Logs.vue';
 import ReactionRoles from '../views/dashboard/ReactionRoles.vue';
 import Ranking from '../views/dashboard/Ranking.vue';
+import Leaderboard from '../views/Leaderboard';
 
 
 import NotFound from '../views/NotFound.vue';
@@ -97,6 +98,11 @@ const routes = [
         name: 'Commands',
         component: Commands,
         meta: {title: 'Commands'}
+      },
+      {
+        path: '/leaderboard/:id',
+        component: Leaderboard,
+        meta: {title: 'Leaderboard'}
       },
       {
         path: '*',

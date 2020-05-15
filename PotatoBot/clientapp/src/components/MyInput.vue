@@ -32,12 +32,13 @@ export default {
         required: Boolean,
         disabled: Boolean,
         textarea: Boolean,
-        maxlength: String
+        maxlength: String,
+        default: String
     },
     computed: {
         value: {
             get() {
-                return store.state.settings[this.id];
+                return store.state.settings[this.id] || this.default;
             },
             set(val) {
                 store.commit('set', {[this.id]: val});

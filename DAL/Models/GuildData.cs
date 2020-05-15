@@ -81,6 +81,11 @@ namespace PotatoBot.Models
         public int MaxMessageXP { get; set; } = 25;
 
         public List<GuildMember> Members { get; set; }
+
+        public bool EnableReputation { get; set; } = false;
+        
+        [Range(2, 100)]
+        public int ReputationXP { get; set; } = 20;
     }
 
 }

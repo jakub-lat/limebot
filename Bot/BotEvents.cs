@@ -133,13 +133,14 @@ namespace Bot
         
         public async Task MessageCreated(MessageCreateEventArgs e)
         {
-            if (e.Author.IsBot) return;
-            using(var ctx = new GuildContext())
+            if (e.Author.IsBot || e.Guild == null) return;
+            using var ctx = new GuildContext();
+
+            var guild = await ctx.GetGuild(e.Guild.Id);
+            if (guild.EnableLeveling)
             {
-                var guild = await ctx.GetGuild(e.Guild.Id);
-                if (!guild.EnableLeveling) return;
-                var member = await ctx.Entry(guild).Collection(i=>i.Members).Query().Where(i=>i.UserId == e.Author.Id).FirstOrDefaultAsync();
-                if(member == null)
+                var member = await ctx.Entry(guild).Collection(i => i.Members).Query().Where(i => i.UserId == e.Author.Id).FirstOrDefaultAsync();
+                if (member == null)
                 {
                     member = new GuildMember
                     {
@@ -148,14 +149,15 @@ namespace Bot
                         LastMessaged = DateTime.Now
                     };
                     guild.Members.Add(member);
-                } else if(DateTime.Now >= member.LastMessaged.AddMinutes(1))
+                }
+                else if (DateTime.Now >= member.LastMessaged.AddMinutes(1))
                 {
                     if (DateTime.Now <= member.LastMessaged.AddMinutes(2))
                     {
                         member.XP += rnd.Next(guild.MinMessageXP, guild.MaxMessageXP);
                         member.LastMessaged = DateTime.Now;
 
-                        if(guild.EnableLevelUpMessage)
+                        if (guild.EnableLevelUpMessage)
                         {
                             var lvl = member.XP / guild.RequiredXPToLevelUp;
                             if (lvl > (member.XP - 10) / guild.RequiredXPToLevelUp)
@@ -171,6 +173,41 @@ namespace Bot
                 }
 
                 await ctx.SaveChangesAsync();
+            }
+            
+            if (guild.EnableReputation && (e.Message.Content.StartsWith("thanks") || e.Message.Content.StartsWith("thx")))
+            {
+                var mentions = e.MentionedUsers.Where(x => x.Id != e.Author.Id && x.IsBot == false);
+                if (!mentions.Any()) return;
+                foreach (var user in mentions)
+                {
+                    var userDB = await ctx.Entry(guild).Collection(i => i.Members).Query().Where(i => i.UserId == user.Id).FirstOrDefaultAsync();
+                    if (userDB == null)
+                    {
+                        userDB = new GuildMember
+                        {
+                            UserId = user.Id,
+                            XP = guild.ReputationXP
+                        };
+                        guild.Members.Add(userDB);
+                    }
+                    else
+                    {
+                        userDB.XP += guild.ReputationXP;
+                    }
+                    await ctx.SaveChangesAsync();
+                }
+                await e.Channel.SendMessageAsync($"You gave karma (+{guild.ReputationXP} XP) to {string.Join(", ", mentions.Select(x => x.Mention))}.");
+            }
+            else if (!guild.EnableReputation && ((DiscordMember)e.Author).PermissionsIn(e.Channel).HasPermission(Permissions.ManageGuild))
+            {
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = "Reputation is disabled for this server",
+                    Description = $"[Click here]({Config.settings.DashboardURL}/manage/{e.Guild.Id}/reputation) to enable it",
+                    Color = new DiscordColor(Config.settings.embedColor)
+                };
+                await e.Channel.SendMessageAsync(embed: embed);
             }
         }
         public async Task MemberJoined(GuildMemberAddEventArgs e)
@@ -288,6 +325,7 @@ namespace Bot
 
         public async Task MessageReactionAdd(MessageReactionAddEventArgs e)
         {
+            if (e.Guild == null) return;
             using(var ctx = new GuildContext())
             {
                 var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();

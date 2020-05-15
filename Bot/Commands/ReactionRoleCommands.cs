@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace Bot.Commands
 {
-    [Group("rr"), Category("Reaction roles")]
+    [Group("rr"), Category("Reaction roles"), RequireGuild]
     public class ReactionRoleCommands : MyCommandModule
     {
         public ReactionRoleCommands(GuildContext db) : base(db) { }
@@ -29,8 +29,9 @@ namespace Bot.Commands
             {
                 Title = "Reaction roles help",
                 Color = new DiscordColor(Config.settings.embedColor),
-                Description = $@"**Creating** a new reaction role: `{ctx.Prefix}rr create <message link> <emoji> <role>`. 
-To get message link, simply right click on a message, and select `Copy message link`.
+                Description = $@"**Creating** a new reaction role: `{ctx.Prefix}rr create <message link> <emoji> <role>` 
+or `{ctx.Prefix}rr create <channel> <msg> <emoji> <role>`. 
+To get message link or id, simply right click on a message, and select the required option.
 
 **List** of reaction roles in this server: `{ctx.Prefix}rr list`
 
@@ -83,6 +84,19 @@ To get message link, simply right click on a message, and select `Copy message l
                 Color = new DiscordColor(Config.settings.embedColor)
             };
             await ctx.RespondAsync(embed: embed);
+        }
+
+        [Command("create")]
+        public async Task CreateVariant(CommandContext ctx, DSharpPlus.Entities.DiscordChannel channel, ulong messageId, DiscordEmoji emoji, DSharpPlus.Entities.DiscordRole role)
+        {
+            var msg = await channel.GetMessageAsync(messageId);
+            if(msg == null)
+            {
+                await ctx.RespondAsync(":warning: Message with specified ID was found!");
+                return;
+            }
+
+            Create(ctx, msg, emoji, role);
         }
 
         [Command("list"), Description("List all reaction roles for this server"), RequireUserPermissions(DSharpPlus.Permissions.ManageRoles)]

@@ -22,13 +22,13 @@ namespace PotatoBot.Bot.Commands
     {
         public SystemCommands(GuildContext db) : base(db) { }
 
-        [Command("prefix"), Description("Get or set the prefix")]
+        [Command("prefix"), Description("Get or set the prefix"), RequireGuild]
         public async Task GetPrefix(CommandContext ctx)
         {
             await ctx.RespondAsync($"The prefix is `{ctx.Prefix}`");
         }
 
-        [Command("prefix"), RequireUserPermissions(DSharpPlus.Permissions.ManageMessages)]
+        [Command("prefix"), RequireUserPermissions(DSharpPlus.Permissions.ManageMessages), RequireGuild]
         public async Task SetPrefix(CommandContext ctx, string newPrefix)
         {
             guild.Prefix = newPrefix;
@@ -88,29 +88,28 @@ _Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified 
             await ctx.RespondAsync($"{emoji} Pong! Ping: {ctx.Client.Ping}ms");
         }
 
-        [Command("userinfo"), Aliases("user"), Description("User information")]
+        [Command("userinfo"), Aliases("user"), Description("User information"), RequireGuild]
         public async Task UserInfo(CommandContext ctx, DiscordMember user = null) {
             user ??= ctx.Member;
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"User: {user.Username}#{user.Discriminator}",
+                Title = $"{user.Username}#{user.Discriminator}",
                 ThumbnailUrl = user.AvatarUrl,
                 Color = new DiscordColor(Config.settings.embedColor),
             };
 
-            embed.AddField("**Username:**", user.Username, true);
-
             if (user.Nickname != null) 
-                embed.AddField("**Nickname:**", user.Nickname, true);
+                embed.AddField("**Nickname**", user.Nickname, true);
 
             embed.AddField("**Id:**", ""+user.Id, true);
 
-            embed.AddField("**Top role:**", user.Roles.OrderByDescending(i => i.Position).FirstOrDefault().Mention, true);
+            embed.AddField("**Account created**", user.CreationTimestamp.DateTime.ToString("dd MMM yyyy"), true);
 
-            if (Config.developer.Contains(user.Id)) 
-                embed.AddField("**Developer:**", "true", true);
+            embed.AddField("**Joined server**", user.JoinedAt.ToString("dd MMM yyyy"), true);
 
-            await ctx.RespondAsync(null, false, embed.Build());
+            embed.AddField("**Top role**", user.Roles.OrderByDescending(i => i.Position).FirstOrDefault().Mention, true);
+
+            await ctx.RespondAsync(embed: embed.Build());
         }
 
 

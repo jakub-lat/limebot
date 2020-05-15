@@ -3,12 +3,28 @@
         <h1 class="display-1 mb-4">Ranking system</h1>
         <v-hover v-slot:default="{ hover }">
             <v-card 
-                color="grey darken-4" :elevation="hover ? 6 : 3" max-width="400" class="mb-19"
+                color="grey darken-4" :elevation="hover ? 6 : 3" max-width="400"
                 link to="/commands/#ranking"
             >
                 <v-list-item>
                     <v-list-item-content>
                         <v-list-item-title>Learn more about ranking</v-list-item-title>
+                    </v-list-item-content>
+
+                    <v-list-item-action>
+                        <v-icon>mdi-arrow-right</v-icon>
+                    </v-list-item-action>
+                </v-list-item>
+            </v-card>
+        </v-hover>
+        <v-hover v-slot:default="{ hover }">
+            <v-card 
+                color="grey darken-4" :elevation="hover ? 6 : 3" max-width="400" class="mt-3"
+                link :to="`/leaderboard/${server.id}`"
+            >
+                <v-list-item>
+                    <v-list-item-content>
+                        <v-list-item-title>View leaderboard for this server</v-list-item-title>
                     </v-list-item-content>
 
                     <v-list-item-action>
@@ -33,20 +49,20 @@
                 <range-slider-input 
                     minId="minMessageXP"
                     maxId="maxMessageXP"
-                    label="XP to get every message"
+                    label="XP every minute"
                     :disabled="!levelingEnabled"
                     :min="2"
                     :max="100"
                 />
                 <slider-input 
                     id="requiredXPToLevelUp"
-                    label="Required XP to level up"
+                    label="XP to level up"
                     :disabled="!levelingEnabled"
                     :min="5"
                     :max="2000"
                 />
 
-                <v-row class="mt-5">
+                <v-row class="mt-10">
                     <v-col>
                         <h2 :class="levelingEnabled ? '' : 'text--secondary'">Level up message</h2>
                     </v-col>
@@ -62,6 +78,23 @@
                     textarea maxlength="500" 
                     hint="Insert: {user} - user mention, {level} - level that they advanced to"
                     class="mb-4"/>
+
+                <v-row class="mt-10">
+                    <v-col>
+                        <h2>Enable reputation system</h2>
+                    </v-col>
+                    <v-col cols="auto">
+                        <switch-input id="enableReputation" v-model="reputationEnabled" class="ma-0"/>
+                    </v-col>
+                </v-row>
+                <p>Enable reputation system - the "thanks @member" message will give the target member additional XP.</p>
+                <slider-input 
+                    id="reputationXP"
+                    label="XP to get"
+                    :disabled="!reputationEnabled"
+                    :min="2"
+                    :max="100"
+                />
             </v-col>
         </v-row>
     </v-container>
@@ -72,12 +105,19 @@ import MyInput from '@/components/MyInput.vue';
 import SliderInput from '@/components/SliderInput.vue';
 import RangeSliderInput from '@/components/RangeSliderInput.vue';
 
+import store from '@/store';
 
 export default {
     components: {SwitchInput, MyInput, SliderInput, RangeSliderInput},
     data: ()=>({
         levelingEnabled: false,
-        levelUpMessageEnabled: true
-    })
+        levelUpMessageEnabled: true,
+        reputationEnabled: false
+    }),
+    computed: {
+        server() {
+            return store.state.server;
+        }
+    }
 }
 </script>

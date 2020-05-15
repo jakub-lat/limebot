@@ -29,7 +29,7 @@ export default {
             }
         },
         items() {
-            var chn = store.state.server.channels.filter(i=>i.type=='Text').map(i=>({text:`#${i.name} (${i.parent})`, value: i.id}));
+            var chn = store.state.server.channels.filter(i=>i.type=='Text').map(i=>({text:`#${i.name} (${i.parent || 'no category'})`, value: i.id}));
             return chn;
         }
     }

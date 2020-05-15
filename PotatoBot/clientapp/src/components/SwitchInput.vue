@@ -20,7 +20,7 @@ export default {
                 return store.state.settings[this.id];
             },
             set(val) {
-                store.commit('set', {[this.id]: val});
+                store.commit('set', {[this.id]: !!val});
                 this.$emit('input', val);
             }
         }
