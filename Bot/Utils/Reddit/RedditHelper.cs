@@ -17,7 +17,6 @@ namespace PotatoBot.Bot.Utils
         {
             var response = await client.GetAsync($"{baseURL}/{subreddit}/hot.json");
             var status = (int)response.StatusCode;
-            Console.WriteLine(status);
             if(status < 200 || status > 299)
             {
                 Console.WriteLine("Unsuccessful");

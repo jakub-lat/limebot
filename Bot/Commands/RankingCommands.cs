@@ -33,7 +33,7 @@ namespace Bot.Commands
 
         const float scale = 1.5f;
 
-        [Command("rank"), Aliases("level"), Description("Shows your XP, level and ranking position")]
+        [Command("rank"), Aliases("level"), Description("Shows XP, level and ranking position for you or specified member")]
         public async Task Rank(CommandContext ctx, DiscordMember member = null)
         {
             member ??= ctx.Member;

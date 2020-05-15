@@ -18,7 +18,8 @@ namespace PotatoBot.Bot.Utils
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
             db = new GuildContext();
-            guild = await db.GetGuild(ctx.Guild.Id);
+            if (ctx.Guild != null) guild = await db.GetGuild(ctx.Guild.Id);
+            else guild = null;
             await base.BeforeExecutionAsync(ctx);
         }
     }

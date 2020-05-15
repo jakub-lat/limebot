@@ -40,13 +40,17 @@ namespace PotatoBot.Bot.Commands
         public async Task Help(CommandContext ctx)
         {
             var url = Config.settings.DashboardURL;
+
+            var description = new StringBuilder()
+                .AppendLine("Hey! I am **LIME**. Nice to see you ;)")
+                .AppendLine($"If you are stuck, **[here is a list of my commands]({url}/commands)**.");
+            if (ctx.Guild != null) description.AppendLine($"If you want to configure me, **[login to dashboard]({url}/manage/{ctx.Guild.Id})");
+            description.AppendLine($"_Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified command_");
+              
+
             var embed = new DiscordEmbedBuilder {
                 Title = "Lime help",
-                Description = @$"Hey! I am **LIME**. Nice to see you ;)
-If you are stuck, **[here is a list of my commands]({url}/commands)**.
-If you want to configure me, **[login to dashboard]({url}/manage/{ctx.Guild.Id})**
-
-_Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified command_",
+                Description = description.ToString(),
                 Color = new DiscordColor(Config.settings.embedColor)
             };
             await ctx.RespondAsync(null, false, embed.Build());

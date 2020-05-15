@@ -17,7 +17,7 @@ using DSharpPlus.Interactivity;
 
 namespace PotatoBot.Bot.Commands
 {
-    [Category("Moderation")]
+    [Category("Moderation"), RequireGuild]
     public class ModerationCommands : MyCommandModule
     {
         public ModerationCommands(GuildContext db) : base(db) { }
