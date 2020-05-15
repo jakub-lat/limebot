@@ -14,6 +14,7 @@ namespace PotatoBot
         public string BotToken { get; set; }
         public string LavalinkPassword { get; set; }
         public string YoutubeApiKey { get; set; }
+        public string GeniusApiKey { get; set; }
         public string DashboardURL { get; set; }
         public string DefaultPrefix { get; set; }
         public string embedColor = "2fbb84";

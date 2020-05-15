@@ -26,6 +26,7 @@ namespace Bot.Music
         public bool IsPaused { get; private set; } = false;
 
         public bool Is24_7 { get; set; } = false;
+        public bool Loop { get; set; } = false;
 
         public GuildMusic(Lavalink lava, DiscordGuild guild, DiscordChannel textChannel, string prefix = "$")
         {
@@ -44,7 +45,7 @@ namespace Bot.Music
         private async Task PlaybackFinished(TrackFinishEventArgs e)
         {
             if (skipped) skipped = false;
-            else if (Index >= Queue.Count - 1) {
+            else if (Index >= Queue.Count - 1 && !Loop) {
                 await Stop();
                 await textChannel.SendMessageAsync("Queue ended"); 
             }
@@ -65,12 +66,12 @@ namespace Bot.Music
             await player.PlayAsync(Queue[Index]);
         }
 
-        public async Task Next(bool skip = false)
+        public async Task GoTo(int i, bool skip = false)
         {
-            if (Index < Queue.Count - 1)
+            if (i < Queue.Count)
             {
-                Index++;
-                if(skip) skipped = true;
+                Index = i;
+                if (skip) skipped = true;
                 await Play();
                 var embed = new DiscordEmbedBuilder
                 {
@@ -80,10 +81,13 @@ namespace Bot.Music
                 };
                 await textChannel.SendMessageAsync(embed: embed);
             }
-            else
-            {
-                await Stop();
-            }
+            else if (Loop) await Restart();
+            else await Stop();
+        }
+
+        public async Task Next(bool skip = false)
+        {
+            await GoTo(Index + 1, skip);
         }
 
         public async Task Stop()
@@ -115,6 +119,11 @@ namespace Bot.Music
             }
 
             Queue.Insert(Index, track);
+        }
+
+        public async Task Restart()
+        {
+            await GoTo(0);
         }
 
         public async Task Pause()

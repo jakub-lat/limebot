@@ -18,6 +18,7 @@ using DSharpPlus.Interactivity;
 using PotatoBot;
 using DSharpPlus.Interactivity.Enums;
 using Bot.Entities;
+using System.Text.RegularExpressions;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -102,21 +103,29 @@ namespace PotatoBot.Bot.Commands
         [Command("play"), BeforePlay]
         public async Task PlaySearch(CommandContext ctx, [RemainingText] string query)
         {
-            var result = await yt.Search(query);
-            if(result == null)
+            try
             {
-                await ctx.RespondAsync(":warning: Nothing found :(");
-            } else
-            {
-                var trackLoad = await lava.node.Rest.GetTracksAsync("https://youtube.com/watch?v=" + result.id.videoId);
-                if (trackLoad.LoadResultType == LavalinkLoadResultType.LoadFailed || !trackLoad.Tracks.Any())
-                {
-                    await ctx.RespondAsync($":warning: No tracks were found!");
-                    return;
-                }
+                var result = await yt.Search(query);
 
-                await gm.Add(trackLoad.Tracks.First());
-                await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
+                if (result == null)
+                {
+                    await ctx.RespondAsync(":warning: Nothing found :(");
+                }
+                else
+                {
+                    var trackLoad = await lava.node.Rest.GetTracksAsync("https://youtube.com/watch?v=" + result.id.videoId);
+                    if (trackLoad.LoadResultType == LavalinkLoadResultType.LoadFailed || !trackLoad.Tracks.Any())
+                    {
+                        await ctx.RespondAsync($":warning: No tracks were found!");
+                        return;
+                    }
+
+                    await gm.Add(trackLoad.Tracks.First());
+                    await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
+                }
+            } catch
+            {
+                await ctx.RespondAsync("Error :worried:. Please try again.");
             }
         }
         
@@ -176,7 +185,7 @@ Now playing: **{gm.Queue[gm.Index].Title}**
             {
                 SkipLeft = DiscordEmoji.FromUnicode("🏠"),
                 SkipRight = null,
-                Stop = DiscordEmoji.FromUnicode("⏹"),
+                Stop = DiscordEmoji.FromUnicode("🛑"),
                 Left = DiscordEmoji.FromUnicode("⬆️"),
                 Right = DiscordEmoji.FromUnicode("⬇️")
             };
@@ -186,16 +195,25 @@ Now playing: **{gm.Queue[gm.Index].Title}**
             await interactivity.WaitForCustomPaginationAsync(paginated);
         }
 
-        [Command("volume"), Aliases("vol"), Description("Set player volume"), RequireVC]
-        public async Task Volume(CommandContext ctx, int volume)
+        [Command("lyrics"), Description("Show lyrics for current song"), RequireVC]
+        public async Task Lyrics(CommandContext ctx)
         {
-            if(volume < 0 || volume > 150)
+            var interactivity = ctx.Client.GetInteractivity();
+            var lyrics = await GeniusLyrics.GetLyrics(new Regex(@"\(([^\)]+)\)|\[([^\]]+)\]").Replace(gm.Queue[gm.Index].Title, ""));
+
+            if(string.IsNullOrEmpty(lyrics))
             {
-                await ctx.RespondAsync("Volume must be between 0 and 150");
+                await ctx.RespondAsync(":worried: Lyrics for this song not found!");
                 return;
             }
-            await gm.player.SetVolumeAsync(volume);
-            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
+            var pages = interactivity.GeneratePagesInEmbed(lyrics, SplitType.Line, new DiscordEmbedBuilder
+            {
+                Title = $"Lyrics for {gm.Queue[gm.Index].Title}",
+                Color = new DiscordColor(Config.settings.embedColor)
+            });
+            var paginated = new MyPaginatedMessage(ctx, pages.ToList());
+            await paginated.SendAsync();
+            await interactivity.WaitForCustomPaginationAsync(paginated);
         }
 
         [Command("stop"), Aliases("leave", "disconnect"), Description("Clear queue and disconnect from VC")]
@@ -214,7 +232,7 @@ Now playing: **{gm.Queue[gm.Index].Title}**
         public async Task Shuffle(CommandContext ctx)
         {
             gm.Shuffle();
-            await ctx.RespondAsync("Shuffled!");
+            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":twisted_rightwards_arrows:"));
         }
 
         [Command("pause"), Description("Pause the track."), RequireVC]
@@ -237,6 +255,7 @@ Now playing: **{gm.Queue[gm.Index].Title}**
             }
         }
 
+
         [Command("seek"), Description("Seeks to specified time (example: 2m30s)"), RequireVC]
         public async Task Seek(CommandContext ctx, [RemainingText] TimeSpan position)
         {
@@ -258,6 +277,58 @@ Now playing: **{gm.Queue[gm.Index].Title}**
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":fast_forward:"));
         }
 
+
+        [Command("remove"), Aliases("rm"), Description("Remove a track from queue by index"), RequireVC]
+        public async Task Remove(CommandContext ctx, uint index)
+        {
+            index--;
+            try
+            {
+                var track = gm.Queue?[(int)index];
+                gm.Queue?.RemoveAt((int)index);
+                if (index == gm.Index)
+                {
+                    await gm.Next(true);
+                }
+                await ctx.RespondAsync($":ok_hand: Removed **{track.Title}** from queue.");
+            } catch
+            {
+                await ctx.RespondAsync($"Index out of range!");
+            }
+        }
+
+        [Command("undo"), Description("Removes last added track"), RequireVC]
+        public async Task Undo(CommandContext ctx)
+        {
+            await Remove(ctx, (uint)gm.Queue.Count);
+        }
+
+        [Command("goto"), Description("Go to specified track by index"), RequireVC]
+        public async Task GoTo(CommandContext ctx, uint index)
+        {
+            index--;
+            if(index < 1 || index >= gm.Queue.Count)
+            {
+                await ctx.RespondAsync("Index out of range!");
+                return;
+            }
+            await gm.GoTo((int)index, true);
+            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":track_next:"));
+        }
+
+        [Command("restart"), Aliases("replay"), Description("Replay the queue"), RequireVC]
+        public async Task Restart(CommandContext ctx)
+        {
+            await GoTo(ctx, 1);
+        }
+
+        [Command("loop"), Description("Enables queue looping"), RequireVC]
+        public async Task Loop(CommandContext ctx)
+        {
+            gm.Loop = !gm.Loop;
+            await ctx.RespondAsync(gm.Loop ? "Enabled looping :repeat:" : "Disabled looping");
+        }
+
         [Command("24-7"), Description("Toggles 24/7 mode, so bot won't disconnect when everyone leaves the voice chat"), RequireVC]
         public async Task Toggle24_7(CommandContext ctx)
         {
@@ -269,6 +340,18 @@ Now playing: **{gm.Queue[gm.Index].Title}**
             {
                 await ctx.RespondAsync("Disabled **24/7 mode**. I will now leave when the channel will be empty.");
             }
+        }
+
+        [Command("volume"), Aliases("vol"), Description("Set player volume"), RequireVC]
+        public async Task Volume(CommandContext ctx, int volume)
+        {
+            if (volume < 0 || volume > 150)
+            {
+                await ctx.RespondAsync("Volume must be between 0 and 150");
+                return;
+            }
+            await gm.player.SetVolumeAsync(volume);
+            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":ok_hand:"));
         }
     }
 }

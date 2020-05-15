@@ -29,13 +29,19 @@ namespace Bot.Entities
         private DiscordUser user;
         private DiscordChannel channel;
 
-        public MyPaginatedMessage(CommandContext ctx, List<Page> pages, PaginationEmojis emojis, int index)
+        public MyPaginatedMessage(CommandContext ctx, List<Page> pages, PaginationEmojis emojis = null, int index = 0)
         {
             this.pages = pages;
             _tcs = new TaskCompletionSource<bool>();
             _cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
             _cts.Token.Register(() => _tcs.TrySetResult(true));
-            this.emojis = emojis;
+            this.emojis = emojis != null ? emojis : new PaginationEmojis {
+                SkipLeft = DiscordEmoji.FromUnicode("⏪"),
+                SkipRight = DiscordEmoji.FromUnicode("⏩"),
+                Left = DiscordEmoji.FromUnicode("⬅"),
+                Right = DiscordEmoji.FromUnicode("➡️"),
+                Stop = DiscordEmoji.FromUnicode("🛑")
+            };
             this.index = index;
             user = ctx.Member;
             channel = ctx.Channel;

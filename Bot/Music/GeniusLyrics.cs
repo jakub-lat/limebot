@@ -1,0 +1,66 @@
+﻿using HtmlAgilityPack;
+using Fizzler.Systems.HtmlAgilityPack;
+using Newtonsoft.Json;
+using PotatoBot;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Runtime.Serialization;
+using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Web;
+using System.Xml.XPath;
+
+namespace Bot.Music
+{
+    
+    public static class GeniusLyrics
+    {
+        private class GeniusSong
+        {
+            public string Path { get; set; }
+        }
+        private class GeniusHit
+        {
+            public GeniusSong Result { get; set; }
+        }
+        private class GeniusResponse
+        {
+            public List<GeniusHit> Hits { get; set; }
+        }
+        private class GeniusData
+        {
+            public GeniusResponse Response { get; set; }
+        }
+
+        static HttpClient client = new HttpClient();
+        static string baseUrl = "https://api.genius.com/";
+
+        static GeniusLyrics()
+        {
+            client.DefaultRequestHeaders.Add("Authorization", "Bearer " + Config.settings.GeniusApiKey);
+        }
+
+        public static async Task<string> GetLyrics(string search)
+        {
+            var data = await client.GetStringAsync(baseUrl + "search?q=" + HttpUtility.UrlEncode(search));
+            var resp = JsonConvert.DeserializeObject<GeniusData>(data);
+            if (resp.Response.Hits.Count < 1) return null;
+
+            var songPath = resp.Response.Hits[0].Result.Path;
+
+            var web = new HtmlWeb();
+            var doc = web.Load("https://genius.com" + songPath);
+
+            var lyricsRaw = doc.DocumentNode.QuerySelector("div.lyrics")?.InnerText;
+            if (lyricsRaw == null) return null;
+            Console.WriteLine(lyricsRaw.Substring(0, 100));
+            var lyrics = Regex.Replace(Regex.Replace(lyricsRaw, @"\n+", "\n"), @"^More on genius[\D\d]*", "", RegexOptions.Multiline).Trim();
+            Console.WriteLine(lyrics.Substring(0, 100));
+            return lyrics;
+        }
+    }
+}
