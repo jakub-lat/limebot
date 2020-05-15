@@ -44,8 +44,8 @@ namespace PotatoBot.Bot.Commands
             var description = new StringBuilder()
                 .AppendLine("Hey! I am **LIME**. Nice to see you ;)")
                 .AppendLine($"If you are stuck, **[here is a list of my commands]({url}/commands)**.");
-            if (ctx.Guild != null) description.AppendLine($"If you want to configure me, **[login to dashboard]({url}/manage/{ctx.Guild.Id})");
-            description.AppendLine($"_Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified command_");
+            if (ctx.Guild != null) description.AppendLine($"If you want to configure me, **[login to dashboard]({url}/manage/{ctx.Guild.Id})**");
+            description.AppendLine($"\n_Protip: type `{ctx.Prefix}help <command>` to get detailed info about specified command_");
               
 
             var embed = new DiscordEmbedBuilder {

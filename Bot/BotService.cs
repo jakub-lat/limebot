@@ -110,26 +110,22 @@ namespace PotatoBot.Bot
 
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)
         {
-            if (Config.IsDevelopment || msg.Channel.Guild == null)
-            {
-                return msg.GetStringPrefixLength(Config.settings.DefaultPrefix);
-            }
+            string pfx = "";
 
             var guild = msg.Channel.Guild;
-            if (guild == null) return -1;
+            if (guild == null) return msg.GetStringPrefixLength(Config.settings.DefaultPrefix);
 
             using(var ctx = new GuildContext())
             {
                 var data = await ctx.GetGuild(guild.Id);
-                var pfx = string.IsNullOrWhiteSpace(data?.Prefix) ? Config.settings.DefaultPrefix : data.Prefix;
+                pfx = Config.IsDevelopment || string.IsNullOrWhiteSpace(data?.Prefix) ? Config.settings.DefaultPrefix : data.Prefix;
 
                 if (msg.MentionedUsers.Any(i => i.Id == discord.CurrentUser.Id))
                 {
-                    _ = msg.RespondAsync($"Hey! My prefix here is `{pfx}`. Type `{pfx}help` if you are stuck.");
+                    _ = msg.RespondAsync($"Hey! My prefix here is `{pfx}` - type `{pfx}help` if you are stuck.");
                 }
 
-                var prefixLocation = msg.GetStringPrefixLength(pfx);
-                return prefixLocation;
+                return msg.GetStringPrefixLength(pfx);
             }
 
         }
