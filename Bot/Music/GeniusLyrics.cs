@@ -57,9 +57,7 @@ namespace Bot.Music
 
             var lyricsRaw = doc.DocumentNode.QuerySelector("div.lyrics")?.InnerText;
             if (lyricsRaw == null) return null;
-            Console.WriteLine(lyricsRaw.Substring(0, 100));
             var lyrics = Regex.Replace(Regex.Replace(lyricsRaw, @"\n+", "\n"), @"^More on genius[\D\d]*", "", RegexOptions.Multiline).Trim();
-            Console.WriteLine(lyrics.Substring(0, 100));
             return lyrics;
         }
     }

@@ -199,7 +199,7 @@ Now playing: **{gm.Queue[gm.Index].Title}**
         public async Task Lyrics(CommandContext ctx)
         {
             var interactivity = ctx.Client.GetInteractivity();
-            var lyrics = await GeniusLyrics.GetLyrics(new Regex(@"\(([^\)]+)\)|\[([^\]]+)\]").Replace(gm.Queue[gm.Index].Title, ""));
+            var lyrics = await GeniusLyrics.GetLyrics(new Regex(@"\(([^\)]+)\)|\[([^\]]+)\]|ft\.[\d\D]*").Replace(gm.Queue[gm.Index].Title, ""));
 
             if(string.IsNullOrEmpty(lyrics))
             {
