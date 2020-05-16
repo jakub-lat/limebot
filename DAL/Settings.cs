@@ -17,6 +17,7 @@ namespace PotatoBot
         public string GeniusApiKey { get; set; }
         public string DashboardURL { get; set; }
         public string DefaultPrefix { get; set; }
+        public string RequiredPermissions { get; set; }
         public string embedColor = "2fbb84";
     }
 

@@ -9,6 +9,7 @@
     outlined
     multiple
     chips small-chips deletable-chips
+    hint="Don't see a role? This is probably because bot is below it. Try to move the bot up." persistent-hint
 />
 </template>
 <script>

@@ -42,6 +42,7 @@ namespace PotatoBot.Controllers
             }
 
             var discordGuild = await BotService.instance.discord.GetGuildAsync(id);
+            var perms = discordGuild.CurrentMember.Hierarchy;
 
             return Ok(new GuildResult
             {
@@ -50,7 +51,7 @@ namespace PotatoBot.Controllers
                 Info = new GuildInfo
                 {
                     Roles = discordGuild.Roles.Values
-                        .Where(i => !i.IsManaged && i.Name != "@everyone")
+                        .Where(i => !i.IsManaged && i.Name != "@everyone" && i.Position < perms)
                         .Select(i => new DiscordRole
                         {
                             Id = i.Id,

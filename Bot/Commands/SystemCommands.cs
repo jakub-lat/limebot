@@ -117,7 +117,7 @@ namespace PotatoBot.Bot.Commands
         }
 
 
-        [Command("info"), Description("Bot information")]
+        [Command("info"), Aliases("botinfo"), Description("Bot information")]
         public async Task BotInfo(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder

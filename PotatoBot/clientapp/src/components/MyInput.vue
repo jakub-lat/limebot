@@ -8,7 +8,7 @@
     v-bind="$attrs"
     width="200px"
     v-model="value"
-    outlined no-resize
+    outlined no-resize persistent-hint
     />
 <v-text-field v-else
     :label="label"
@@ -19,7 +19,7 @@
     v-bind="$attrs"
     width="200px"
     v-model="value"
-    outlined
+    outlined persistent-hint
     />
 </template>
 <script>

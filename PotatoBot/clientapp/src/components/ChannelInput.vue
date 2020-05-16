@@ -6,7 +6,7 @@
     width="200px"
     v-model="value"
     :items="items"
-    outlined
+    outlined persistent-hint
 />
 </template>
 <script>

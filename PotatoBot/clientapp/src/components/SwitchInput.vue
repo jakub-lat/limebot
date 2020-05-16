@@ -3,7 +3,7 @@
     :label="label"
     width="200px"
     v-model="value"
-    v-bind="$attrs"
+    v-bind="$attrs" persistent-hint
     />
 </template>
 <script>

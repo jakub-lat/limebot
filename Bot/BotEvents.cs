@@ -269,7 +269,7 @@ namespace Bot
             {
                 var guild = await ctx.GetGuild(e.Guild.Id);
 
-                if (guild.EnableMessageLogs)
+                if (guild.EnableMessageLogs && e.MessageBefore.Content != e.Message.Content)
                 {
                     var chn = e.Guild.Channels[guild.MessageLogsChannel];
 

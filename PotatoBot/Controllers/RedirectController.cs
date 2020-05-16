@@ -17,7 +17,7 @@ namespace PotatoBot.Controllers
         public IActionResult Invite([FromQuery] string id = null)
         {
             var idquery = id !=null ? $"&guild_id={id}" : null;
-            return Redirect($"https://discordapp.com/oauth2/authorize?client_id={Config.settings.ClientID}&permissions=8&scope=bot{idquery}");
+            return Redirect($"https://discordapp.com/oauth2/authorize?client_id={Config.settings.ClientID}&permissions={Config.settings.RequiredPermissions}&scope=bot{idquery}");
         }
     }
 }

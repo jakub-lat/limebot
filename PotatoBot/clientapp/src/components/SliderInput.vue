@@ -4,7 +4,7 @@
         class="align-center"
         v-bind="$attrs"
         thumb-label
-        :label="label"
+        :label="label" persistent-hint
     >
         <slot/>
     </v-slider>

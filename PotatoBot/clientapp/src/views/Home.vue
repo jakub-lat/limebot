@@ -11,18 +11,18 @@
         <h2 class="headline">
           Boost your discord server with Lime power!
         </h2>
-        <v-btn color="primary darken-1" class="mt-4 mr-5" to="/invite" large>
+        <v-btn :style="radius" color="primary darken-1" class="mt-4 mr-5" to="/invite" large>
            <v-icon left>mdi-account-plus</v-icon>
           Invite the bot!
         </v-btn>
-        <v-btn color="secondary lighten-1" class="mt-4" to="/manage" large>
+        <v-btn :style="radius" color="secondary lighten-1" class="mt-4" to="/manage" large>
           <v-icon left>mdi-login-variant</v-icon>
           Login to Dashboard
         </v-btn>
       </v-col>
     </v-row>
     
-    <h1 class="display-1 mb-4 mx-5" style="margin-top: 100px">Features</h1>
+    <h1 class="display-1 mb-4 mx-5" style="margin-top: 150px">Features</h1>
 
     <div class="d-flex flex-wrap">
       <v-hover
@@ -34,6 +34,7 @@
           color="grey darken-4"
           :elevation="hover ? 12 : 3"
           link :to="i.to || '#'"
+          :style="radius"
         >
           <div class="text-center mt-4 ">
             <v-icon class="display-3" :color="i.color || 'primary'">{{i.icon}}</v-icon>
@@ -48,13 +49,13 @@
       </v-hover>
     </div>
 
-    <v-row style="margin-top: 50px; margin-bottom: 100px;">
+    <v-row style="margin-top: 100px; margin-bottom: 100px;">
       <v-col md="6" xl="5">
         <h1 class="display-1 mb-4 mx-5">Commands</h1>
         <v-hover v-slot:default="{ hover }">
           <v-card 
             color="grey darken-4" :elevation="hover ? 6 : 3" class="mx-6 my-4" max-width="400"
-            link to="/commands"
+            link to="/commands" :style="radius"
           >
             <v-list-item>
               <v-list-item-icon>
@@ -77,7 +78,7 @@
         <v-hover v-slot:default="{ hover }">
           <v-card 
             color="grey darken-4" :elevation="hover ? 6 : 3" class="mx-6 my-4" max-width="400" 
-            link href="https://discord.gg/9w9EfWh"
+            link href="https://discord.gg/9w9EfWh" :style="radius"
           >
             <v-list-item>
               <v-list-item-icon>
@@ -103,13 +104,8 @@
 export default {
   name: 'Home',
   data: ()=>({
+    radius: {'border-radius': '10px'},
     features: [
-      {
-        icon: 'mdi-hammer',
-        title: 'Moderate like a pro.',
-        subtitle: 'Lime Bot offers variety of commands that can help you moderate your server with ease.',
-        color: 'lime'
-      },
       {
         icon: 'mdi-view-dashboard',
         title: 'Intuitive dashboard.',
@@ -117,10 +113,22 @@ export default {
         to: '/manage'
       },
       {
+        icon: 'mdi-hammer',
+        title: 'Moderate like a pro.',
+        subtitle: 'Lime Bot offers variety of commands that can help you moderate your server with ease.',
+        color: 'lime'
+      },
+      {
         icon: 'mdi-music',
-        title: 'Enjoy music you like.',
-        subtitle: 'Play your favorite songs, create server playlists and listen with your friends!',
+        title: 'Free, 24/7 music',
+        subtitle: 'Play your favorite songs, enable 24/7 mode and listen with your friends!',
         color: 'red accent-2'
+      },
+      {
+        icon: 'mdi-podium-gold',
+        title: 'XP & Leaderboard.',
+        subtitle: 'Enable leveling and XP system to see who is the most active member!',
+        color: 'yellow accent-2'
       },
       {
         icon: 'mdi-account-plus',
