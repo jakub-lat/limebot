@@ -123,7 +123,7 @@ namespace Bot.Music
 
         public async Task Restart()
         {
-            await GoTo(0);
+            await GoTo(0, true);
         }
 
         public async Task Pause()
