@@ -242,7 +242,7 @@ namespace PotatoBot.Bot.Commands
             });
         }
 
-        [Command("warns"), Aliases("warnings"), Description("Display user warnings"), RequireUserPermissions(Permissions.ManageRoles)]
+        [Command("warns"), Aliases("warnings"), Description("Display user warnings")]
         public async Task WarnList(CommandContext ctx, DiscordMember member)
         {
             var warns = await db.Entry(guild).Collection(i => i.Warns).Query().Where(i => i.UserId == member.Id).ToListAsync();

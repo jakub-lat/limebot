@@ -3,6 +3,7 @@ using Bot.Extensions;
 using DAL.Models;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
+using DSharpPlus.CommandsNext.Converters;
 using DSharpPlus.Entities;
 using DSharpPlus.Interactivity;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +72,7 @@ To get message link or id, simply right click on a message, and select the requi
                 GuildId = ctx.Guild.Id,
                 MessageId = messageLink.Id,
                 MessageJumpLink = messageLink.JumpLink.ToString(),
+                ChannelId = messageLink.ChannelId,
                 RoleId = role.Id
             });
             await db.SaveChangesAsync();
@@ -125,6 +127,15 @@ To get message link or id, simply right click on a message, and select the requi
                 var item = list[index - 1];
                 db.ReactionRoles.Remove(item);
                 await db.SaveChangesAsync();
+
+                try
+                {
+                    var msg = await (await ctx.Client.GetGuildAsync(item.GuildId)).GetChannel(item.ChannelId).GetMessageAsync(item.MessageId);
+                    var emoji = (DiscordEmoji)await ctx.CommandsNext.ConvertArgument<DiscordEmoji>(item.Emoji, ctx);
+                    await msg.DeleteOwnReactionAsync(emoji);
+                }
+                catch { }
+
 
                 var embed = new DiscordEmbedBuilder
                 {

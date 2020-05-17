@@ -13,6 +13,7 @@ namespace DAL.Models
         public ulong MessageId { get; set; }
         public string MessageJumpLink { get; set; }
         public ulong GuildId { get; set; }
+        public ulong ChannelId { get; set; }
         public ulong RoleId { get; set; }
         public string Emoji { get; set; }
     }

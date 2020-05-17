@@ -72,7 +72,7 @@ namespace Bot.Commands
             Bitmap avatar;
             using (var client = new HttpClient())
             {
-                var stream = await client.GetStreamAsync(member.GetAvatarUrl(DSharpPlus.ImageFormat.Jpeg, 128));
+                var stream = await client.GetStreamAsync(member.AvatarHash == null ? member.DefaultAvatarUrl : member.GetAvatarUrl(DSharpPlus.ImageFormat.Jpeg, 128));
                 avatar = new Bitmap(stream);
                 avatar = new Bitmap(avatar, new Size((int)(128 * scale), (int)(128 * scale)));
             }

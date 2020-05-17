@@ -79,17 +79,15 @@
             <v-list-item-title>Commands</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      </v-list>
-      <template v-slot:append>
         <v-list-item exact link to="/manage" class="mb-3">
           <v-list-item-action>
-              <v-icon>mdi-view-list</v-icon>
+              <v-icon>mdi-sync</v-icon>
             </v-list-item-action>
             <v-list-item-content>
               <v-list-item-title>Switch server</v-list-item-title>
           </v-list-item-content>
         </v-list-item>
-      </template>
+      </v-list>
     </v-navigation-drawer>
 
     <v-app-bar app clipped-left color="primary">

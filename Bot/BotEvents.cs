@@ -29,6 +29,7 @@ namespace Bot
         private Timer statusTimer;
         private int statusIndex = 0;
         private readonly DiscordActivity[] statuses = new DiscordActivity[] {
+            new DiscordActivity("$help", ActivityType.ListeningTo),
             new DiscordActivity("You!", ActivityType.Watching),
             new DiscordActivity("Lime sounds", ActivityType.ListeningTo),
             new DiscordActivity("I hate Lemon", ActivityType.Playing),
@@ -127,7 +128,7 @@ namespace Bot
                     }
                 }
                 if (!string.IsNullOrEmpty(perm))
-                    await e.Context.Channel.SendMessageAsync($"I haven't got follwing permissions: `{perm}`. Give me them or you won't be able to use this command.");
+                    await e.Context.Channel.SendMessageAsync($"I don't have follwing permissions: `{perm}`. Give me them or you won't be able to use this command.");
             } else if (e.Exception is ArgumentException)
             {
                 var cmd = e.Command;

@@ -34,7 +34,7 @@
                                     <v-expansion-panel-header>
                                         <template v-slot:default="{ open }">
                                             <span style="max-width: 90%">
-                                                <pre style="width: 60px" class="float-left">{{command.name}}</pre>
+                                                <pre style="width: 60px" class="float-left">${{command.name}}</pre>
                                                 <v-fade-transition>
                                                     <span class="text-truncate text--secondary ml-10 float-left" style="max-width: 50%" v-if="!open">
                                                         {{command.description}}
