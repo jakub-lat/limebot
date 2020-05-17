@@ -40,7 +40,7 @@ To get message link or id, simply right click on a message, and select the requi
             await ctx.RespondAsync(embed: embed);
         }
 
-        [Command("create"), Description("Creates a reaction role for specified message and emoji"), RequirePermissions(DSharpPlus.Permissions.ManageRoles)]
+        [Command("create"), Description("Creates a reaction role for specified message and emoji"), RequirePermissions(DSharpPlus.Permissions.ManageRoles | DSharpPlus.Permissions.AddReactions)]
         public async Task Create(CommandContext ctx, DiscordMessage messageLink, DiscordEmoji emoji, DSharpPlus.Entities.DiscordRole role)
         {
             if(role.Position > ctx.Guild.CurrentMember.Hierarchy)
@@ -125,6 +125,7 @@ To get message link or id, simply right click on a message, and select the requi
                 var item = list[index - 1];
                 db.ReactionRoles.Remove(item);
                 await db.SaveChangesAsync();
+
                 var embed = new DiscordEmbedBuilder
                 {
                     Title = "Reaction role removed",

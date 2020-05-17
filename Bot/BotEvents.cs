@@ -18,6 +18,7 @@ using DSharpPlus.CommandsNext;
 using Bot.Utils;
 using DSharpPlus.CommandsNext.Exceptions;
 using System.Security.Cryptography;
+using DSharpPlus.CommandsNext.Attributes;
 
 namespace Bot
 {
@@ -111,6 +112,22 @@ namespace Bot
             if (e.Exception is CommandCanceledException ex && !string.IsNullOrEmpty(ex.Message))
             {
                 //await e.Context.RespondAsync($":warning: {ex.Message}");
+            }
+            else if (e.Exception is ChecksFailedException ce) 
+            {
+                string perm = "";
+                foreach (var check in ce.FailedChecks)
+                {
+                    if(check is RequirePermissionsAttribute c)
+                    {
+                        perm = c.Permissions.ToPermissionString();
+                    } else if (check is RequireBotPermissionsAttribute rc)
+                    {
+                        perm = rc.Permissions.ToPermissionString();
+                    }
+                }
+                if (!string.IsNullOrEmpty(perm))
+                    await e.Context.Channel.SendMessageAsync($"I haven't got follwing permissions: `{perm}`. Give me them or you won't be able to use this command.");
             } else if (e.Exception is ArgumentException)
             {
                 var cmd = e.Command;
