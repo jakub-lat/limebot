@@ -45,9 +45,10 @@ namespace Bot.Music
         private async Task PlaybackFinished(TrackFinishEventArgs e)
         {
             if (skipped) skipped = false;
-            else if (Index >= Queue.Count - 1 && !Loop) {
+            else if (Index >= Queue.Count - 1 && !Loop)
+            {
                 await Stop();
-                await textChannel.SendMessageAsync("Queue ended"); 
+                await textChannel.SendMessageAsync("Queue ended");
             }
             else await Next();
         }
@@ -81,7 +82,7 @@ namespace Bot.Music
                 };
                 await textChannel.SendMessageAsync(embed: embed);
             }
-            else if (Loop) await Restart();
+            else if (Loop) await GoTo(0, skip);
             else await Stop();
         }
 
@@ -119,11 +120,6 @@ namespace Bot.Music
             }
 
             Queue.Insert(Index, track);
-        }
-
-        public async Task Restart()
-        {
-            await GoTo(0, true);
         }
 
         public async Task Pause()

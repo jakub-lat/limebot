@@ -108,21 +108,23 @@ export default {
     features: [
       {
         icon: 'mdi-view-dashboard',
-        title: 'Intuitive dashboard.',
-        subtitle: 'Allows you to manage the settings very easily and customize the bot to its limits.',
+        title: 'Beautiful dashboard.',
+        subtitle: 'The dashboard allows you to manage the settings very easily and customize the bot to its limits.',
         to: '/manage'
       },
       {
         icon: 'mdi-hammer',
         title: 'Moderate like a pro.',
         subtitle: 'Lime Bot offers variety of commands that can help you moderate your server with ease.',
-        color: 'lime'
+        color: 'lime',
+        to: '/commands#moderation'
       },
       {
         icon: 'mdi-music',
         title: 'Free, 24/7 music',
         subtitle: 'Play your favorite songs, enable 24/7 mode and listen with your friends!',
-        color: 'red accent-2'
+        color: 'red accent-2',
+        to: '/commands#music'
       },
       {
         icon: 'mdi-podium-gold',
@@ -131,12 +133,17 @@ export default {
         color: 'yellow accent-2'
       },
       {
+        icon: 'mdi-emoticon-wink',
+        title: 'Reaction roles.',
+        subtitle: 'Create reaction roles so users can get roles with only one click!',
+        to: '/commands#reaction-roles'
+      },
+      {
         icon: 'mdi-account-plus',
         title: 'Say hi to new users.',
         subtitle: 'Customize join / leave actions, like autoroles and welcome & leave messages.',
         color: 'cyan accent-4'
       }
-      // stats, reactionroles
     ]
   })
 };

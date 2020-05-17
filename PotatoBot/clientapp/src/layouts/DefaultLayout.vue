@@ -72,7 +72,7 @@
       <v-col
         cols="12"
       >
-        &copy; {{ new Date().getFullYear() }} the <strong>Lime Bot Team</strong>
+        &copy; {{ new Date().getFullYear() }} <a href="https://cubepotato.eu"><b>$Jakub$</b></a> & the <b>Lime Bot Team</b>
       </v-col>
     </v-footer>
 </v-content>

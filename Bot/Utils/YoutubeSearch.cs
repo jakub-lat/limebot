@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace Bot.Utils
 {
@@ -50,7 +51,9 @@ namespace Bot.Utils
 
         public async Task<YoutubeItem> Search(string query)
         {
-            var resp = await client.GetAsync($"https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q={query}&key={apiKey}");
+            query = HttpUtility.UrlEncode(query);
+            var url = $"https://www.googleapis.com/youtube/v3/search?part=snippet&maxResults=1&q={query}&key={apiKey}";
+            var resp = await client.GetAsync(url);
             resp.EnsureSuccessStatusCode();
             var result = JsonConvert.DeserializeObject<YoutubeSearchResult>(await resp.Content.ReadAsStringAsync());
             return result.items.Count > 0 ? result.items[0] : null;

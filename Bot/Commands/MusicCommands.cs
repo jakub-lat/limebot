@@ -44,7 +44,8 @@ namespace PotatoBot.Bot.Commands
                 var chn = ctx.Member?.VoiceState?.Channel;
                 if (chn == null)
                 {
-                    throw new CommandCanceledException("You need to be in a voice channel!");
+                    await ctx.RespondAsync("You need to be in a voice channel!");
+                    throw new CommandCanceledException();
                 }
             }
 
@@ -114,14 +115,14 @@ namespace PotatoBot.Bot.Commands
                 else
                 {
                     var trackLoad = await lava.node.Rest.GetTracksAsync("https://youtube.com/watch?v=" + result.id.videoId);
-                    if (trackLoad.LoadResultType == LavalinkLoadResultType.LoadFailed || !trackLoad.Tracks.Any())
+                    var track = trackLoad.Tracks.Where(x => x.Identifier == result.id.videoId).FirstOrDefault();
+                    if (trackLoad.LoadResultType == LavalinkLoadResultType.LoadFailed || !trackLoad.Tracks.Any() || track == null)
                     {
-                        await ctx.RespondAsync($":warning: No tracks were found!");
+                        await ctx.RespondAsync($":warning: Something went wrong :( Try again!");
                         return;
                     }
-
-                    await gm.Add(trackLoad.Tracks.First());
-                    await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue");
+                    await gm.Add(track);
+                    await ctx.RespondAsync($"Added **{track.Title}** to queue");
                 }
             } catch
             {
