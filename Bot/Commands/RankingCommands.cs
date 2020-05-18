@@ -1,5 +1,6 @@
 ﻿using Bot.Attributes;
 using Bot.Utils;
+using DAL.Models;
 using DSharpPlus;
 using DSharpPlus.CommandsNext;
 using DSharpPlus.CommandsNext.Attributes;
@@ -52,7 +53,7 @@ namespace Bot.Commands
             var members = (await db.Entry(guild).Collection(i => i.Members).Query().OrderByDescending(x => x.XP).Take(100).ToListAsync()).Select((x, i) => new { index = i, member = x });
             var raw = members.Where(x => x.member.UserId == member.Id).FirstOrDefault();
             var position = raw == null ? "100+" : (raw.index + 1).ToString();
-            var m = raw == null ? await db.Entry(guild).Collection(i => i.Members).Query().Where(x => x.UserId == member.Id).FirstOrDefaultAsync() : raw.member;
+            var m = raw == null ? await db.Entry(guild).Collection(i => i.Members).Query().Where(x => x.UserId == member.Id).FirstOrDefaultAsync() ?? new GuildMember() : raw.member;
 
             using var bmp = new Bitmap((int)(500*scale), (int)(150*scale));
             using var g = Graphics.FromImage(bmp);

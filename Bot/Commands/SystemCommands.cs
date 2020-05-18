@@ -111,7 +111,7 @@ namespace PotatoBot.Bot.Commands
 
             embed.AddField("**Joined server**", user.JoinedAt.ToString("dd MMM yyyy"), true);
 
-            embed.AddField("**Top role**", user.Roles.OrderByDescending(i => i.Position).FirstOrDefault().Mention, true);
+            embed.AddField("**Top role**", user.Roles.OrderByDescending(i => i.Position).FirstOrDefault()?.Mention ?? "None", true);
 
             await ctx.RespondAsync(embed: embed.Build());
         }
@@ -124,7 +124,9 @@ namespace PotatoBot.Bot.Commands
             {
                 Title = "Lime Bot info",
                 Color = new DiscordColor(Config.settings.embedColor),
-                Description = "Lime is a simple, multi-purpose bot."
+                Description = @"Lime is a professional, multi-purpose bot.
+Website - [limebot.tk](https://limebot.tk)
+Discord server - [Join Lime Bot support](https://discord.gg/9w9EfWh)"
             };
             var users = 0;
             var channels = 0;

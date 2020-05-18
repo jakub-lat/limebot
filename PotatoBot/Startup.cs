@@ -37,15 +37,16 @@ namespace PotatoBot
 
 
             var connString = Configuration.GetConnectionString("DefaultConnection");
-            
+
             // database
             services.AddDbContext<GuildContext>();
+
 
             bot = new BotService(services);
             services.AddSingleton(bot);
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, GuildContext ctx)
         {
             if (env.IsDevelopment())
             {
@@ -56,6 +57,8 @@ namespace PotatoBot
                 app.UseExceptionHandler("/Error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
+
+                ctx.Database.Migrate();
             }
 
             if(env.IsDevelopment())
