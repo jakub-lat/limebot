@@ -71,6 +71,12 @@
                     </v-col>
                 </v-row>
 
+                <channel-input
+                    id="levelUpMessageChannel"
+                    label="Channel"
+                    :disabled="!levelUpMessageEnabled || !levelingEnabled"
+                    class="mb-4" enableCurrentChannel/>
+
                 <my-input 
                     id="levelUpMessage" 
                     label="Level up message" 
@@ -101,6 +107,7 @@
 </template>
 <script>
 import SwitchInput from '@/components/SwitchInput.vue';
+import ChannelInput from '@/components/ChannelInput.vue';
 import MyInput from '@/components/MyInput.vue';
 import SliderInput from '@/components/SliderInput.vue';
 import RangeSliderInput from '@/components/RangeSliderInput.vue';
@@ -108,7 +115,7 @@ import RangeSliderInput from '@/components/RangeSliderInput.vue';
 import store from '@/store';
 
 export default {
-    components: {SwitchInput, MyInput, SliderInput, RangeSliderInput},
+    components: {SwitchInput, MyInput, SliderInput, RangeSliderInput, ChannelInput},
     data: ()=>({
         levelingEnabled: false,
         levelUpMessageEnabled: true,

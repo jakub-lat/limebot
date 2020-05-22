@@ -16,12 +16,13 @@ export default {
         id: String,
         label: String,
         required: Boolean,
-        disabled: Boolean
+        disabled: Boolean,
+        enableCurrentChannel: Boolean
     },
     computed: {
         value: {
             get() {
-                return store.state.settings[this.id] || [];
+                return store.state.settings[this.id] || null;
 
             },
             set(val) {
@@ -30,7 +31,7 @@ export default {
         },
         items() {
             var chn = store.state.server.channels.filter(i=>i.type=='Text').map(i=>({text:`#${i.name} (${i.parent || 'no category'})`, value: i.id}));
-            return chn;
+            return this.enableCurrentChannel ? [{text: 'Current channel', value: null}, ...chn] : chn;
         }
     }
 }

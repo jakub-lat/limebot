@@ -156,7 +156,7 @@ namespace PotatoBot.Bot.Commands
             var ppos = curr.PlaybackPosition;
             var ctl = curr.CurrentTrack.Length;
 
-            var duration = $"{ppos.Minutes:00}:{ppos.Seconds:00} / {ctl.Minutes:00}:{ctl.Seconds:00}";
+            var duration = $"{ppos.Hours:00}:{ppos.Minutes:00}:{ppos.Seconds:00} / {ppos.Hours:00}:{ctl.Minutes:00}:{ctl.Seconds:00}";
 
             var percent = (curr.PlaybackPosition / curr.CurrentTrack.Length) * 20;
             var position = "[";

@@ -131,21 +131,7 @@ namespace Bot
                     await e.Context.Channel.SendMessageAsync($"I don't have follwing permissions: `{perm}`. Give me them or you won't be able to use this command.");
             } else if (e.Exception is ArgumentException)
             {
-                var cmd = e.Command;
-                var ctx = e.Context;
-
-                var desc = new StringBuilder();
-                desc.AppendLine("**Description:**").AppendLine(cmd.Description).AppendLine();
-                if (cmd.Aliases.Any()) desc.AppendLine($"**Aliases:** `{string.Join(", ", cmd.Aliases)}`").AppendLine();
-                desc.AppendLine("**Usage:**")
-                    .AppendLine($"```{string.Join("\n", cmd.Overloads.Select(o => $"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a => string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```");
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = $"Usage: {cmd.Name}",
-                    Color = new DiscordColor(Config.settings.embedColor),
-                    Description = desc.ToString()
-                };
-                await ctx.RespondAsync(embed: embed);
+                await CommandHelp.SendCommandHelp(e.Context, e.Command);
             }
         }
         
@@ -177,10 +163,11 @@ namespace Bot
 
                         if (guild.EnableLevelUpMessage)
                         {
+                            var chn = e.Guild.GetChannel(guild.LevelUpMessageChannel ?? e.Channel.Id) ?? e.Channel;
                             var lvl = member.XP / guild.RequiredXPToLevelUp;
                             if (lvl > (member.XP - 10) / guild.RequiredXPToLevelUp)
                             {
-                                await e.Channel.SendMessageAsync(guild.LevelUpMessage.Replace("{user}", e.Author.Mention).Replace("{level}", lvl.ToString()));
+                                await chn.SendMessageAsync(guild.LevelUpMessage.Replace("{user}", e.Author.Mention).Replace("{level}", lvl.ToString()));
                             }
                         }
                     }
@@ -195,19 +182,8 @@ namespace Bot
             
             if (e.Message.Content.StartsWith("thanks") || e.Message.Content.StartsWith("thx"))
             {
-                if (!guild.EnableReputation)
-                {
-                    if (((DiscordMember)e.Author).PermissionsIn(e.Channel).HasPermission(Permissions.ManageGuild)) {
-                        var embed = new DiscordEmbedBuilder
-                        {
-                            Title = "Reputation is disabled for this server",
-                            Description = $"[Click here]({Config.settings.DashboardURL}/manage/{e.Guild.Id}/ranking) to enable it",
-                            Color = new DiscordColor(Config.settings.embedColor)
-                        };
-                        await e.Channel.SendMessageAsync(embed: embed);
-                    }
-                    return;
-                }
+                if (!guild.EnableReputation) return;
+
                 var mentions = e.MentionedUsers.Where(x => x.Id != e.Author.Id && x.IsBot == false);
                 if (!mentions.Any()) return;
                 foreach (var user in mentions)

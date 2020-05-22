@@ -44,9 +44,18 @@ To get message link or id, simply right click on a message, and select the requi
         [Command("create"), Description("Creates a reaction role for specified message and emoji"), RequirePermissions(DSharpPlus.Permissions.ManageRoles | DSharpPlus.Permissions.AddReactions)]
         public async Task Create(CommandContext ctx, DiscordMessage messageLink, DiscordEmoji emoji, DSharpPlus.Entities.DiscordRole role)
         {
+            if(messageLink.Channel.GuildId != ctx.Guild.Id)
+            {
+                await ctx.RespondAsync("Invalid message");
+                return;
+            }
             if(role.Position > ctx.Guild.CurrentMember.Hierarchy)
             {
                 await ctx.RespondAsync(":warning: I can't use that role - it's too high! Move the role below me, or use a different one.");
+                return;
+            } else if (role.Position > ctx.Member.Hierarchy)
+            {
+                await ctx.RespondAsync(":warning: The role is higher than you!");
                 return;
             }
 
@@ -98,7 +107,7 @@ To get message link or id, simply right click on a message, and select the requi
                 return;
             }
 
-            Create(ctx, msg, emoji, role);
+            await Create(ctx, msg, emoji, role);
         }
 
         [Command("list"), Description("List all reaction roles for this server"), RequireUserPermissions(DSharpPlus.Permissions.ManageRoles)]

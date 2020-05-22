@@ -71,6 +71,7 @@ namespace PotatoBot.Models
         public bool EnableLeveling { get; set; } = true;
         public bool EnableLevelUpMessage { get; set; } = true;
         public string LevelUpMessage { get; set; } = "Gz {user}, you just got to level {level}!";
+        public ulong? LevelUpMessageChannel { get; set; } = null; // null = current channel
 
         [Range(5, 1000)]
         public int RequiredXPToLevelUp { get; set; } = 350;

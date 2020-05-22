@@ -58,7 +58,7 @@ namespace PotatoBot.Bot
                 TokenType = TokenType.Bot,
                 UseInternalLogHandler = true,
                 LogLevel = LogLevel.Info,
-                MessageCacheSize = 512
+                MessageCacheSize = 32
             });
 
             events = new BotEvents(discord);

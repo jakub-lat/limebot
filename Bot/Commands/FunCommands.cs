@@ -16,18 +16,26 @@ namespace PotatoBot.Bot.Commands
     {
         public FunCommands(GuildContext db) : base(db) { }
 
-        [Command("meme"), Description("Random meme from r/memes")]
+        [Command("meme"), Description("Random meme from reddit")]
         public async Task Meme(CommandContext ctx)
         {
             var msg = await ctx.RespondAsync("Fetching meme...");
-            var post = await RedditHelper.GetRandom("memes");
+
+            var s = new Random().Next(3) switch
+            {
+                1 => "historymemes",
+                2 => "prequelmemes",
+                _ => "memes"
+            };
+
+            var post = await RedditHelper.GetRandom(s);
             var embed = new DiscordEmbedBuilder
             {
                 Title = post.title,
                 ImageUrl = post.url,
                 Color = new DiscordColor("#daef39"),
                 Timestamp = DateTime.UtcNow,
-            }.WithFooter($"Posted by u/{post.author} in r/memes");
+            }.WithFooter($"Posted by u/{post.author} in r/{s}");
 
             await msg.DeleteAsync();
             await ctx.RespondAsync(embed: embed.Build());

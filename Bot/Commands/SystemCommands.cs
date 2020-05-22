@@ -14,6 +14,7 @@ using System.Diagnostics;
 using PotatoBot.Utils;
 using System.Reflection;
 using System.Text;
+using Bot.Utils;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -57,28 +58,14 @@ namespace PotatoBot.Bot.Commands
         }
 
         [Command("help")]
-        public async Task HelpCommand(CommandContext ctx, string command)
+        public async Task HelpCommand(CommandContext ctx, [RemainingText] string command)
         {
             var cnext = ctx.Client.GetCommandsNext();
-            var cmd = cnext.RegisteredCommands.GetValueOrDefault(command);
+            var cmd = cnext.FindCommand(command, out var _);
             if(cmd == null)
-            {
                 await ctx.RespondAsync("Command not found!");
-            } else
-            {
-                var desc = new StringBuilder();
-                desc.AppendLine("**Description:**").AppendLine(cmd.Description).AppendLine();
-                if (cmd.Aliases.Any()) desc.AppendLine($"**Aliases:** `{string.Join(", ", cmd.Aliases)}`").AppendLine();
-                desc.AppendLine("**Usage:**")
-                    .AppendLine($"```{string.Join("\n", cmd.Overloads.Select(o => $"{ctx.Prefix}{cmd.Name} {string.Join(" ", o.Arguments.Select(a => string.Format(a.IsOptional ? "[{0}]" : "<{0}>", a.Name)))}"))}```");
-                var embed = new DiscordEmbedBuilder
-                {
-                    Title = $"Usage: {cmd.Name}",
-                    Color = new DiscordColor(Config.settings.embedColor),
-                    Description = desc.ToString()
-                };
-                await ctx.RespondAsync(embed: embed);
-            }
+            else
+                await CommandHelp.SendCommandHelp(ctx, cmd);
         }
 
 
