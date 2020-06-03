@@ -7,8 +7,8 @@
     v-model="value"
     :items="items"
     outlined
-    multiple
-    chips small-chips deletable-chips
+    :multiple="!single"
+    :chips="!single" :small-chips="!single" :deletable-chips="!single"
     hint="Don't see a role? This is probably because bot is below it. Try to move the bot up." persistent-hint
 />
 </template>
@@ -19,7 +19,8 @@ export default {
         id: String,
         label: String,
         required: Boolean,
-        disabled: Boolean
+        disabled: Boolean,
+        single: Boolean
     },
     computed: {
         value: {
@@ -29,6 +30,7 @@ export default {
             },
             set(val) {
                 store.commit('set', {[this.id]: val});
+                this.$emit('input', val);
             }
         },
         items() {

@@ -85,6 +85,41 @@
                     hint="Insert: {user} - user mention, {level} - level that they advanced to"
                     class="mb-4"/>
 
+                <h2 :class="'mt-10 ' + (levelingEnabled ? '' : 'text--secondary')">Roles for level</h2>
+                <v-row v-for="(x, i) in settings.rolesForLevel || []" :key="i">
+                    <v-col>
+                        <v-row>
+                            <v-col cols="12" md="4">
+                                Level {{x.level}}
+                            </v-col>
+                            <v-col>
+                                @{{(server.roles.find(r=>r.id.toString() == x.role) || {}).name}} ({{x.role}})
+                            </v-col>
+                        </v-row>
+                    </v-col>
+                    <v-col cols="auto">
+                        <v-btn fab @click="removeLevelRole(i)" small><v-icon>mdi-delete</v-icon></v-btn>
+                    </v-col>
+                </v-row>
+                <h3>Add new</h3>
+                <v-row no-gutters class="mt-2">
+                    <v-col cols="12" md="3" class="mr-1">
+                        <v-autocomplete
+                            label="Level"
+                            :items="levels"
+                            :disabled="!levelingEnabled"
+                            outlined
+                            v-model="level"
+                            />
+                    </v-col>
+                    <v-col class="mx-1">
+                        <role-input :disabled="!levelingEnabled" single label="Role" v-model="role"></role-input>
+                    </v-col>
+                    <v-col cols="12" md="auto" class="ml-1">
+                        <v-btn fab @click="addLevelRole" :disabled="!levelingEnabled" color="primary"><v-icon>mdi-plus</v-icon></v-btn>
+                    </v-col>
+                </v-row>
+
                 <v-row class="mt-10">
                     <v-col>
                         <h2>Enable reputation system</h2>
@@ -108,6 +143,7 @@
 <script>
 import SwitchInput from '@/components/SwitchInput.vue';
 import ChannelInput from '@/components/ChannelInput.vue';
+import RoleInput from '@/components/RoleInput.vue';
 import MyInput from '@/components/MyInput.vue';
 import SliderInput from '@/components/SliderInput.vue';
 import RangeSliderInput from '@/components/RangeSliderInput.vue';
@@ -115,16 +151,30 @@ import RangeSliderInput from '@/components/RangeSliderInput.vue';
 import store from '@/store';
 
 export default {
-    components: {SwitchInput, MyInput, SliderInput, RangeSliderInput, ChannelInput},
+    components: {SwitchInput, MyInput, SliderInput, RangeSliderInput, ChannelInput, RoleInput},
     data: ()=>({
         levelingEnabled: false,
         levelUpMessageEnabled: true,
-        reputationEnabled: false
+        reputationEnabled: false,
+        levels: Array(200).fill(1).map((_, i)=>i+1),
+        level: null,
+        role: null
     }),
-    computed: {
-        server() {
-            return store.state.server;
+    methods: {
+        addLevelRole() {
+            console.log(this.level, this.role);
+            console.log(this.settings);
+            if(this.level == null || this.role == null) return;
+            let newobj = {level: this.level, role: this.role};
+            store.commit('set', {rolesForLevel: [...this.settings.rolesForLevel, newobj]})
+        },
+        removeLevelRole(index) {
+            store.commit('set', {rolesForLevel: this.settings.rolesForLevel.filter((x, i)=>i!=index)});
         }
+    },
+    computed: {
+        server: () => store.state.server,
+        settings: () => store.state.settings
     }
 }
 </script>

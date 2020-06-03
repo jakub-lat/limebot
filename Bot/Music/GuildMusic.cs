@@ -40,6 +40,7 @@ namespace Bot.Music
         {
             player = await lava.node.ConnectAsync(vc);
             player.PlaybackFinished += PlaybackFinished;
+            await player.SetVolumeAsync(50);
         }
 
         private async Task PlaybackFinished(TrackFinishEventArgs e)

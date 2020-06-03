@@ -37,18 +37,7 @@ namespace PotatoBot.Models
         public ulong Id { get; set; }
         public string Prefix { get; set; }
 
-        /*
-        [Column(TypeName = "jsonb")]
-        public List<GuildLog> Logs { get; set; } = new List<GuildLog>();
-        */
-
         public List<Warn> Warns { get; set; }
-
-        /*
-        public bool EnableWarnAction { get; set; }
-        public int WarnActionTreshold { get; set; }
-        public WarnAction WarnActionType { get; set; }
-        */
 
         public bool EnableModLogs { get; set; }
         public ulong ModLogsChannel { get; set; }
@@ -80,6 +69,9 @@ namespace PotatoBot.Models
         public int MinMessageXP { get; set; } = 10;
         [Range(2, 100)]
         public int MaxMessageXP { get; set; } = 25;
+
+        [Column(TypeName = "jsonb")]
+        public List<RoleForLevel> RolesForLevel { get; set; } = new List<RoleForLevel>();
 
         public List<GuildMember> Members { get; set; }
 

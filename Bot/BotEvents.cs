@@ -160,15 +160,21 @@ namespace Bot
                     {
                         member.XP += rnd.Next(guild.MinMessageXP, guild.MaxMessageXP);
                         member.LastMessaged = DateTime.Now;
+                        var lvl = member.XP / guild.RequiredXPToLevelUp;
 
                         if (guild.EnableLevelUpMessage)
                         {
                             var chn = e.Guild.GetChannel(guild.LevelUpMessageChannel ?? e.Channel.Id) ?? e.Channel;
-                            var lvl = member.XP / guild.RequiredXPToLevelUp;
                             if (lvl > (member.XP - 10) / guild.RequiredXPToLevelUp)
                             {
                                 await chn.SendMessageAsync(guild.LevelUpMessage.Replace("{user}", e.Author.Mention).Replace("{level}", lvl.ToString()));
                             }
+                        }
+                        var roleData = guild.RolesForLevel.Where(x => x.Level == lvl).FirstOrDefault();
+                        if(roleData != null)
+                        {
+                            var role = e.Guild.GetRole(roleData.Role);
+                            if(role != null) await ((DiscordMember)e.Author).GrantRoleAsync(role, "Role for level");
                         }
                     }
                     else

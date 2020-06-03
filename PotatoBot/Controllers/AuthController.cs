@@ -44,12 +44,16 @@ namespace PotatoBot.Controllers
             using(var client = new HttpClient()) {
                 var redirect = Request.Scheme + "://" + Request.Host + "/api/auth/callback";
 
-                var byteArray = Encoding.ASCII.GetBytes($"{Config.settings.ClientID}:{Config.settings.ClientSecret}");
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", Convert.ToBase64String(byteArray));
-
-                var resp = await client.PostAsync($"https://discordapp.com/api/oauth2/token?grant_type=authorization_code&code={code}&redirect_uri={redirect}", null);
+                var content = new FormUrlEncodedContent(new[]
+                {
+                    new KeyValuePair<string, string>("grant_type", "authorization_code"),
+                    new KeyValuePair<string, string>("code", code),
+                    new KeyValuePair<string, string>("client_id", Config.settings.ClientID),
+                    new KeyValuePair<string, string>("client_secret", Config.settings.ClientSecret),
+                    new KeyValuePair<string, string>("redirect", redirect)
+                });
+                var resp = await client.PostAsync($"https://discordapp.com/api/oauth2/token?grant_type=authorization_code&code={code}&redirect_uri={redirect}", content);
                 var data = JsonConvert.DeserializeObject<DiscordTokenResponse>(await resp.Content.ReadAsStringAsync());
-
                 
                 return Redirect($"/callback?token={data.AccessToken}&redirect={Request.Cookies["redirect"] ?? ""}");
             }
