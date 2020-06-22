@@ -59,7 +59,7 @@ namespace PotatoBot.Bot
                 UseInternalLogHandler = true,
                 LogLevel = LogLevel.Info,
                 MessageCacheSize = 32,
-                LargeThreshold = 50
+                
             });
 
             events = new BotEvents(discord);
@@ -98,7 +98,7 @@ namespace PotatoBot.Bot
 
             commandList = new CommandList(commands);
 
-            discord.Ready += async (ReadyEventArgs e) => Console.WriteLine("Bot ready");
+            discord.Ready += Ready;
             discord.MessageCreated += events.MessageCreated;
             discord.GuildMemberAdded += events.MemberJoined;
             discord.GuildMemberRemoved += events.MemberLeft;
@@ -109,6 +109,12 @@ namespace PotatoBot.Bot
             discord.MessageReactionRemoved += events.MessageReactionRemove;
         }
 
+        private Task Ready(ReadyEventArgs e)
+        {
+            Console.WriteLine("Bot ready");
+            return Task.CompletedTask;
+        }
+
         private async Task<int> ResolvePrefixAsync(DiscordMessage msg)
         {
             string pfx = "";
@@ -116,18 +122,16 @@ namespace PotatoBot.Bot
             var guild = msg.Channel.Guild;
             if (guild == null) return msg.GetStringPrefixLength(Config.settings.DefaultPrefix);
 
-            using(var ctx = new GuildContext())
+            using var ctx = new GuildContext();
+            var data = await ctx.GetGuild(guild.Id);
+            pfx = Config.IsDevelopment || string.IsNullOrWhiteSpace(data?.Prefix) ? Config.settings.DefaultPrefix : data.Prefix;
+
+            if (msg.MentionedUsers.Any(i => i.Id == discord.CurrentUser.Id))
             {
-                var data = await ctx.GetGuild(guild.Id);
-                pfx = Config.IsDevelopment || string.IsNullOrWhiteSpace(data?.Prefix) ? Config.settings.DefaultPrefix : data.Prefix;
-
-                if (msg.MentionedUsers.Any(i => i.Id == discord.CurrentUser.Id))
-                {
-                    _ = msg.RespondAsync($"Hey! My prefix here is `{pfx}` - type `{pfx}help` if you are stuck.");
-                }
-
-                return msg.GetStringPrefixLength(pfx);
+                _ = msg.RespondAsync($"Hey! My prefix here is `{pfx}` - type `{pfx}help` if you are stuck.");
             }
+
+            return msg.GetStringPrefixLength(pfx);
 
         }
 

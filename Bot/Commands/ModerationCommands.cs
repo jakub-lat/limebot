@@ -14,6 +14,7 @@ using PotatoBot.Utils;
 using Microsoft.EntityFrameworkCore;
 using Bot.Extensions;
 using DSharpPlus.Interactivity;
+using Bot.Utils;
 
 namespace PotatoBot.Bot.Commands
 {
@@ -25,6 +26,15 @@ namespace PotatoBot.Bot.Commands
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
             await base.BeforeExecutionAsync(ctx);
+        }
+
+        private async Task CheckMemberHierarchy(CommandContext ctx, DiscordMember member)
+        {
+            if(ctx.Guild.CurrentMember.Hierarchy <= member.Hierarchy || member.IsOwner || member.PermissionsIn(ctx.Channel).HasPermission(Permissions.Administrator))
+            {
+                await ctx.RespondAsync("Oh no, this user is too important!");
+                throw new CommandCanceledException();
+            }
         }
 
         [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
@@ -48,6 +58,7 @@ namespace PotatoBot.Bot.Commands
         [Command("ban"), Description("Ban an user"), RequirePermissions(Permissions.BanMembers)]
         public async Task Ban(CommandContext ctx, DiscordMember member, uint deleteMessageDays, [RemainingText] string reason = "No reason")
         {
+            await CheckMemberHierarchy(ctx, member);
             if(deleteMessageDays < 0 || deleteMessageDays > 7)
             {
                 await ctx.RespondAsync("Argument `<deleteMessagedays>` must be betweeen 0 and 7!");
@@ -120,6 +131,8 @@ namespace PotatoBot.Bot.Commands
         [Command("kick"), Description("Kicks an user"), RequirePermissions(Permissions.KickMembers)]
         public async Task Kick(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
+            await CheckMemberHierarchy(ctx, member);
+
             await member.SendMessageAsync($"You were kicked from **{ctx.Guild.Name}**. Reason: `{reason}`");
 
             await member.RemoveAsync(reason);
@@ -139,6 +152,8 @@ namespace PotatoBot.Bot.Commands
         [Command("mute"), Description("Mutes an user (so they cannot type/speak) for specified time"), RequirePermissions(Permissions.ManageRoles)]
         public async Task TempMute(CommandContext ctx, DiscordMember member, TimeSpan? time, [RemainingText] string reason = "No reason")
         {
+            await CheckMemberHierarchy(ctx, member);
+
             var role = ctx.Guild.Roles.GetValueOrDefault(guild.MutedRoleId);
 
             if (role == null)

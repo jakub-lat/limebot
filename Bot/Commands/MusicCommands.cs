@@ -114,8 +114,8 @@ namespace PotatoBot.Bot.Commands
                 }
                 else
                 {
-                    var trackLoad = await lava.node.Rest.GetTracksAsync("https://youtube.com/watch?v=" + result.id.videoId);
-                    var track = trackLoad.Tracks.Where(x => x.Identifier == result.id.videoId).FirstOrDefault();
+                    var trackLoad = await lava.node.Rest.GetTracksAsync(new Uri("https://youtube.com/watch?v=" + result.id.videoId));
+                    var track = trackLoad.Tracks.FirstOrDefault(x => x.Identifier == result.id.videoId);
                     if (trackLoad.LoadResultType == LavalinkLoadResultType.LoadFailed || !trackLoad.Tracks.Any() || track == null)
                     {
                         await ctx.RespondAsync($":warning: Something went wrong :( Try again!");

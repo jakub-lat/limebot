@@ -75,46 +75,45 @@ namespace Bot
 
         private async void UnmuteTask(object source = null, ElapsedEventArgs e = null)
         {
-            using (var ctx = new GuildContext())
+            using var ctx = new GuildContext();
+            var expired = ctx.MutedUsers.Where(i => i.Time <= DateTime.UtcNow);
+            foreach (var muted in await expired.ToListAsync())
             {
-                var expired = ctx.MutedUsers.Where(i => i.Time <= DateTime.UtcNow);
-                foreach(var muted in await expired.ToListAsync())
+                try
                 {
-                    try
-                    {
-                        var guild = await ctx.GetGuild(muted.GuildId);
-                        var dGuild = client.Guilds[muted.GuildId];
+                    var guild = await ctx.GetGuild(muted.GuildId);
+                    var dGuild = client.Guilds[muted.GuildId];
 
-                        var role = dGuild.Roles[guild.MutedRoleId];
-                        _ = dGuild.Members[muted.UserId].RevokeRoleAsync(role);
+                    var role = dGuild.Roles[guild.MutedRoleId];
+                    _ = dGuild.Members[muted.UserId].RevokeRoleAsync(role);
 
-                        var member = dGuild.Members[muted.UserId];
-                        await ctx.AddLog(dGuild, client.CurrentUser, guild, new GuildLog
-                        {
-                            Action = LogAction.Unmute,
-                            AuthorId = client.CurrentUser.Id,
-                            Date = DateTime.Now,
-                            Reason = "Auto unmute",
-                            TargetUser = member.Username + "#" + member.Discriminator
-                        });
-                    } catch
+                    var member = dGuild.Members[muted.UserId];
+                    await ctx.AddLog(dGuild, client.CurrentUser, guild, new GuildLog
                     {
-                        Console.WriteLine($"Error while unmuting user:");
-                        Console.WriteLine(muted.ToString());
-                    }
+                        Action = LogAction.Unmute,
+                        AuthorId = client.CurrentUser.Id,
+                        Date = DateTime.Now,
+                        Reason = "Auto unmute",
+                        TargetUser = member.Username + "#" + member.Discriminator
+                    });
                 }
-                ctx.MutedUsers.RemoveRange(expired);
-                await ctx.SaveChangesAsync();
+                catch
+                {
+                    Console.WriteLine($"Error while unmuting user:");
+                    Console.WriteLine(muted.ToString());
+                }
             }
+            ctx.MutedUsers.RemoveRange(expired);
+            await ctx.SaveChangesAsync();
         }
 
         public async Task CommandErrored(CommandErrorEventArgs e)
         {
-            if (e.Exception is CommandCanceledException ex && !string.IsNullOrEmpty(ex.Message))
+            /*if (e.Exception is CommandCanceledException ex && !string.IsNullOrEmpty(ex.Message))
             {
                 //await e.Context.RespondAsync($":warning: {ex.Message}");
             }
-            else if (e.Exception is ChecksFailedException ce) 
+            else*/ if (e.Exception is ChecksFailedException ce) 
             {
                 string perm = "";
                 foreach (var check in ce.FailedChecks)
@@ -137,7 +136,7 @@ namespace Bot
         
         public async Task MessageCreated(MessageCreateEventArgs e)
         {
-            if (e.Author.IsBot || e.Guild == null) return;
+            if (e.Author?.IsBot ?? false || e.Guild == null) return;
             using var ctx = new GuildContext();
 
             var guild = await ctx.GetGuild(e.Guild.Id);
@@ -186,10 +185,8 @@ namespace Bot
                 await ctx.SaveChangesAsync();
             }
             
-            if (e.Message.Content.StartsWith("thanks") || e.Message.Content.StartsWith("thx"))
+            if (guild.EnableReputation && (e.Message.Content.StartsWith("thanks") || e.Message.Content.StartsWith("thx")))
             {
-                if (!guild.EnableReputation) return;
-
                 var mentions = e.MentionedUsers.Where(x => x.Id != e.Author.Id && x.IsBot == false);
                 if (!mentions.Any()) return;
                 foreach (var user in mentions)
@@ -215,153 +212,141 @@ namespace Bot
         }
         public async Task MemberJoined(GuildMemberAddEventArgs e)
         {
-            using (var ctx = new GuildContext())
+            using var ctx = new GuildContext();
+            var guild = await ctx.GetGuild(e.Guild.Id);
+
+            if (guild.EnableWelcomeMessages)
             {
-                var guild = await ctx.GetGuild(e.Guild.Id);
-
-                if (guild.EnableWelcomeMessages)
+                var channel = e.Guild.Channels[guild.WelcomeMessagesChannel];
+                if (channel != null)
                 {
-                    var channel = e.Guild.Channels[guild.WelcomeMessagesChannel];
-                    if (channel != null)
-                    {
-                        await channel.SendMessageAsync(
-                            guild.WelcomeMessage
-                                .Replace("{user}", e.Member.Mention)
-                                .Replace("{members}", e.Guild.MemberCount.ToString())
-                        );
-                    }
+                    await channel.SendMessageAsync(
+                        guild.WelcomeMessage
+                            .Replace("{user}", e.Member.Mention)
+                            .Replace("{members}", e.Guild.MemberCount.ToString())
+                    );
                 }
+            }
 
-                var roles = guild?.AutoRolesOnJoin;
-                if (roles != null && roles.Length > 0)
+            var roles = guild?.AutoRolesOnJoin;
+            if (roles != null && roles.Length > 0)
+            {
+                foreach (var i in roles)
                 {
-                    foreach (var i in roles)
-                    {
-                        var role = e.Guild.Roles[i];
-                        if (role != null) await e.Member.GrantRoleAsync(role);
-                    }
+                    var role = e.Guild.Roles[i];
+                    if (role != null) await e.Member.GrantRoleAsync(role);
                 }
             }
         }
 
         public async Task MemberLeft(GuildMemberRemoveEventArgs e)
         {
-            using (var ctx = new GuildContext())
-            {
-                var guild = await ctx.GetGuild(e.Guild.Id);
+            using var ctx = new GuildContext();
+            var guild = await ctx.GetGuild(e.Guild.Id);
 
-                if (guild.EnableWelcomeMessages)
-                {
-                    var channel = e.Guild.Channels[guild.WelcomeMessagesChannel];
-                    await channel.SendMessageAsync(
-                        guild.LeaveMessage
-                            .Replace("{user}", e.Member.Username + "#" + e.Member.Discriminator)
-                            .Replace("{members}", e.Guild.MemberCount.ToString())
-                    );
-                }
+            if (guild.EnableWelcomeMessages)
+            {
+                var channel = e.Guild.Channels[guild.WelcomeMessagesChannel];
+                await channel.SendMessageAsync(
+                    guild.LeaveMessage
+                        .Replace("{user}", e.Member.Username + "#" + e.Member.Discriminator)
+                        .Replace("{members}", e.Guild.MemberCount.ToString())
+                );
             }
         }
 
         public async Task MessageEdited(MessageUpdateEventArgs e)
         {
-            if (e.Author.IsBot) return;
-            using (var ctx = new GuildContext())
+            if (e.Author?.IsBot ?? false) return;
+            using var ctx = new GuildContext();
+            var guild = await ctx.GetGuild(e.Guild.Id);
+
+            if (guild.EnableMessageLogs && e.MessageBefore.Content != e.Message.Content)
             {
-                var guild = await ctx.GetGuild(e.Guild.Id);
+                var chn = e.Guild.Channels[guild.MessageLogsChannel];
 
-                if (guild.EnableMessageLogs && e.MessageBefore.Content != e.Message.Content)
+                var author = e.Author;
+                var embed = new DiscordEmbedBuilder
                 {
-                    var chn = e.Guild.Channels[guild.MessageLogsChannel];
-
-                    var author = e.Author;
-                    var embed = new DiscordEmbedBuilder
+                    Title = $"Message edited",
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
                     {
-                        Title = $"Message edited",
-                        Author = new DiscordEmbedBuilder.EmbedAuthor
-                        {
-                            Name = author.Username + "#" + author.Discriminator,
-                            IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
-                        },
-                        Description = $@"{Formatter.BlockCode(e.MessageBefore.Content.Replace("```", "\\`\\`\\`"))}
+                        Name = author.Username + "#" + author.Discriminator,
+                        IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
+                    },
+                    Description = $@"{Formatter.BlockCode(e.MessageBefore.Content.Replace("```", "\\`\\`\\`"))}
 **To:** {Formatter.BlockCode(e.Message.Content.Replace("```", "\\`\\`\\`"))}
 **In channel** {e.Channel.Mention} ([Jump]({e.Message.JumpLink}))",
-                        Timestamp = DateTime.Now,
-                        Color = new DiscordColor("#cad628"),
-                        Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User ID: {e.Author.Id}" }
-                    };
-                    await chn.SendMessageAsync(embed: embed);
-                }
+                    Timestamp = DateTime.Now,
+                    Color = new DiscordColor("#cad628"),
+                    Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User ID: {e.Author.Id}" }
+                };
+                await chn.SendMessageAsync(embed: embed);
             }
         }
 
         public async Task MessageDeleted(MessageDeleteEventArgs e)
         {
             if (e.Message.Author?.IsBot == true) return;
-            using (var ctx = new GuildContext())
+            using var ctx = new GuildContext();
+            var guild = await ctx.GetGuild(e.Guild.Id);
+
+            if (guild.EnableMessageLogs)
             {
-                var guild = await ctx.GetGuild(e.Guild.Id);
+                var chn = e.Guild.Channels[guild.MessageLogsChannel];
 
-                if (guild.EnableMessageLogs)
+                var author = e.Message.Author;
+                var embed = new DiscordEmbedBuilder
                 {
-                    var chn = e.Guild.Channels[guild.MessageLogsChannel];
-
-                    var author = e.Message.Author;
-                    var embed = new DiscordEmbedBuilder
+                    Title = $"Message deleted",
+                    Author = new DiscordEmbedBuilder.EmbedAuthor
                     {
-                        Title = $"Message deleted",
-                        Author = new DiscordEmbedBuilder.EmbedAuthor
-                        {
-                            Name = author.Username + "#" + author.Discriminator,
-                            IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
-                        },
-                        Description = @$"{Formatter.BlockCode(e.Message.Content.Replace("```", "\\`\\`\\`"))}
+                        Name = author.Username + "#" + author.Discriminator,
+                        IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
+                    },
+                    Description = @$"{Formatter.BlockCode(e.Message.Content.Replace("```", "\\`\\`\\`"))}
 **In channel** {e.Channel.Mention}",
-                        Timestamp = DateTime.Now,
-                        Color = new DiscordColor("#9b2212"),
-                        Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User ID: {e.Message.Author.Id}" }
-                    };
-                    await chn.SendMessageAsync(embed: embed);
+                    Timestamp = DateTime.Now,
+                    Color = new DiscordColor("#9b2212"),
+                    Footer = new DiscordEmbedBuilder.EmbedFooter { Text = $"User ID: {e.Message.Author.Id}" }
+                };
+                await chn.SendMessageAsync(embed: embed);
 
-                }
             }
         }
 
         public async Task MessageReactionAdd(MessageReactionAddEventArgs e)
         {
             if (e.Guild == null) return;
-            using(var ctx = new GuildContext())
-            {
-                var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();
+            using var ctx = new GuildContext();
+            var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();
 
-                if (rr == null) return;
+            if (rr == null) return;
 
-                var member = e.User as DiscordMember;
-                var role = e.Guild.Roles[rr.RoleId];
-                await member.GrantRoleAsync(role);
+            var member = e.User as DiscordMember;
+            var role = e.Guild.Roles[rr.RoleId];
+            await member.GrantRoleAsync(role);
 
-                var guild = await ctx.GetGuild(e.Guild.Id);
-                if(guild.ReactionRolesNotifyDM)
-                    await member.SendMessageAsync($"Added role **@{role.Name}** on **{e.Guild.Name}**");
-            }
+            var guild = await ctx.GetGuild(e.Guild.Id);
+            if (guild.ReactionRolesNotifyDM)
+                await member.SendMessageAsync($"Added role **@{role.Name}** on **{e.Guild.Name}**");
         }
 
         public async Task MessageReactionRemove(MessageReactionRemoveEventArgs e)
         {
             if (e.User.IsBot) return;
-            using (var ctx = new GuildContext())
-            {
-                var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();
+            using var ctx = new GuildContext();
+            var rr = await ctx.ReactionRoles.Where(i => i.GuildId == e.Guild.Id && i.MessageId == e.Message.Id && i.Emoji == e.Emoji.ToString()).FirstOrDefaultAsync();
 
-                if (rr == null) return;
+            if (rr == null) return;
 
-                var member = e.User as DiscordMember;
-                var role = e.Guild.Roles[rr.RoleId];
-                await member.RevokeRoleAsync(role);
+            var member = e.User as DiscordMember;
+            var role = e.Guild.Roles[rr.RoleId];
+            await member.RevokeRoleAsync(role);
 
-                var guild = await ctx.GetGuild(e.Guild.Id);
-                if(guild.ReactionRolesNotifyDM) 
-                    await member.SendMessageAsync($"Removed role **@{role.Name}** on **{e.Guild.Name}**");
-            }
+            var guild = await ctx.GetGuild(e.Guild.Id);
+            if (guild.ReactionRolesNotifyDM)
+                await member.SendMessageAsync($"Removed role **@{role.Name}** on **{e.Guild.Name}**");
         }
     }
 }
