@@ -1,40 +1,37 @@
 ﻿using DSharpPlus;
 using DSharpPlus.CommandsNext;
-using DSharpPlus.EventArgs;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace TestBot
 {
     // testowy bot do testów d#+ / komend
-    class Program
+    internal static class Program
     {
-        static DiscordClient discord;
+        static DiscordClient _discord;
 
-        static void Main(string[] args)
+        static void Main()
         {
-            MainAsync(args).ConfigureAwait(false).GetAwaiter().GetResult();
+            MainAsync().ConfigureAwait(false).GetAwaiter().GetResult();
         }
 
-        static async Task MainAsync(string[] args)
+        static async Task MainAsync()
         {
-            discord = new DiscordClient(new DiscordConfiguration
+            _discord = new DiscordClient(new DiscordConfiguration
             {
                 Token = "NzAzMjkwMjM1NDM3NDQ5MzE3.XqMfYA.csv4tl3N8hTM8aorOI4HiVX9I5I",
                 TokenType = TokenType.Bot
             });
 
-            var cnext = discord.UseCommandsNext(new CommandsNextConfiguration
+            var cnext = _discord.UseCommandsNext(new CommandsNextConfiguration
             {
                 StringPrefixes = new[] { "_" }
             });
 
             cnext.RegisterCommands<TestCommands>();
 
-            await discord.ConnectAsync();
-            discord.Ready += async (ReadyEventArgs e) => Console.WriteLine("Ready");
+            await _discord.ConnectAsync();
+            _discord.Ready += async (_) => Console.WriteLine("Ready");
             await Task.Delay(-1);
         }
     }
