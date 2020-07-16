@@ -48,9 +48,23 @@ namespace LimeBot.Bot.Music
             {
                 gm?.Disconnect("Lavalink node disconnected!");
             }
-
-            await Task.Delay(TimeSpan.FromSeconds(5));
-            await Connect(null);
+            
+            
+            while (!node.IsConnected)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(5));
+                Console.WriteLine("Reconnecting Lavalink after 10s...");
+                try
+                {
+                    await Connect(null);
+                }
+                catch
+                {
+                    // ignore
+                }
+            }
+            
+            
         }
         
         public GuildMusic Get(DiscordGuild guild)
