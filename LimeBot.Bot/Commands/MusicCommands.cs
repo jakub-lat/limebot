@@ -81,13 +81,22 @@ namespace LimeBot.Bot.Commands
                 return;
             }
 
-            if(trackLoad.Tracks.Count() == 1)
+            if (trackLoad.Tracks.Count() == 1)
             {
+                var track = trackLoad.Tracks.First();
                 await gm.Add(trackLoad.Tracks.First());
-                await ctx.RespondAsync($"Added **{trackLoad.Tracks.First().Title}** to queue.");
+                var embed = new DiscordEmbedBuilder
+                {
+                    Title = $"Added **{track.Title}** to queue.",
+                    Url = track.Uri.ToString(),
+                    ThumbnailUrl = track.Uri.ToString().Contains("youtube")
+                        ? $"http://img.youtube.com/vi/{track.Identifier}/mqdefault.jpg"
+                        : null
+                };
+                await ctx.RespondAsync(embed: embed);
             } else
             {
-                foreach(var track in trackLoad.Tracks)
+                foreach (var track in trackLoad.Tracks)
                 {
                     await gm.Add(track);
                 }
@@ -217,7 +226,7 @@ Now playing: **{gm.Queue[gm.Index].Title}**
             await interactivity.WaitForCustomPaginationAsync(paginated);
         }
 
-        [Command("stop"), Aliases("leave", "disconnect"), Description("Clear queue and disconnect from VC")]
+        [Command("stop"), Aliases("leave", "disconnect"), Description("Clear queue and disconnect from VC"), RequireVc]
         public async Task Stop(CommandContext ctx)
         {
             if(ctx.Member?.VoiceState?.Channel != gm?.player?.Channel && gm?.player?.Channel?.Users.Count() != 1)
@@ -225,7 +234,7 @@ Now playing: **{gm.Queue[gm.Index].Title}**
                 await ctx.RespondAsync(":warning: You need to be in the same voice channel as me!");
                 return;
             }
-            await gm.Stop();
+            await gm?.Stop();
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":stop_button:"));
         }
 
@@ -260,7 +269,14 @@ Now playing: **{gm.Queue[gm.Index].Title}**
         [Command("seek"), Description("Seeks to specified time (example: 2m30s)"), RequireVc]
         public async Task Seek(CommandContext ctx, [RemainingText] TimeSpan position)
         {
+            if(position == null) throw new ArgumentException();
             await gm.player?.SeekAsync(position);
+            await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":fast_forward:"));
+        }
+        [Command("seek"), RequireVc]
+        public async Task Seek(CommandContext ctx, int seconds)
+        {
+            await gm.player?.SeekAsync(TimeSpan.FromSeconds(seconds));
             await ctx.Message.CreateReactionAsync(DiscordEmoji.FromName(ctx.Client, ":fast_forward:"));
         }
 
@@ -290,6 +306,9 @@ Now playing: **{gm.Queue[gm.Index].Title}**
                 if (index == gm.Index)
                 {
                     await gm.Next(true);
+                } else if (index < gm.Index)
+                {
+                    gm.Index--;
                 }
                 await ctx.RespondAsync($":ok_hand: Removed **{track.Title}** from queue.");
             } catch

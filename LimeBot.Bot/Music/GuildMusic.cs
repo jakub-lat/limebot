@@ -24,7 +24,7 @@ namespace LimeBot.Bot.Music
         public LavalinkGuildConnection player;
         
         public List<LavalinkTrack> Queue { get; private set; } = new List<LavalinkTrack>();
-        public int Index { get; private set; } = 0;
+        public int Index { get; set; } = 0;
 
         public bool IsPaused { get; private set; } = false;
 

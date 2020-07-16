@@ -87,7 +87,7 @@ namespace LimeBot.Bot.Music
         {
             var gm = Get(e.Guild);
             if (!node.IsConnected) return;
-            if (gm != null && !gm.Is24_7 && e.Before?.Channel == gm?.player?.Channel && e.After?.Channel?.Users.Count() == 1)
+            if (gm != null && !gm.Is24_7 && e.Before?.Channel == gm?.player?.Channel && gm?.player?.Channel?.Users.Count() == 1)
             {
                 await gm?.Disconnect();
             }

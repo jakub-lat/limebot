@@ -1,4 +1,5 @@
-﻿using HtmlAgilityPack;
+﻿using System;
+using HtmlAgilityPack;
 using Fizzler.Systems.HtmlAgilityPack;
 using Newtonsoft.Json;
 using System.Collections.Generic;
@@ -50,6 +51,7 @@ namespace LimeBot.Bot.Music
             var doc = web.Load("https://genius.com" + songPath);
 
             var lyricsRaw = doc.DocumentNode.QuerySelector("div.lyrics")?.InnerText;
+            
             if (lyricsRaw == null) return null;
             var lyrics = Regex.Replace(Regex.Replace(lyricsRaw, @"\n+", "\n"), @"^More on genius[\D\d]*", "", RegexOptions.Multiline).Trim();
             return lyrics;
