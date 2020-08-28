@@ -11,6 +11,8 @@ using System.Diagnostics;
 using System.Text;
 using LimeBot.Bot.Utils;
 using LimeBot.DAL;
+using DiscordChannel = DSharpPlus.Entities.DiscordChannel;
+using DiscordGuild = DSharpPlus.Entities.DiscordGuild;
 
 namespace LimeBot.Bot.Commands
 {
@@ -62,6 +64,62 @@ namespace LimeBot.Bot.Commands
                 await ctx.RespondAsync("Command not found!");
             else
                 await CommandHelp.SendCommandHelp(ctx, cmd);
+        }
+
+        [Command("serverinfo"), Aliases("server", "guild", "guildinfo"), Description("Guild information")]
+        public async Task ServerInfo(CommandContext ctx)
+        {
+            var ds = ctx.Guild;
+            var textchannels = ds.Channels.Values.Where(a => isTextChannel(a)).Count();
+            var voicechannels = ds.Channels.Values.Where(a => isVoiceChannel(a)).Count();
+            var category = ds.Channels.Values.Where(a => a.IsCategory).Count();
+            var embed = new DiscordEmbedBuilder
+            {
+                Title = $"{ds.Name}",
+                ThumbnailUrl = ds.IconUrl,
+                Color = new DiscordColor(Config.settings.embedColor)
+            };
+            embed.AddField("**Id:**", $"{ds.Id}", true);
+            embed.AddField("**Owner:**", $"{ds.Owner.Mention}", true);
+            embed.AddField("**Region:**", $"{RegionUtils.getRegion(ds.VoiceRegion.Name)}", true);
+            embed.AddField("**Category**", $"{category}", true);
+            embed.AddField("**Text channel**", $"{textchannels}", true);
+            embed.AddField("**Voice channel**", $"{voicechannels}", true);
+            embed.AddField("**Roles:**", $"{ds.Roles.Count()}", true);
+            embed.AddField("**Tier:**", $"{ds.PremiumTier.ToString()}", true);
+            embed.AddField("**Verification level:**", $"{ds.VerificationLevel}", true);
+            embed.AddField("**Members:**", $"Bots: {ds.Members.Values.Where(a=>a.IsBot).Count()}\nPeoples: {ds.Members.Values.Where(a=>!a.IsBot).Count()}", true);
+            StringBuilder builder = new StringBuilder();
+            foreach (DiscordEmoji emote in ds.Emojis.Values)
+            {
+                builder.Append(emote).Append(" ");
+            }
+            embed.AddField("**Created at:**", $"{ds.CreationTimestamp.DateTime.ToString("dd MMM yyyy")}", true);
+            embed.AddField("**Emotes:**", $"{builder}", false);
+            await ctx.RespondAsync(embed: embed.Build());
+        }
+
+        public bool isTextChannel(DiscordChannel d)
+        {
+            switch (d.Type)
+            {
+                case ChannelType.News:
+                case ChannelType.Text:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+        
+        public bool isVoiceChannel(DiscordChannel d)
+        {
+            switch (d.Type)
+            {
+                case ChannelType.Voice:
+                    return true;
+                default:
+                    return false;
+            }
         }
 
 
