@@ -67,7 +67,7 @@ namespace LimeBot.Bot.Commands
                 await CommandHelp.SendCommandHelp(ctx, cmd);
         }
 
-        [Command("emote")]
+        /*[Command("emote")]
         public async Task test(CommandContext ctx)
         {
             StringBuilder builder = new StringBuilder();
@@ -75,14 +75,14 @@ namespace LimeBot.Bot.Commands
             {
                 /*var embed = new DiscordEmbedBuilder();
                 embed.Description = $"{emote} [URL]({emote.Url})";
-                await ctx.RespondAsync(embed: embed.Build());*/
+                await ctx.RespondAsync(embed: embed.Build());#1#
                 builder.Append($"{emote} `{emote}`\n");
             }
 
             /*builder.Append(ctx.Guild.Emojis.Values.Where(s => s.Name.Contains("EarlySupporterLogo")).First().Url);
-            */
+            #1#
             await ctx.RespondAsync(builder.ToString());
-        }
+        }*/
 
         [Command("serverinfo"), Aliases("server", "guild", "guildinfo"), Description("Guild information")]
         public async Task ServerInfo(CommandContext ctx)

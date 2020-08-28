@@ -22,7 +22,7 @@ namespace LimeBot.Bot
         private Timer statusTimer;
         private int statusIndex;
         private readonly DiscordActivity[] statuses = new DiscordActivity[] {
-            new DiscordActivity("$help", ActivityType.ListeningTo),
+            new DiscordActivity($"{Config.settings.DefaultPrefix}help", ActivityType.ListeningTo),
             new DiscordActivity("You!", ActivityType.Watching),
             new DiscordActivity("Lime sounds", ActivityType.ListeningTo),
             new DiscordActivity("I hate Lemon", ActivityType.Playing),
