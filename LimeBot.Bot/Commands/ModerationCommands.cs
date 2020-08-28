@@ -226,7 +226,11 @@ namespace LimeBot.Bot.Commands
         public async Task Warn(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
             var warnCount = await db.Entry(guild).Collection(i=>i.Warns).Query().Where(i => i.UserId == member.Id).CountAsync();
-
+            /*if (member.PermissionsIn(ctx.Channel).HasFlag(Permissions.Administrator))
+            {
+                await ctx.Channel.SendMessageAsync("Can't warn administrator.");
+                return;
+            }*/
             guild.Warns.Add(new Warn
             {
                 UserId = member.Id,

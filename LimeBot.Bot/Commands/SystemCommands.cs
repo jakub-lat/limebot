@@ -13,6 +13,7 @@ using LimeBot.Bot.Utils;
 using LimeBot.DAL;
 using DiscordChannel = DSharpPlus.Entities.DiscordChannel;
 using DiscordGuild = DSharpPlus.Entities.DiscordGuild;
+using DiscordUser = DSharpPlus.Entities.DiscordUser;
 
 namespace LimeBot.Bot.Commands
 {
@@ -66,6 +67,23 @@ namespace LimeBot.Bot.Commands
                 await CommandHelp.SendCommandHelp(ctx, cmd);
         }
 
+        [Command("emote")]
+        public async Task test(CommandContext ctx)
+        {
+            StringBuilder builder = new StringBuilder();
+            foreach (DiscordEmoji emote in ctx.Guild.Emojis.Values)
+            {
+                /*var embed = new DiscordEmbedBuilder();
+                embed.Description = $"{emote} [URL]({emote.Url})";
+                await ctx.RespondAsync(embed: embed.Build());*/
+                builder.Append($"{emote} `{emote}`\n");
+            }
+
+            /*builder.Append(ctx.Guild.Emojis.Values.Where(s => s.Name.Contains("EarlySupporterLogo")).First().Url);
+            */
+            await ctx.RespondAsync(builder.ToString());
+        }
+
         [Command("serverinfo"), Aliases("server", "guild", "guildinfo"), Description("Guild information")]
         public async Task ServerInfo(CommandContext ctx)
         {
@@ -88,11 +106,18 @@ namespace LimeBot.Bot.Commands
             embed.AddField("**Roles:**", $"{ds.Roles.Count()}", true);
             embed.AddField("**Tier:**", $"{ds.PremiumTier.ToString()}", true);
             embed.AddField("**Verification level:**", $"{ds.VerificationLevel}", true);
-            embed.AddField("**Members:**", $"Bots: {ds.Members.Values.Where(a=>a.IsBot).Count()}\nPeoples: {ds.Members.Values.Where(a=>!a.IsBot).Count()}", true);
+            embed.AddField("**Boost level**", $"<a:flip_boost:748811555851862048> {getBoostedLevel(ds.PremiumTier)}", true);
+            embed.AddField("**Nitro boosters**", $"<a:boost:748811565372801074> {ds.PremiumSubscriptionCount.Value}", true);
+            embed.AddField("**Members:**", $"Bots: {ds.Members.Values.Where(a=>a.IsBot).Count()}\nPeople: {ds.Members.Values.Where(a=>!a.IsBot).Count()}", true);
             StringBuilder builder = new StringBuilder();
-            foreach (DiscordEmoji emote in ds.Emojis.Values)
+            foreach (DiscordEmoji emote in ds.Emojis.Values.Take(100))
             {
                 builder.Append(emote).Append(" ");
+            }
+
+            if (ds.Emojis.Values.Count() > 100)
+            {
+                builder.Append("and more...");
             }
             embed.AddField("**Created at:**", $"{ds.CreationTimestamp.DateTime.ToString("dd MMM yyyy")}", true);
             embed.AddField("**Emotes:**", $"{builder}", false);
@@ -108,6 +133,21 @@ namespace LimeBot.Bot.Commands
                     return true;
                 default:
                     return false;
+            }
+        }
+
+        public int getBoostedLevel(PremiumTier pr)
+        {
+            switch (pr)
+            {
+                case PremiumTier.Tier_1:
+                    return 1;
+                case PremiumTier.Tier_2:
+                    return 2;
+                case PremiumTier.Tier_3:
+                    return 3;
+                default:
+                    return 0;
             }
         }
         
@@ -136,6 +176,8 @@ namespace LimeBot.Bot.Commands
         [Command("userinfo"), Aliases("user"), Description("User information"), RequireGuild]
         public async Task UserInfo(CommandContext ctx, DiscordMember user = null) {
             user ??= ctx.Member;
+            var warnCount = db.Entry(guild).Collection(i => i.Warns).Query().Where(i => i.UserId == user.Id)
+                .Count();
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"{user.Username}#{user.Discriminator}",
@@ -145,16 +187,134 @@ namespace LimeBot.Bot.Commands
 
             if (user.Nickname != null) 
                 embed.AddField("**Nickname**", user.Nickname, true);
-
             embed.AddField("**Id:**", ""+user.Id, true);
+            embed.AddField("**Account created:**", user.CreationTimestamp.DateTime.ToString("dd MMM yyyy"), true);
+            embed.AddField("**Joined server:**", user.JoinedAt.ToString("dd MMM yyyy"), true);
+            embed.AddField("**Top role:**", user.Roles.OrderByDescending(i => i.Position).FirstOrDefault()?.Mention ?? "None", true);
+            try
+            {
+                embed.AddField("**Status:**", $"{getStatus(user.Presence.Status)}", true);
+                embed.AddField("**Client status:**", $"{getClinetStatus(user.Presence.ClientStatus)}", true);
+            }
+            catch
+            {
+                embed.AddField("**Status:**", $"{getStatus(UserStatus.Offline)}", true);
+                embed.AddField("**Client status:**", "Unknow", true);
+            }
 
-            embed.AddField("**Account created**", user.CreationTimestamp.DateTime.ToString("dd MMM yyyy"), true);
-
-            embed.AddField("**Joined server**", user.JoinedAt.ToString("dd MMM yyyy"), true);
-
-            embed.AddField("**Top role**", user.Roles.OrderByDescending(i => i.Position).FirstOrDefault()?.Mention ?? "None", true);
+            if (!user.IsBot)
+            {
+                embed.AddField("**Warns count:**", $"{warnCount}", true);
+            }
+            embed.AddField("**Badge:**", $"{getBadges(user)}", true);
+            //embed.AddField("**Badge:**", $"{user.}", true);
 
             await ctx.RespondAsync(embed: embed.Build());
+        }
+
+        public string getClinetStatus(DiscordClientStatus cs)
+        {
+            if (cs.Desktop.HasValue)
+            {
+                return "🖥️ Desktop";
+            }
+            if (cs.Mobile.HasValue)
+            {
+                return "📱 Mobile";
+            }
+            if (cs.Web.HasValue)
+            {
+                return "🌐 Web";
+            }
+            return "Unknow";
+        }
+
+        public string getStatus(UserStatus s)
+        {
+            switch (s)
+            {
+                case UserStatus.Idle:
+                    return "<:idle:748817759097323572> Idle";
+                case UserStatus.Offline:
+                case UserStatus.Invisible:
+                    return "<:offline:748817759055642675> Offline";
+                case UserStatus.Online:
+                    return "<:online:748817758862442578> Online";
+                case UserStatus.DoNotDisturb:
+                    return "<:dnd:748817759302975578> Do not disturb";
+                default:
+                    return "Unknow";
+            }
+        }
+
+        public string getBadges(DiscordMember s)
+        {
+            UserFlags flag = s.Flags.Value;
+            StringBuilder b = new StringBuilder();
+            if (flag.HasFlag(UserFlags.System))
+            {
+                b.Append("<:system:748818876686663711> System\n");
+            }
+
+            if (flag .HasFlag(UserFlags.DiscordEmployee))
+            {
+                b.Append("<a:staff:748817758208262247> Discord employee\n");
+            }
+
+            if (flag .HasFlag(UserFlags.DiscordPartner))
+            {
+                b.Append("<:partner:748820104829075477> Discord partner\n");
+            }
+
+            if (flag .HasFlag(UserFlags.EarlySupporter))
+            {
+                b.Append("<:earlysupporter:748827055759818863> Early supporter\n");
+            }
+
+            if (flag .HasFlag(UserFlags.HouseBalance))
+            {
+                b.Append("<:balancelogo:748827055335931946> Balance house\n");
+            }
+
+            if (flag .HasFlag(UserFlags.HouseBravery))
+            {
+                b.Append("<:braverylogo:748827053926645771> Bravery house\n");
+            }
+            if (flag .HasFlag(UserFlags.HouseBrilliance))
+            {
+                b.Append("<:brillancelogo:748827054627225711> Brilliance house\n");
+            }
+
+            if (flag .HasFlag(UserFlags.TeamUser))
+            {
+                b.Append("<a:staff:748817758208262247> Team user\n");
+            }
+
+            if (flag .HasFlag(UserFlags.VerifiedBot))
+            {
+                b.Append("<:verifybot:748828868470636584> Verified Bot\n");
+            }
+
+            if (flag .HasFlag(UserFlags.HypeSquadEvents))
+            {
+                b.Append("<:hypesquadEvent:748827055147450390> HypeSquad Events\n");
+            }
+
+            if (flag .HasFlag(UserFlags.VerifiedBotDeveloper))
+            {
+                b.Append("<:developer:748827056120266793> Verified Bot Developer\n");
+            }
+
+            if (flag .HasFlag(UserFlags.BugHunterLevelOne))
+            {
+                b.Append("<:bughunterlogo:748827053519798323> Bug Hunter Level One\n");
+            }
+            if (flag .HasFlag(UserFlags.BugHunterLevelTwo))
+            {
+                b.Append("<:bughunter2logo:748830200778850395> Bug Hunter Level Two\n");
+            }
+            
+            return b.ToString();
         }
 
 
