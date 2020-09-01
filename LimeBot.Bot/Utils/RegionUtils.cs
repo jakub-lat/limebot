@@ -25,7 +25,7 @@ namespace LimeBot.Bot.Utils
                 case "russia":
                     return "\uD83C\uDDF7\uD83C\uDDFA Russia";
                 default:
-                    return "Unknow";
+                    return regs;
             }
         }
     }

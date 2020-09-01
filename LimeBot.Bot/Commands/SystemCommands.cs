@@ -56,6 +56,12 @@ namespace LimeBot.Bot.Commands
             await ctx.RespondAsync(null, false, embed.Build());
         }
 
+        /*[Command("test")]
+        public async Task ok(CommandContext ctx)
+        {
+            //for testing
+        }*/
+
         [Command("help")]
         public async Task HelpCommand(CommandContext ctx, [RemainingText] string command)
         {
@@ -107,7 +113,7 @@ namespace LimeBot.Bot.Commands
             embed.AddField("**Tier:**", $"{ds.PremiumTier.ToString()}", true);
             embed.AddField("**Verification level:**", $"{ds.VerificationLevel}", true);
             embed.AddField("**Boost level**", $"<a:flip_boost:748811555851862048> {getBoostedLevel(ds.PremiumTier)}", true);
-            embed.AddField("**Nitro boosters**", $"<a:boost:748811565372801074> {ds.PremiumSubscriptionCount.Value}", true);
+            embed.AddField("**Boost count**", $"<a:boost:748811565372801074> {ds.PremiumSubscriptionCount.Value}", true);
             embed.AddField("**Members:**", $"Bots: {ds.Members.Values.Where(a=>a.IsBot).Count()}\nPeople: {ds.Members.Values.Where(a=>!a.IsBot).Count()}", true);
             StringBuilder builder = new StringBuilder();
             foreach (DiscordEmoji emote in ds.Emojis.Values.Take(100))

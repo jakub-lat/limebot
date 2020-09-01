@@ -50,8 +50,8 @@
                                             Aliases: <kbd class="d-inline-block">{{command.aliases.join(', ')}}</kbd>
                                         </p>
                                         <p>
-                                            Usage:
-                                            <pre v-for="(overload, i) in command.overloads" :key="i"><kbd>${{command.name}}{{getArguments(overload)}}</kbd></pre>
+                                          Usage:
+                                          <pre v-for="(overload, i) in command.overloads" :key="i"><kbd>${{command.name}}{{getArguments(overload)}}</kbd></pre>
                                         </p>
                                     </v-expansion-panel-content>
                                 </v-expansion-panel>

@@ -101,6 +101,7 @@ namespace LimeBot.Bot
 
         private Task Ready(ReadyEventArgs e)
         {
+            
             Console.WriteLine("LimeBot.Bot ready");
             return Task.CompletedTask;
         }
