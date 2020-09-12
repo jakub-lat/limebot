@@ -6,14 +6,10 @@ using DSharpPlus.Entities;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using LimeBot.DAL.Models;
 using System.Diagnostics;
 using System.Text;
 using LimeBot.Bot.Utils;
 using LimeBot.DAL;
-using DiscordChannel = DSharpPlus.Entities.DiscordChannel;
-using DiscordGuild = DSharpPlus.Entities.DiscordGuild;
-using DiscordUser = DSharpPlus.Entities.DiscordUser;
 
 namespace LimeBot.Bot.Commands
 {
@@ -56,12 +52,6 @@ namespace LimeBot.Bot.Commands
             await ctx.RespondAsync(null, false, embed.Build());
         }
 
-        /*[Command("test")]
-        public async Task ok(CommandContext ctx)
-        {
-            //for testing
-        }*/
-
         [Command("help")]
         public async Task HelpCommand(CommandContext ctx, [RemainingText] string command)
         {
@@ -90,86 +80,62 @@ namespace LimeBot.Bot.Commands
             await ctx.RespondAsync(builder.ToString());
         }*/
 
-        [Command("serverinfo"), Aliases("server", "guild", "guildinfo"), Description("Guild information")]
+        [Command("server"), Aliases("serverinfo", "guild", "guildinfo"), Description("Guild information")]
         public async Task ServerInfo(CommandContext ctx)
         {
-            var ds = ctx.Guild;
-            var textchannels = ds.Channels.Values.Where(a => isTextChannel(a)).Count();
-            var voicechannels = ds.Channels.Values.Where(a => isVoiceChannel(a)).Count();
-            var category = ds.Channels.Values.Where(a => a.IsCategory).Count();
+            var dcGuild = ctx.Guild;
+            var textChns = dcGuild.Channels.Values.Count(x => x.Type == ChannelType.Text || x.Type == ChannelType.News);
+            var voiceChns = dcGuild.Channels.Values.Count(x => x.Type == ChannelType.Voice);
+            var category = dcGuild.Channels.Values.Count(a => a.IsCategory);
             var embed = new DiscordEmbedBuilder
             {
-                Title = $"{ds.Name}",
-                ThumbnailUrl = ds.IconUrl,
+                Title = $"{dcGuild.Name}",
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = dcGuild.IconUrl
+                },
                 Color = new DiscordColor(Config.settings.embedColor)
             };
-            embed.AddField("**Id:**", $"{ds.Id}", true);
-            embed.AddField("**Owner:**", $"{ds.Owner.Mention}", true);
-            embed.AddField("**Region:**", $"{RegionUtils.getRegion(ds.VoiceRegion.Name)}", true);
-            embed.AddField("**Category**", $"{category}", true);
-            embed.AddField("**Text channel**", $"{textchannels}", true);
-            embed.AddField("**Voice channel**", $"{voicechannels}", true);
-            embed.AddField("**Roles:**", $"{ds.Roles.Count()}", true);
-            embed.AddField("**Tier:**", $"{ds.PremiumTier.ToString()}", true);
-            embed.AddField("**Verification level:**", $"{ds.VerificationLevel}", true);
-            embed.AddField("**Boost level**", $"<a:flip_boost:748811555851862048> {getBoostedLevel(ds.PremiumTier)}", true);
-            embed.AddField("**Boost count**", $"<a:boost:748811565372801074> {ds.PremiumSubscriptionCount.Value}", true);
-            embed.AddField("**Members:**", $"Bots: {ds.Members.Values.Where(a=>a.IsBot).Count()}\nPeople: {ds.Members.Values.Where(a=>!a.IsBot).Count()}", true);
-            StringBuilder builder = new StringBuilder();
-            foreach (DiscordEmoji emote in ds.Emojis.Values.Take(100))
+            embed.AddField("**ID**", $"{dcGuild.Id}", true);
+            embed.AddField("**Owner**", $"{dcGuild.Owner.Mention}", true);
+            embed.AddField("**Region**", $"{RegionUtils.GetRegionPrettyName(dcGuild.VoiceRegion.Name)}", true);
+            embed.AddField("**Categories**", $"{category}", true);
+            embed.AddField("**Text channels**", $"{textChns}", true);
+            embed.AddField("**Voice channels**", $"{voiceChns}", true);
+            embed.AddField("**Roles**", $"{dcGuild.Roles.Count}", true);
+            embed.AddField("**Tier**", $"{dcGuild.PremiumTier.ToString()}", true);
+            embed.AddField("**Verification level**", $"{dcGuild.VerificationLevel}", true);
+            embed.AddField("**Boost level**", $"<a:flip_boost:748811555851862048> {GetBoostedLevel(dcGuild.PremiumTier)}", true);
+            embed.AddField("**Boost count**", $"<a:boost:748811565372801074> {dcGuild.PremiumSubscriptionCount ?? 0}", true);
+            embed.AddField("**Members**",dcGuild.MemberCount.ToString(), true);
+            var builder = new StringBuilder();
+            foreach (DiscordEmoji emote in dcGuild.Emojis.Values.Take(100))
             {
                 builder.Append(emote).Append(" ");
             }
 
-            if (ds.Emojis.Values.Count() > 100)
+            if (dcGuild.Emojis.Values.Count() > 100)
             {
                 builder.Append("and more...");
             }
-            embed.AddField("**Created at:**", $"{ds.CreationTimestamp.DateTime.ToString("dd MMM yyyy")}", true);
-            embed.AddField("**Emotes:**", $"{builder}", false);
+            embed.AddField("**Created at**", $"{dcGuild.CreationTimestamp.DateTime:dd MMM yyyy}", true);
+            embed.AddField("**Emotes**", $"{builder}");
             await ctx.RespondAsync(embed: embed.Build());
         }
 
-        public bool isTextChannel(DiscordChannel d)
+        private int GetBoostedLevel(PremiumTier pr)
         {
-            switch (d.Type)
+            return pr switch
             {
-                case ChannelType.News:
-                case ChannelType.Text:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        public int getBoostedLevel(PremiumTier pr)
-        {
-            switch (pr)
-            {
-                case PremiumTier.Tier_1:
-                    return 1;
-                case PremiumTier.Tier_2:
-                    return 2;
-                case PremiumTier.Tier_3:
-                    return 3;
-                default:
-                    return 0;
-            }
-        }
-        
-        public bool isVoiceChannel(DiscordChannel d)
-        {
-            switch (d.Type)
-            {
-                case ChannelType.Voice:
-                    return true;
-                default:
-                    return false;
-            }
+                PremiumTier.Tier_1 => 1,
+                PremiumTier.Tier_2 => 2,
+                PremiumTier.Tier_3 => 3,
+                _ => 0
+            };
         }
 
 
-        [Command("ping"), Description("LimeBot.Bot ping")]
+        [Command("ping"), Description("Bot ping")]
         public async Task Ping(CommandContext ctx)
         {
             await ctx.TriggerTypingAsync();
@@ -179,63 +145,76 @@ namespace LimeBot.Bot.Commands
             await ctx.RespondAsync($"{emoji} Pong! Ping: {ctx.Client.Ping}ms");
         }
 
-        [Command("userinfo"), Aliases("user"), Description("User information"), RequireGuild]
-        public async Task UserInfo(CommandContext ctx, DiscordMember user = null) {
-            user ??= ctx.Member;
-            var warnCount = db.Entry(guild).Collection(i => i.Warns).Query().Where(i => i.UserId == user.Id)
-                .Count();
+        [Command("user"), Aliases("userinfo"), Description("User information")]
+        public async Task MemberInfo(CommandContext ctx, DiscordMember member = null)
+        {
+            await UserInfo(ctx, member ?? ctx.Member);
+        }
+
+        [Command("user")]
+        private async Task UserInfo(CommandContext ctx, DiscordUser user) {
             var embed = new DiscordEmbedBuilder
             {
                 Title = $"{user.Username}#{user.Discriminator}",
-                ThumbnailUrl = user.AvatarUrl,
+                Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                {
+                    Url = user.AvatarUrl
+                },
                 Color = new DiscordColor(Config.settings.embedColor),
             };
+            
+            embed.AddField("**ID**", ""+user.Id, true);
+            embed.AddField("**Account created**", user.CreationTimestamp.DateTime.ToString("dd MMM yyyy"), true);
+            
+            if (user is DiscordMember member)
+            {
+                if (!string.IsNullOrEmpty(member.Nickname))
+                {
+                    embed.AddField("**Nickname**", member.Nickname, true);
+                }
+                embed.AddField("**Joined server**", member.JoinedAt.ToString("dd MMM yyyy"), true);
+                embed.AddField("**Top role**", member.Roles.OrderByDescending(i => i.Position).FirstOrDefault()?.Mention ?? "None", true);
+                
+                if (!user.IsBot)
+                {
+                    var warnCount = db.Entry(guild).Collection(i => i.Warns).Query()
+                        .Count(i => i.UserId == user.Id && i.Guild.Id == ctx.Guild.Id);
+                    embed.AddField("**Warn count**", $"{warnCount}", true);
+                }
+            }
+               
+            //embed.AddField("**Status**", $"{GetUserStatus(member.Presence?.ClientStatus)}", true);
 
-            if (user.Nickname != null) 
-                embed.AddField("**Nickname**", user.Nickname, true);
-            embed.AddField("**Id:**", ""+user.Id, true);
-            embed.AddField("**Account created:**", user.CreationTimestamp.DateTime.ToString("dd MMM yyyy"), true);
-            embed.AddField("**Joined server:**", user.JoinedAt.ToString("dd MMM yyyy"), true);
-            embed.AddField("**Top role:**", user.Roles.OrderByDescending(i => i.Position).FirstOrDefault()?.Mention ?? "None", true);
-            try
-            {
-                embed.AddField("**Status:**", $"{getStatus(user.Presence.Status)}", true);
-                embed.AddField("**Client status:**", $"{getClinetStatus(user.Presence.ClientStatus)}", true);
-            }
-            catch
-            {
-                embed.AddField("**Status:**", $"{getStatus(UserStatus.Offline)}", true);
-                embed.AddField("**Client status:**", "Unknow", true);
-            }
 
-            if (!user.IsBot)
-            {
-                embed.AddField("**Warns count:**", $"{warnCount}", true);
-            }
-            embed.AddField("**Badge:**", $"{getBadges(user)}", true);
-            //embed.AddField("**Badge:**", $"{user.}", true);
+           
+            embed.AddField("**Badges**", $"{GetBadges(user)}");
 
             await ctx.RespondAsync(embed: embed.Build());
         }
 
-        public string getClinetStatus(DiscordClientStatus cs)
+        private string GetUserStatus(DiscordClientStatus cs)
         {
-            if (cs.Desktop.HasValue)
+            var sb = new StringBuilder();
+            if (cs?.Desktop.HasValue == true)
             {
-                return "🖥️ Desktop";
+                sb.AppendLine($"Desktop: {GetStatus(cs.Desktop.Value)}");
             }
-            if (cs.Mobile.HasValue)
+
+            if (cs?.Mobile.HasValue == true)
             {
-                return "📱 Mobile";
+                sb.AppendLine($"Mobile: {GetStatus(cs.Mobile.Value)}");
             }
-            if (cs.Web.HasValue)
+
+            if (cs?.Web.HasValue == true)
             {
-                return "🌐 Web";
+                sb.AppendLine($"Web: {GetStatus(cs.Web.Value)}");
             }
-            return "Unknow";
+
+            var str = sb.ToString();
+            return string.IsNullOrEmpty(str) ? "<:offline:748817759055642675> Offline" : str;
         }
 
-        public string getStatus(UserStatus s)
+        private string GetStatus(UserStatus s)
         {
             switch (s)
             {
@@ -249,14 +228,14 @@ namespace LimeBot.Bot.Commands
                 case UserStatus.DoNotDisturb:
                     return "<:dnd:748817759302975578> Do not disturb";
                 default:
-                    return "Unknow";
+                    return "Unknown";
             }
         }
 
-        public string getBadges(DiscordMember s)
+        private string GetBadges(DiscordUser u)
         {
-            UserFlags flag = s.Flags.Value;
-            StringBuilder b = new StringBuilder();
+            var flag = u.Flags ?? 0;
+            var b = new StringBuilder();
             if (flag.HasFlag(UserFlags.System))
             {
                 b.Append("<:system:748818876686663711> System\n");
@@ -324,16 +303,17 @@ namespace LimeBot.Bot.Commands
         }
 
 
-        [Command("info"), Aliases("botinfo"), Description("LimeBot.Bot information")]
+        [Command("info"), Aliases("botinfo"), Description("LimeBot information")]
         public async Task BotInfo(CommandContext ctx)
         {
             var embed = new DiscordEmbedBuilder
             {
-                Title = "Lime LimeBot.Bot info",
+                Title = "LimeBot info",
                 Color = new DiscordColor(Config.settings.embedColor),
                 Description = @"Lime is a professional, multi-purpose bot.
 Website - [limebot.tk](https://limebot.tk)
-Discord server - [Join Lime LimeBot.Bot support](https://discord.gg/9w9EfWh)"
+Invite to your server - [Invite](https://limebot.tk/api/redirect/invite)
+Discord server - [Join Lime Bot support](https://discord.gg/9w9EfWh)"
             };
             var users = 0;
             var channels = 0;

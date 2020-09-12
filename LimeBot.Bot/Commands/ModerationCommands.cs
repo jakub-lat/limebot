@@ -23,7 +23,7 @@ namespace LimeBot.Bot.Commands
 
         private async Task CheckMemberHierarchy(CommandContext ctx, DiscordMember member)
         {
-            if(ctx.Guild.CurrentMember.Hierarchy <= member.Hierarchy || member.IsOwner || member.PermissionsIn(ctx.Channel).HasPermission(Permissions.Administrator))
+            if(ctx.Guild.CurrentMember.Hierarchy <= member.Hierarchy || member.Hierarchy >= ctx.Member.Hierarchy || member.IsOwner || member.PermissionsIn(ctx.Channel).HasPermission(Permissions.Administrator))
             {
                 await ctx.RespondAsync("Oh no, this user is too important!");
                 throw new CommandCanceledException();
@@ -147,6 +147,12 @@ namespace LimeBot.Bot.Commands
         {
             await CheckMemberHierarchy(ctx, member);
 
+            if (time?.TotalSeconds < 60)
+            {
+                await ctx.RespondAsync("Minimal mute time is 60s");
+                return;
+            }
+
             var role = ctx.Guild.Roles.GetValueOrDefault(guild.MutedRoleId);
 
             if (role == null)
@@ -179,9 +185,9 @@ namespace LimeBot.Bot.Commands
                     check.Time = unmuteTime;
                     db.Entry(check).State = EntityState.Modified;
                 }
-
-                await db.SaveChangesAsync();
             }
+            
+            await db.SaveChangesAsync();
 
             await ctx.RespondAsync($"Muted **{member.Mention}** with reason: `{reason}` {(time != null ? "for" : "")} {time?.ToHumanReadableString() ?? ""}");
 
@@ -205,8 +211,12 @@ namespace LimeBot.Bot.Commands
         public async Task Unmute(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
             var role = ctx.Guild.Roles.GetValueOrDefault(guild.MutedRoleId);
-
-            if (role == null) return;
+            
+            if (role == null)
+            {
+                await ctx.RespondAsync("Muted role not found");
+                return;
+            }
 
             await member.RevokeRoleAsync(role);
 
@@ -226,11 +236,9 @@ namespace LimeBot.Bot.Commands
         public async Task Warn(CommandContext ctx, DiscordMember member, [RemainingText] string reason = "No reason")
         {
             var warnCount = await db.Entry(guild).Collection(i=>i.Warns).Query().Where(i => i.UserId == member.Id).CountAsync();
-            /*if (member.PermissionsIn(ctx.Channel).HasFlag(Permissions.Administrator))
-            {
-                await ctx.Channel.SendMessageAsync("Can't warn administrator.");
-                return;
-            }*/
+
+            await CheckMemberHierarchy(ctx, member);
+            
             guild.Warns.Add(new Warn
             {
                 UserId = member.Id,

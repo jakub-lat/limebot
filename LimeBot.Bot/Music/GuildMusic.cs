@@ -103,7 +103,7 @@ namespace LimeBot.Bot.Music
             lava.Delete(guild);
         }
 
-        public async Task Disconnect(string reason = "No one stayed with me :slight_frown: (to enable 24/7 music type `{prefix}24-7`)")
+        public async Task Disconnect(string reason)
         {
             await Stop();
             await textChannel.SendMessageAsync($"Disconnected - {reason}");

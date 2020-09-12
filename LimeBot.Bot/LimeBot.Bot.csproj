@@ -10,10 +10,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00686" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00686" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00686" />
-    <PackageReference Include="DSharpPlus.Lavalink" Version="4.0.0-nightly-00686" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00722" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00722" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00722" />
+    <PackageReference Include="DSharpPlus.Lavalink" Version="4.0.0-nightly-00722" />
     <PackageReference Include="Fizzler.Systems.HtmlAgilityPack" Version="1.2.1" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.23" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="5.0.0-preview.3.20181.2" />

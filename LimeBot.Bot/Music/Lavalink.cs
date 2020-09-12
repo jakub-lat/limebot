@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using DSharpPlus.Lavalink.EventArgs;
 using LimeBot.DAL;
+using Microsoft.EntityFrameworkCore;
 using DiscordChannel = DSharpPlus.Entities.DiscordChannel;
 using DiscordGuild = DSharpPlus.Entities.DiscordGuild;
 
@@ -44,7 +45,7 @@ namespace LimeBot.Bot.Music
         private async Task Disconnected(NodeDisconnectedEventArgs args)
         {
             Console.WriteLine("Reconnecting Lavalink...");
-            foreach (var (key, gm) in guildMusic)
+            foreach (var (_, gm) in guildMusic)
             {
                 gm?.Disconnect("Lavalink node disconnected!");
             }
@@ -85,11 +86,20 @@ namespace LimeBot.Bot.Music
 
         public async Task VoiceStateUpdated(VoiceStateUpdateEventArgs e)
         {
+            await using var ctx = new GuildContext();
             var gm = Get(e.Guild);
-            if (!node.IsConnected) return;
-            if (gm != null && !gm.Is24_7 && e.Before?.Channel == gm?.player?.Channel && gm?.player?.Channel?.Users.Count() == 1)
+            if (!node.IsConnected || gm == null) return;
+
+            if (e.Guild?.CurrentMember?.VoiceState?.Channel?.Id != gm?.player?.Channel?.Id)
             {
-                await gm?.Disconnect();
+                Delete(e.Guild);
+                return;
+            }
+            
+            if (!gm.Is24_7 && e.Before?.Channel == gm?.player?.Channel && gm?.player?.Channel?.Users.Count() == 1)
+            {
+                var guildData = await ctx.Guilds.FirstOrDefaultAsync(x => x.Id == e.Guild.Id);
+                await gm?.Disconnect($"No one stayed with me :slight_frown: (to enable 24/7 music type `{guildData?.Prefix ?? Config.settings.DefaultPrefix}24-7`)");
             }
         }
     }

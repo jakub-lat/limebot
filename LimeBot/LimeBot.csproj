@@ -15,9 +15,9 @@
 
 
   <ItemGroup>
-    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00686" />
-    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00686" />
-    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00686" />
+    <PackageReference Include="DSharpPlus" Version="4.0.0-nightly-00722" />
+    <PackageReference Include="DSharpPlus.CommandsNext" Version="4.0.0-nightly-00722" />
+    <PackageReference Include="DSharpPlus.Interactivity" Version="4.0.0-nightly-00722" />
     <PackageReference Include="EntityFramework.Extended.Async" Version="6.1.1" />
     <PackageReference Include="kedzior.io.ConnectionStringConverter" Version="1.0.0" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Core" Version="5.2.7" />

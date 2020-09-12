@@ -1,5 +1,4 @@
-﻿using System;
-using HtmlAgilityPack;
+﻿using HtmlAgilityPack;
 using Fizzler.Systems.HtmlAgilityPack;
 using Newtonsoft.Json;
 using System.Collections.Generic;

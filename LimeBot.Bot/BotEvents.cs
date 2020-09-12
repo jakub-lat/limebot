@@ -46,7 +46,7 @@ namespace LimeBot.Bot
 
             unmuteTimer = new Timer();
             unmuteTimer.Elapsed += UnmuteTask;
-            unmuteTimer.Interval = 60000;
+            unmuteTimer.Interval = 30 * 1000;
             unmuteTimer.Enabled = true;
             UnmuteTask();
         }
@@ -102,32 +102,37 @@ namespace LimeBot.Bot
 
         public async Task CommandErrored(CommandErrorEventArgs e)
         {
-            if (e.Exception is CommandCanceledException ex)
+            switch (e.Exception)
             {
-                //await e.Context.RespondAsync($":warning: {ex.Message}");
-            } else if (e.Exception is ChecksFailedException ce) 
-            {
-                var perm = "";
-                foreach (var check in ce.FailedChecks)
+                case CommandCanceledException ex:
+                    //await e.Context.RespondAsync($":warning: {ex.Message}");
+                    break;
+                case ChecksFailedException ce:
                 {
-                    perm = check switch
+                    var perm = "";
+                    foreach (var check in ce.FailedChecks)
                     {
-                        RequirePermissionsAttribute c 
-                            => ce.Context.Channel.PermissionsFor(ce.Context.Member).HasPermission(c.Permissions) 
-                                ? c.Permissions.ToPermissionString() : "",
-                        RequireBotPermissionsAttribute c => c.Permissions.ToPermissionString(),
-                        _ => perm
-                    };
+                        perm = check switch
+                        {
+                            RequirePermissionsAttribute c 
+                                => ce.Context.Channel.PermissionsFor(ce.Context.Member).HasPermission(c.Permissions) 
+                                    ? c.Permissions.ToPermissionString() : "",
+                            RequireBotPermissionsAttribute c => c.Permissions.ToPermissionString(),
+                            _ => perm
+                        };
+                    }
+                    if (!string.IsNullOrEmpty(perm))
+                        await e.Context.Channel.SendMessageAsync($"I don't have following permissions: `{perm}`.");
+                    break;
                 }
-                if (!string.IsNullOrEmpty(perm))
-                    await e.Context.Channel.SendMessageAsync($"I don't have following permissions: `{perm}`.");
-            } else if (e.Exception is ArgumentException)
-            {
-                await CommandHelp.SendCommandHelp(e.Context, e.Command, true);
-            }
-            else
-            {
-                Console.WriteLine(e.Exception);
+                case ArgumentException _:
+                    await CommandHelp.SendCommandHelp(e.Context, e.Command, true);
+                    break;
+                case CommandNotFoundException _:
+                    break;
+                default:
+                    Console.WriteLine(e.Exception);
+                    break;
             }
         }
         
@@ -255,7 +260,7 @@ namespace LimeBot.Bot
         public async Task MessageEdited(MessageUpdateEventArgs e)
         {
             if (e.Author?.IsBot ?? false) return;
-            using var ctx = new GuildContext();
+            await using var ctx = new GuildContext();
             var guild = await ctx.GetGuild(e.Guild.Id);
 
             if (guild.EnableMessageLogs && e.MessageBefore.Content != e.Message.Content)
@@ -272,7 +277,8 @@ namespace LimeBot.Bot
                         IconUrl = author.GetAvatarUrl(ImageFormat.Png, 64)
                     },
                     Description = $@"{e.MessageBefore.Content}
-**To:** {e.Message.Content}
+**To:** 
+{e.Message.Content}
 **In channel** {e.Channel.Mention} ([Jump]({e.Message.JumpLink}))",
                     Timestamp = DateTime.Now,
                     Color = new DiscordColor("#cad628"),
@@ -309,7 +315,7 @@ namespace LimeBot.Bot
                 };
                 if (e.Message.Attachments.Any())
                 {
-                    embed.ThumbnailUrl = e.Message.Attachments.First().ProxyUrl;
+                    embed.ImageUrl = e.Message.Attachments.First().ProxyUrl;
                 }
                 await chn.SendMessageAsync(embed: embed);
             }

@@ -13,6 +13,7 @@ using LimeBot.Bot.Music;
 using LimeBot.Bot.Commands;
 using DSharpPlus.EventArgs;
 using LimeBot.DAL;
+using Microsoft.Extensions.Logging;
 
 namespace LimeBot.Bot
 {
@@ -38,7 +39,7 @@ namespace LimeBot.Bot
                 instance = this;
             } else
             {
-                throw new Exception("LimeBot.Bot already running!");
+                throw new Exception("Bot already running!");
             }
             this.services = services;
 
@@ -46,10 +47,9 @@ namespace LimeBot.Bot
             {
                 Token = Config.settings.BotToken,
                 TokenType = TokenType.Bot,
-                UseInternalLogHandler = true,
-                LogLevel = LogLevel.Info,
+                MinimumLogLevel = LogLevel.Warning,
                 MessageCacheSize = 32,
-                
+                Intents = DiscordIntents.DirectMessages | DiscordIntents.GuildMessages | DiscordIntents.Guilds | DiscordIntents.GuildVoiceStates | DiscordIntents.GuildMessageReactions
             });
 
             events = new BotEvents(discord);
@@ -102,7 +102,7 @@ namespace LimeBot.Bot
         private Task Ready(ReadyEventArgs e)
         {
             
-            Console.WriteLine("LimeBot.Bot ready");
+            Console.WriteLine("LimeBot ready");
             return Task.CompletedTask;
         }
 

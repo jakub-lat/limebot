@@ -1,32 +1,41 @@
+using System;
+
 namespace LimeBot.Bot.Utils
 {
     public class RegionUtils
     {
-        public static string getRegion(string regs)
+        public static string GetRegionEmoji(string region)
         {
-            switch (regs)
+            switch (region)
             {
-                case "europe":
                 case "Europe":
-                    return "\uD83C\uDDEA\uD83C\uDDFA Europe";
+                    return ":flag_eu:";
                 case "Brazil":
-                case "brazil":
-                    return "\uD83C\uDDE7\uD83C\uDDF7 Brazil";
-                case "hongkong":
+                    return ":flag_br:";
                 case "Hong Kong":
-                    return "\uD83C\uDDED\uD83C\uDDF0 Honk Kong";
-                case "india":
+                    return ":flag_hk:";
                 case "India":
-                    return "\uD83C\uDDEE\uD83C\uDDF3 India";
+                    return ":flag_in:";
                 case "Japan":
-                case "japan":
-                    return "\uD83C\uDDEF\uD83C\uDDF5 Japan";
+                    return ":flag_jp:";
                 case "Russia":
-                case "russia":
-                    return "\uD83C\uDDF7\uD83C\uDDFA Russia";
+                    return ":flag_ru:";
+                case "Singapore":
+                    return ":flag_sg:";
+                case "US South":
+                case "US West":
+                case "US Central":
+                case "US East":
+                    return ":flag_us:";
+                case "South Africa":
+                    return ":flag_za:";
                 default:
-                    return regs;
+                    return "";
             }
+        }
+        public static string GetRegionPrettyName(string region)
+        {
+            return $"{GetRegionEmoji(region)} {region}";
         }
     }
 }

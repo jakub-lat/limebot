@@ -69,12 +69,14 @@ namespace LimeBot.Bot.Commands
             await base.BeforeExecutionAsync(ctx);
         }
 
-
-        [Command("play"), Aliases("p"), Description("Plays music from URL or searches YouTube")]
-        [RequireBotPermissions(Permissions.UseVoice), RequireVc, BeforePlay]
-        public async Task Play(CommandContext ctx, [Description("Track URL")] Uri uri)
+        [Command("play"), RequireVc]
+        public async Task PlayResume(CommandContext ctx)
         {
-            var trackLoad = await lava.node.Rest.GetTracksAsync(uri);
+            await Resume(ctx);
+        }
+        
+        private async Task AddTracksToQueue(CommandContext ctx, LavalinkLoadResult trackLoad)
+        {
             if (trackLoad.LoadResultType == LavalinkLoadResultType.LoadFailed || !trackLoad.Tracks.Any())
             {
                 await ctx.RespondAsync($":warning: No tracks were found!");
@@ -89,9 +91,12 @@ namespace LimeBot.Bot.Commands
                 {
                     Title = $"Added **{track.Title}** to queue.",
                     Url = track.Uri.ToString(),
-                    ThumbnailUrl = track.Uri.ToString().Contains("youtube")
-                        ? $"http://img.youtube.com/vi/{track.Identifier}/mqdefault.jpg"
-                        : null
+                    Thumbnail = new DiscordEmbedBuilder.EmbedThumbnail
+                    {
+                        Url = track.Uri.ToString().Contains("youtube")
+                            ? $"http://img.youtube.com/vi/{track.Identifier}/mqdefault.jpg"
+                            : null
+                    }
                 };
                 await ctx.RespondAsync(embed: embed);
             } else
@@ -104,10 +109,12 @@ namespace LimeBot.Bot.Commands
             }
         }
 
-        [Command("play"), RequireVc]
-        public async Task PlayResume(CommandContext ctx)
+        [Command("play"), Aliases("p"), Description("Plays music from URL or searches YouTube")]
+        [RequireBotPermissions(Permissions.UseVoice), RequireVc, BeforePlay]
+        public async Task Play(CommandContext ctx, [Description("Track URL")] Uri uri)
         {
-            await Resume(ctx);
+            var trackLoad = await lava.node.Rest.GetTracksAsync(uri);
+            await AddTracksToQueue(ctx, trackLoad);
         }
 
         [Command("play"), BeforePlay]
@@ -120,19 +127,11 @@ namespace LimeBot.Bot.Commands
                 if (result == null)
                 {
                     await ctx.RespondAsync(":warning: Nothing found :(");
+                    return;
                 }
-                else
-                {
-                    var trackLoad = await lava.node.Rest.GetTracksAsync(new Uri("https://youtube.com/watch?v=" + result.id.videoId));
-                    var track = trackLoad.Tracks.FirstOrDefault(x => x.Identifier == result.id.videoId);
-                    if (trackLoad.LoadResultType == LavalinkLoadResultType.LoadFailed || !trackLoad.Tracks.Any() || track == null)
-                    {
-                        await ctx.RespondAsync($":warning: Something went wrong :( Try again!");
-                        return;
-                    }
-                    await gm.Add(track);
-                    await ctx.RespondAsync($"Added **{track.Title}** to queue");
-                }
+
+                var trackLoad = await lava.node.Rest.GetTracksAsync(new Uri("https://youtube.com/watch?v=" + result.id.videoId));
+                await AddTracksToQueue(ctx, trackLoad);
             } catch
             {
                 await ctx.RespondAsync("Error :worried:. Please try again.");
@@ -150,7 +149,7 @@ namespace LimeBot.Bot.Commands
         [Command("queue"), Aliases("q", "np", "nowplaying"), Description("Music queue")]
         public async Task Queue(CommandContext ctx)
         {
-            if (gm == null || gm.player.CurrentState.CurrentTrack == null) { await ctx.RespondAsync("Not playing rn!"); return; }
+            if (gm?.player.CurrentState.CurrentTrack == null) { await ctx.RespondAsync("Not playing rn!"); return; }
 
             var interactivity = ctx.Client.GetInteractivity();
 
