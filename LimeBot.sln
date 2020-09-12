@@ -1,0 +1,46 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30002.166
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LimeBot", "LimeBot\LimeBot.csproj", "{38F85726-E6AD-4FB7-BCA3-C4DBD9837B07}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B7E80658-4CDC-494C-A49E-6A3396A757D5} = {B7E80658-4CDC-494C-A49E-6A3396A757D5}
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LimeBot.DAL", "LimeBot.DAL\LimeBot.DAL.csproj", "{B7E80658-4CDC-494C-A49E-6A3396A757D5}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LimeBot.Bot", "LimeBot.Bot\LimeBot.Bot.csproj", "{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestBot", "TestBot\TestBot.csproj", "{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{38F85726-E6AD-4FB7-BCA3-C4DBD9837B07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{38F85726-E6AD-4FB7-BCA3-C4DBD9837B07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{38F85726-E6AD-4FB7-BCA3-C4DBD9837B07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{38F85726-E6AD-4FB7-BCA3-C4DBD9837B07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7E80658-4CDC-494C-A49E-6A3396A757D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7E80658-4CDC-494C-A49E-6A3396A757D5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7E80658-4CDC-494C-A49E-6A3396A757D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7E80658-4CDC-494C-A49E-6A3396A757D5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AAAF867-4B0B-413F-A6A7-FF0B210FB68B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{942C3C34-ECC8-4DF0-82C2-D6C03843CE1B}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2E4405B5-FCEC-4229-AB7B-E979D1C88617}
+	EndGlobalSection
+EndGlobal
