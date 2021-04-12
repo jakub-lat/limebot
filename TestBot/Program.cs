@@ -31,7 +31,7 @@ namespace TestBot
             cnext.RegisterCommands<TestCommands>();
 
             await _discord.ConnectAsync();
-            _discord.Ready += async (_) => Console.WriteLine("Ready");
+            _discord.Ready += async (c, _) => Console.WriteLine("Ready");
             await Task.Delay(-1);
         }
     }

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using LimeBot.Bot.Extensions;
 using DSharpPlus.Interactivity;
+using DSharpPlus.Interactivity.Extensions;
 using LimeBot.DAL.Models;
 using LimeBot.Bot.Utils;
 using LimeBot.DAL;

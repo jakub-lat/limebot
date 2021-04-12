@@ -49,7 +49,7 @@ namespace LimeBot.Bot.Commands
                 Description = description.ToString(),
                 Color = new DiscordColor(Config.settings.embedColor)
             };
-            await ctx.RespondAsync(null, false, embed.Build());
+            await ctx.RespondAsync(embed.Build());
         }
 
         [Command("help")]
@@ -341,7 +341,7 @@ Asp.Net Core: 2.2.0
 DSharpPlus: {ctx.Client.VersionString}");
 
 
-            await ctx.RespondAsync(null, false, embed.Build());
+            await ctx.RespondAsync(embed.Build());
         }
     }
 }

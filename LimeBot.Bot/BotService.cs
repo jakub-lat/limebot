@@ -12,6 +12,7 @@ using DSharpPlus.Lavalink;
 using LimeBot.Bot.Music;
 using LimeBot.Bot.Commands;
 using DSharpPlus.EventArgs;
+using DSharpPlus.Interactivity.Extensions;
 using LimeBot.DAL;
 using Microsoft.Extensions.Logging;
 
@@ -99,9 +100,8 @@ namespace LimeBot.Bot
             discord.MessageReactionRemoved += events.MessageReactionRemove;
         }
 
-        private Task Ready(ReadyEventArgs e)
+        private Task Ready(DiscordClient _, ReadyEventArgs e)
         {
-            
             Console.WriteLine("LimeBot ready");
             return Task.CompletedTask;
         }

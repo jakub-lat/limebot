@@ -102,7 +102,7 @@ namespace LimeBot.Bot.Commands
 
             var path = Path.Combine(Environment.CurrentDirectory, $"tmp_{ctx.Member.Id}.png");
             bmp.Save(path);
-            await ctx.RespondWithFileAsync(path);
+            await ctx.RespondAsync(new DiscordMessageBuilder().WithFile(path));
             File.Delete(path);
         }
 

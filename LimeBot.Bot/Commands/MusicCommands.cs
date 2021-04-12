@@ -13,6 +13,8 @@ using LimeBot.Bot.Utils;
 using DSharpPlus.Interactivity;
 using LimeBot.Bot.Entities;
 using System.Text.RegularExpressions;
+using DSharpPlus.Interactivity.Enums;
+using DSharpPlus.Interactivity.Extensions;
 using LimeBot.DAL;
 
 namespace LimeBot.Bot.Commands
@@ -31,7 +33,7 @@ namespace LimeBot.Bot.Commands
 
         public override async Task BeforeExecutionAsync(CommandContext ctx)
         {
-            if (!lava.node.IsConnected)
+            if (!lava?.node?.IsConnected != true)
             {
                 await ctx.RespondAsync("Lavalink node not connected! Reconnecting...");
                 throw new CommandCanceledException();

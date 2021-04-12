@@ -20,86 +20,99 @@ namespace LimeBot.Bot.Music
         public LavalinkNodeConnection node;
         private DiscordClient client;
         private Dictionary<ulong, GuildMusic> guildMusic = new Dictionary<ulong, GuildMusic>();
-        
+
         private readonly LavalinkConfiguration lavaconfig = new LavalinkConfiguration
         {
-            RestEndpoint = new ConnectionEndpoint { Hostname = "40.118.96.158", Port = 2333 },
-            SocketEndpoint = new ConnectionEndpoint { Hostname = "40.118.96.158", Port = 2333 },
+            RestEndpoint = new ConnectionEndpoint {Hostname = "40.118.96.158", Port = 2333},
+            SocketEndpoint = new ConnectionEndpoint {Hostname = "40.118.96.158", Port = 2333},
             Password = Config.settings.LavalinkPassword
         };
-
+        
         public Lavalink(DiscordClient discord)
         {
             client = discord;
             discord.Ready += Connect;
         }
 
-        public async Task Connect(ReadyEventArgs e)
+        public async Task Connect(DiscordClient c, ReadyEventArgs e)
         {
-            var lavalinkExt = client.GetLavalink();
-            node = await lavalinkExt.ConnectAsync(lavaconfig);
-            node.Disconnected += Disconnected;
-            Console.WriteLine("Lavalink ready");
+            _ = Task.Run(async () =>
+            {
+                await Task.Delay(TimeSpan.FromSeconds(2));
+                var lavalinkExt = client.GetLavalink();
+                node = await lavalinkExt.ConnectAsync(lavaconfig);
+                node.Disconnected += Disconnected;
+                node.LavalinkSocketErrored += Errored;
+                Console.WriteLine("Lavalink ready");
+            });
         }
 
-        private async Task Disconnected(NodeDisconnectedEventArgs args)
+        private Task Errored(LavalinkNodeConnection _, SocketErrorEventArgs e)
+        {
+            Console.WriteLine($"Lavalink errored - {e.Exception.Message}");
+            return Task.CompletedTask;
+        }
+
+        private async Task Disconnected(LavalinkNodeConnection _, NodeDisconnectedEventArgs args)
         {
             Console.WriteLine("Reconnecting Lavalink...");
             foreach (var (_, gm) in guildMusic)
             {
                 gm?.Disconnect("Lavalink node disconnected!");
             }
-            
-            
+
+
             while (!node.IsConnected)
             {
                 await Task.Delay(TimeSpan.FromSeconds(5));
                 Console.WriteLine("Reconnecting Lavalink after 10s...");
                 try
                 {
-                    await Connect(null);
+                    await Connect(null, null);
                 }
                 catch
                 {
                     // ignore
                 }
             }
-            
-            
         }
-        
+
         public GuildMusic Get(DiscordGuild guild)
         {
             return guildMusic.GetValueOrDefault(guild.Id);
         }
-        public async Task<GuildMusic> InitGuildMusic(DiscordGuild guild, DiscordVoiceState vs, DiscordChannel chn, string prefix)
+
+        public async Task<GuildMusic> InitGuildMusic(DiscordGuild guild, DiscordVoiceState vs, DiscordChannel chn,
+            string prefix)
         {
             var gm = new GuildMusic(this, guild, chn, prefix);
             await gm.InitPlayer(vs.Channel);
             guildMusic.Add(guild.Id, gm);
             return gm;
         }
+
         public void Delete(DiscordGuild guild)
         {
             guildMusic.Remove(guild.Id);
         }
 
-        public async Task VoiceStateUpdated(VoiceStateUpdateEventArgs e)
+        public async Task VoiceStateUpdated(DiscordClient _, VoiceStateUpdateEventArgs e)
         {
             await using var ctx = new GuildContext();
             var gm = Get(e.Guild);
             if (!node.IsConnected || gm == null) return;
 
-            if (e.Guild?.CurrentMember?.VoiceState?.Channel?.Id != gm?.player?.Channel?.Id)
+            if (e.Guild?.CurrentMember?.VoiceState?.Channel?.Id != gm.player?.Channel?.Id)
             {
                 Delete(e.Guild);
                 return;
             }
-            
-            if (!gm.Is24_7 && e.Before?.Channel == gm?.player?.Channel && gm?.player?.Channel?.Users.Count() == 1)
+
+            if (!gm.Is24_7 && e.Before?.Channel == gm.player?.Channel && gm.player?.Channel?.Users.Count() == 1)
             {
                 var guildData = await ctx.Guilds.FirstOrDefaultAsync(x => x.Id == e.Guild.Id);
-                await gm?.Disconnect($"No one stayed with me :slight_frown: (to enable 24/7 music type `{guildData?.Prefix ?? Config.settings.DefaultPrefix}24-7`)");
+                await gm.Disconnect(
+                    $"No one stayed with me :slight_frown: (to enable 24/7 music type `{guildData?.Prefix ?? Config.settings.DefaultPrefix}24-7`)");
             }
         }
     }

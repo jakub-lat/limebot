@@ -100,7 +100,7 @@ namespace LimeBot.Bot
             await ctx.SaveChangesAsync();
         }
 
-        public async Task CommandErrored(CommandErrorEventArgs e)
+        public async Task CommandErrored(CommandsNextExtension _, CommandErrorEventArgs e)
         {
             switch (e.Exception)
             {
@@ -136,7 +136,7 @@ namespace LimeBot.Bot
             }
         }
         
-        public async Task MessageCreated(MessageCreateEventArgs e)
+        public async Task MessageCreated(DiscordClient _, MessageCreateEventArgs e)
         {
             if (e.Author?.IsBot ?? e.Guild == null || e.Author == null) return;
             using var ctx = new GuildContext();
@@ -212,7 +212,7 @@ namespace LimeBot.Bot
                 await e.Channel.SendMessageAsync($"You gave karma (+{guild.ReputationXP} XP) to {string.Join(", ", mentions.Select(x => x.Mention))}.");
             } 
         }
-        public async Task MemberJoined(GuildMemberAddEventArgs e)
+        public async Task MemberJoined(DiscordClient _, GuildMemberAddEventArgs e)
         {
             using var ctx = new GuildContext();
             var guild = await ctx.GetGuild(e.Guild.Id);
@@ -241,7 +241,7 @@ namespace LimeBot.Bot
             }
         }
 
-        public async Task MemberLeft(GuildMemberRemoveEventArgs e)
+        public async Task MemberLeft(DiscordClient _, GuildMemberRemoveEventArgs e)
         {
             using var ctx = new GuildContext();
             var guild = await ctx.GetGuild(e.Guild.Id);
@@ -257,7 +257,7 @@ namespace LimeBot.Bot
             }
         }
 
-        public async Task MessageEdited(MessageUpdateEventArgs e)
+        public async Task MessageEdited(DiscordClient _, MessageUpdateEventArgs e)
         {
             if (e.Author?.IsBot ?? false) return;
             await using var ctx = new GuildContext();
@@ -288,7 +288,7 @@ namespace LimeBot.Bot
             }
         }
 
-        public async Task MessageDeleted(MessageDeleteEventArgs e)
+        public async Task MessageDeleted(DiscordClient _, MessageDeleteEventArgs e)
         {
             if (e.Message.Author?.IsBot == true) return;
             using var ctx = new GuildContext();
@@ -321,7 +321,7 @@ namespace LimeBot.Bot
             }
         }
 
-        public async Task MessageReactionAdd(MessageReactionAddEventArgs e)
+        public async Task MessageReactionAdd(DiscordClient _, MessageReactionAddEventArgs e)
         {
             if (e.Guild == null) return;
             using var ctx = new GuildContext();
@@ -338,7 +338,7 @@ namespace LimeBot.Bot
                 await member.SendMessageAsync($"Added role **@{role.Name}** on **{e.Guild.Name}**");
         }
 
-        public async Task MessageReactionRemove(MessageReactionRemoveEventArgs e)
+        public async Task MessageReactionRemove(DiscordClient _, MessageReactionRemoveEventArgs e)
         {
             if (e.User.IsBot) return;
             using var ctx = new GuildContext();

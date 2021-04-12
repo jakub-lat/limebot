@@ -48,7 +48,7 @@ namespace LimeBot.Bot.Music
             await player.SetVolumeAsync(50);
         }
 
-        private async Task PlaybackFinished(TrackFinishEventArgs e)
+        private async Task PlaybackFinished(LavalinkGuildConnection _, TrackFinishEventArgs e)
         {
             if (skipped) skipped = false;
             else if (Index >= Queue.Count - 1 && !Loop)
