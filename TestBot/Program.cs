@@ -19,7 +19,7 @@ namespace TestBot
         {
             _discord = new DiscordClient(new DiscordConfiguration
             {
-                Token = "NzAzMjkwMjM1NDM3NDQ5MzE3.XqMfYA.csv4tl3N8hTM8aorOI4HiVX9I5I",
+                Token = "token",
                 TokenType = TokenType.Bot
             });
 
