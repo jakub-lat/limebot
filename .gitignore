@@ -5,6 +5,9 @@
 
 PotatoBot/clientapp/dist/
 
+LimeBot/env.json
+LimeBot/env.development.json
+
 # User-specific files
 *.rsuser
 *.suo
